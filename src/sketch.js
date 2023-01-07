@@ -1,9 +1,9 @@
 p5.disableFriendlyErrors = true
 
-// Размер квадратика
+// Square size, in pixels
 const CELL = 60
 
-// Размер фигур
+// Piece size
 const PIECE = CELL * 1
 
 let pieceImages = {}
@@ -47,31 +47,7 @@ function preload() {
   )
 }
 
-let currentPos = {
-  side: 'white',
-  board: [
-    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-    ['-', '-', '-', '-', '-', '-', '-', '-'],
-    ['-', '-', '-', '-', '-', '-', '-', '-'],
-    ['-', '-', '-', '-', '-', '-', '-', '-'],
-    ['-', '-', '-', '-', '-', '-', '-', '-'],
-    ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
-  ],
-}
-currentPos.material = {
-  white: currentPos.board
-    .flat()
-    .filter((x) => pieceColor(x) === 'white')
-    .map(piecePoints)
-    .reduce((a, b) => a + b, 0),
-  black: currentPos.board
-    .flat()
-    .filter((x) => pieceColor(x) === 'black')
-    .map(piecePoints)
-    .reduce((a, b) => a + b, 0),
-}
+let currentBoard = new Board()
 
 let currentEval = null
 
@@ -101,12 +77,17 @@ function drawBoard() {
 function isTouching(square) {
   const squareX = square.x * CELL
   const squareY = square.y * CELL
-  return squareX < mouseX && mouseX < squareX + CELL && squareY < mouseY && mouseY < squareY + CELL
+  return (
+    squareX < mouseX &&
+    mouseX < squareX + CELL &&
+    squareY < mouseY &&
+    mouseY < squareY + CELL
+  )
 }
 
 // Is a specific square empty
 function isEmpty({ x, y }) {
-  return currentPos.board[y][x] === '-'
+  return currentBoard.at(x, y) === '-'
 }
 
 // Draw one piece
@@ -115,8 +96,14 @@ function drawPiece({ x, y }) {
   imageMode(CENTER)
   const squareX = x * CELL
   const squareY = y * CELL
-  if (pieceImages[currentPos.board[y][x]]) {
-    image(pieceImages[currentPos.board[y][x]], squareX + CELL / 2, squareY + CELL / 2, PIECE, PIECE)
+  if (pieceImages[currentBoard.at(x, y)]) {
+    image(
+      pieceImages[currentBoard.at(x, y)],
+      squareX + CELL / 2,
+      squareY + CELL / 2,
+      PIECE,
+      PIECE
+    )
   }
   pop()
 }
@@ -126,7 +113,7 @@ function drawDraggedPiece() {
   push()
   imageMode(CENTER)
   image(
-    pieceImages[currentPos.board[draggedIndex.y][draggedIndex.x]],
+    pieceImages[currentBoard.at(draggedIndex.x, draggedIndex.y)],
     mouseX,
     mouseY,
     PIECE * 1.3,
@@ -139,9 +126,33 @@ function drawDraggedPiece() {
 function drawPieces() {
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
-      if (draggedIndex === null || !(draggedIndex.x === x && draggedIndex.y === y))
+      if (
+        draggedIndex === null ||
+        !(draggedIndex.x === x && draggedIndex.y === y)
+      )
         drawPiece({ x, y })
     }
+  }
+}
+
+function drawBestMove() {
+  if (currentEval.bestMove) {
+    const { from, to } = currentEval.bestMove
+    push()
+    stroke('rgba(255,0,0,0.5)')
+    strokeWeight(6)
+    // Draw an arrow
+    line(
+      from.x * CELL + CELL / 2,
+      from.y * CELL + CELL / 2,
+      to.x * CELL + CELL / 2,
+      to.y * CELL + CELL / 2
+    )
+    translate(to.x * CELL + CELL / 2, to.y * CELL + CELL / 2)
+    noFill()
+    strokeWeight(3)
+    circle(0, 0, CELL * 0.75)
+    pop()
   }
 }
 
@@ -151,10 +162,11 @@ function draw() {
   drawPieces()
   if (draggedIndex !== null) drawDraggedPiece()
 
-  if (currentEval === null) currentEval = evalPos(currentPos)
+  if (currentEval === null) currentEval = evalNode(new EvalNode(currentBoard))
+  drawBestMove()
 
   fill(0)
-  text(`eval: ${currentEval.eval}, move: ${JSON.stringify(currentEval.move)}`, 5, CELL * 8 + 14)
+  text(`eval: ${currentEval.eval}`, 5, CELL * 8 + 14)
 
   // noLoop();
 }
@@ -172,13 +184,18 @@ function mousePressed() {
   }
 }
 
-// TODO
 function mouseReleased() {
   if (draggedIndex !== null) {
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        if (isTouching({ x, y }) && isEmpty({ x, y })) {
-          pieces[draggedIndex] = { x, y }
+        if (isTouching({ x, y })) {
+          // We found the square we are dropping the piece on
+          const move = { kind: 'normal', from: draggedIndex, to: { x, y } }
+          // TODO: remove assumeQuasiLegal
+          if (isLegalMove(currentBoard, move, { assumeQuasiLegal: true })) {
+            currentBoard.executeMove(move)
+            currentEval = null
+          }
         }
       }
     }

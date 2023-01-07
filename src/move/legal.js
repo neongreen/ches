@@ -1,3 +1,5 @@
+// @ts-check
+
 /** A module containing functions that exactly determine if a move is legal. */
 
 /**
@@ -13,8 +15,10 @@
    }
   ): boolean
 
+  @param {Board} board
+  @param {Move} move
 */
-function isLegalMove(pos, move, options) {
+function isLegalMove(board, move, options) {
   if (!options.assumeQuasiLegal)
     throw new Error('isLegalMove: assumeQuasiLegal is currently required')
   if (move.kind === 'normal') {
@@ -34,10 +38,11 @@ function isLegalMove(pos, move, options) {
     // Can't stay on the same spot
     if (move.from.x === move.to.x && move.from.y === move.to.y) return false
 
-    const from = pos.board[move.from.y][move.from.x]
-    const to = pos.board[move.to.y][move.to.x]
+    const from = board.at(move.from.x, move.from.y)
+    const to = board.at(move.to.x, move.to.y)
 
-    const newPos = executeMove(pos, move)
+    let newBoard = board.clone()
+    newBoard.executeMove(move)
 
     // The piece has to be there
     if (from === '-') return false
@@ -49,7 +54,8 @@ function isLegalMove(pos, move, options) {
       // Taking a king is not allowed
       if (to.toLowerCase() === 'k') return false
       // The side to move must not be in check after the move
-      if (isInCheck({ ...newPos, side: pos.side })) return false
+      newBoard.side = invertColor(newBoard.side)
+      if (isInCheck(newBoard)) return false
     }
 
     if (!options || !options.assumeQuasiLegal) {
