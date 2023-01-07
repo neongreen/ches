@@ -26,7 +26,7 @@ class EvalNode {
     }
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        const piece = board.at(x, y)
+        const piece = board.at(new Coord(x, y))
         if (piece === '-') continue
         this.material[pieceColor(piece)] += piecePoints(piece)
       }
@@ -38,7 +38,7 @@ class EvalNode {
    * @param {Move} move
    */
   executeMove(move) {
-    const captured = this.board.at(move.to.x, move.to.y)
+    const captured = this.board.at(move.to)
     if (captured !== '-') {
       this.material[pieceColor(captured)] -= piecePoints(captured)
     }

@@ -1,12 +1,19 @@
-/** Move generator */
+// @ts-check
 
-// pieceColor(piece: Piece): 'white' | 'black'
+/**
+ * @param {string} piece
+ * @returns {'white' | 'black' | '-'}
+ */
 function pieceColor(piece) {
   if ('A' <= piece && piece <= 'Z') return 'white'
   if ('a' <= piece && piece <= 'z') return 'black'
   return '-'
 }
 
+/**
+ * @param {'white' | 'black'} color
+ * @returns {'white' | 'black'}
+ */
 function invertColor(color) {
   if (color === 'white') return 'black'
   else return 'white'
@@ -26,25 +33,33 @@ function generateMoves(board, options) {
   let moves = []
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
-      if (pieceColor(board.at(x, y)) === board.side) {
-        moves.push(...quasiLegalNormalMoves(board, { x, y }))
+      const coord = new Coord(x, y)
+      if (pieceColor(board.at(coord)) === board.side) {
+        moves.push(...quasiLegalNormalMoves(board, coord))
       }
     }
   }
-  moves = moves.filter((m) => isLegalMove(board, m, { ...options, assumeQuasiLegal: true }))
+  moves = moves.filter((m) =>
+    isLegalMove(board, m, { ...options, assumeQuasiLegal: true })
+  )
   return moves
 }
 
-// Determines if the side to move is in check
+/** Determines if the side to move is in check.
+ *
+ * @param {Board} board
+ */
 function isInCheck(board) {
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
+      const coord = new Coord(x, y)
       if (
-        (board.side === 'white' && board.at(x, y) === 'K') ||
-        (board.side === 'black' && board.at(x, y) === 'k')
+        (board.side === 'white' && board.at(coord) === 'K') ||
+        (board.side === 'black' && board.at(coord) === 'k')
       ) {
-        return isAttacked(board, { x, y })
+        return isAttacked(board, coord)
       }
     }
   }
+  return false
 }

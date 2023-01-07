@@ -19,53 +19,38 @@ Moves we are currently entirely ignoring:
 /**
  *
  * @param {Board} board
- * @param {{x: number, y: number}} pawn
- * @returns
+ * @param {Coord} pawn
+ * @returns {Move[]}
  */
-function pawnQuasiLegalMoves(board, { x, y }) {
-  const piece = board.at(x, y)
+function pawnQuasiLegalMoves(board, pawn) {
+  const piece = board.at(pawn)
+  /** @type {Move[]} */
   let moves = []
   if (piece === 'P') {
     // going up 1 if empty
-    if (y < 7 && board.at(x, y + 1) === '-')
-      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y + 1 } })
+    if (board.isEmpty(pawn.n()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.n() })
     // going up 2 if empty && we are on the second rank
-    if (y === 1 && board.at(x, y + 1) === '-' && board.at(x, y + 2) === '-')
-      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y + 2 } })
+    if (pawn.y === 1 && board.isEmpty(pawn.n()) && board.isEmpty(pawn.n().n()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.n().n() })
     // captures if there's something to capture
-    if (y < 7 && x >= 1 && board.at(x - 1, y + 1) !== '-')
-      moves.push({
-        kind: 'normal',
-        from: { x, y },
-        to: { x: x - 1, y: y + 1 },
-      })
-    if (y < 7 && x < 7 && board.at(x + 1, y + 1) !== '-')
-      moves.push({
-        kind: 'normal',
-        from: { x, y },
-        to: { x: x + 1, y: y + 1 },
-      })
+    if (board.isOccupied(pawn.ne()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.ne() })
+    if (board.isOccupied(pawn.nw()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.nw() })
   }
   if (piece === 'p') {
     // going down 1 if empty
-    if (y > 0 && board.at(x, y - 1) === '-')
-      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y - 1 } })
+    if (board.isEmpty(pawn.s()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.s() })
     // going down 2 if empty && we are on the seventh rank
-    if (y === 6 && board.at(x, y - 1) === '-' && board.at(x, y - 2) === '-')
-      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y - 2 } })
+    if (pawn.y === 6 && board.isEmpty(pawn.s()) && board.isEmpty(pawn.s().s()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.s().s() })
     // captures if there's something to capture
-    if (y > 0 && x < 7 && board.at(x + 1, y - 1) !== '-')
-      moves.push({
-        kind: 'normal',
-        from: { x, y },
-        to: { x: x + 1, y: y - 1 },
-      })
-    if (y > 0 && x >= 1 && board.at(x - 1, y - 1) !== '-')
-      moves.push({
-        kind: 'normal',
-        from: { x, y },
-        to: { x: x - 1, y: y - 1 },
-      })
+    if (board.isOccupied(pawn.se()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.se() })
+    if (board.isOccupied(pawn.sw()))
+      moves.push({ kind: 'normal', from: pawn, to: pawn.sw() })
   }
   return moves
 }
@@ -73,31 +58,24 @@ function pawnQuasiLegalMoves(board, { x, y }) {
 /**
  *
  * @param {Board} board
- * @param {{x: number, y: number}} rook
- * @returns
+ * @param {Coord} rook
+ * @returns {Move[]}
  */
 function rookQuasiLegalMoves(board, rook) {
+  /** @type {Move[]} */
   let moves = []
-  // Walk till we hit a piece or a wall
-  for (let x = rook.x - 1, y = rook.y; x >= 0; x--) {
-    // left
-    moves.push({ kind: 'normal', from: rook, to: { x, y } })
-    if (board.at(x, y) !== '-') break
-  }
-  for (let x = rook.x + 1, y = rook.y; x <= 7; x++) {
-    // right
-    moves.push({ kind: 'normal', from: rook, to: { x, y } })
-    if (board.at(x, y) !== '-') break
-  }
-  for (let x = rook.x, y = rook.y - 1; y >= 0; y--) {
-    // up
-    moves.push({ kind: 'normal', from: rook, to: { x, y } })
-    if (board.at(x, y) !== '-') break
-  }
-  for (let x = rook.x, y = rook.y + 1; y <= 7; y++) {
-    // down
-    moves.push({ kind: 'normal', from: rook, to: { x, y } })
-    if (board.at(x, y) !== '-') break
+  const deltas = [
+    { x: 1, y: 0 },
+    { x: -1, y: 0 },
+    { x: 0, y: 1 },
+    { x: 0, y: -1 },
+  ]
+  for (let delta of deltas) {
+    let xy = rook.shift(delta)
+    while (board.isEmpty(xy)) {
+      moves.push({ kind: 'normal', from: rook, to: xy })
+      xy = xy.shift(delta)
+    }
   }
   return moves
 }
@@ -105,30 +83,24 @@ function rookQuasiLegalMoves(board, rook) {
 /**
  *
  * @param {Board} board
- * @param {{x: number, y: number}} bishop
- * @returns
+ * @param {Coord} rook
+ * @returns {Move[]}
  */
-function bishopQuasiLegalMoves(board, bishop) {
+function bishopQuasiLegalMoves(board, rook) {
+  /** @type {Move[]} */
   let moves = []
-  for (let x = bishop.x - 1, y = bishop.y - 1; x >= 0 && y >= 0; x--, y--) {
-    // left up
-    moves.push({ kind: 'normal', from: bishop, to: { x, y } })
-    if (board.at(x, y) !== '-') break
-  }
-  for (let x = bishop.x - 1, y = bishop.y + 1; x >= 0 && y <= 7; x--, y++) {
-    // left down
-    moves.push({ kind: 'normal', from: bishop, to: { x, y } })
-    if (board.at(x, y) !== '-') break
-  }
-  for (let x = bishop.x + 1, y = bishop.y - 1; x <= 7 && y >= 0; x++, y--) {
-    // right up
-    moves.push({ kind: 'normal', from: bishop, to: { x, y } })
-    if (board.at(x, y) !== '-') break
-  }
-  for (let x = bishop.x + 1, y = bishop.y + 1; x <= 7 && y <= 7; x++, y++) {
-    // right down
-    moves.push({ kind: 'normal', from: bishop, to: { x, y } })
-    if (board.at(x, y) !== '-') break
+  const deltas = [
+    { x: 1, y: 1 },
+    { x: -1, y: 1 },
+    { x: 1, y: -1 },
+    { x: -1, y: -1 },
+  ]
+  for (let delta of deltas) {
+    let xy = rook.shift(delta)
+    while (board.isEmpty(xy)) {
+      moves.push({ kind: 'normal', from: rook, to: xy })
+      xy = xy.shift(delta)
+    }
   }
   return moves
 }
@@ -136,50 +108,49 @@ function bishopQuasiLegalMoves(board, bishop) {
 /** Generates possible moves for a specific piece based on how pieces move, but without advanced checks.
  *
  * @param {Board} board
- * @param {{x: number, y: number}} coord
+ * @param {Coord} coord
+ * @returns {Move[]}
  */
-function quasiLegalNormalMoves(board, { x, y }) {
-  const piece = board.at(x, y)
+function quasiLegalNormalMoves(board, coord) {
+  const piece = board.at(coord)
+  /** @type {Move[]} */
   let moves = []
 
   if (piece === '-') return []
 
   if (piece.toLowerCase() === 'k')
-    for (let i = -1; i <= 1; i++)
-      for (let j = -1; j <= 1; j++)
-        moves.push({
-          kind: 'normal',
-          from: { x, y },
-          to: { x: x + i, y: y + j },
-        })
+    for (let x = -1; x <= 1; x++)
+      for (let y = -1; y <= 1; y++)
+        moves.push({ kind: 'normal', from: coord, to: coord.shift({ x, y }) })
 
-  if (piece.toLowerCase() === 'q')
-    moves = [
-      ...moves,
-      ...rookQuasiLegalMoves(board, { x, y }),
-      ...bishopQuasiLegalMoves(board, { x, y }),
-    ]
+  if (piece.toLowerCase() === 'q') {
+    moves.push(...rookQuasiLegalMoves(board, coord))
+    moves.push(...bishopQuasiLegalMoves(board, coord))
+  }
 
   if (piece.toLowerCase() === 'r')
-    moves = [...moves, ...rookQuasiLegalMoves(board, { x, y })]
+    moves.push(...rookQuasiLegalMoves(board, coord))
 
   if (piece.toLowerCase() === 'b')
-    moves = [...moves, ...bishopQuasiLegalMoves(board, { x, y })]
+    moves.push(...bishopQuasiLegalMoves(board, coord))
 
-  if (piece.toLowerCase() === 'n')
-    moves.push(
-      { kind: 'normal', from: { x, y }, to: { x: x + 2, y: y + 1 } },
-      { kind: 'normal', from: { x, y }, to: { x: x + 2, y: y - 1 } },
-      { kind: 'normal', from: { x, y }, to: { x: x + 1, y: y + 2 } },
-      { kind: 'normal', from: { x, y }, to: { x: x + 1, y: y - 2 } },
-      { kind: 'normal', from: { x, y }, to: { x: x - 2, y: y + 1 } },
-      { kind: 'normal', from: { x, y }, to: { x: x - 2, y: y - 1 } },
-      { kind: 'normal', from: { x, y }, to: { x: x - 1, y: y + 2 } },
-      { kind: 'normal', from: { x, y }, to: { x: x - 1, y: y - 2 } }
-    )
+  if (piece.toLowerCase() === 'n') {
+    const deltas = [
+      { x: 2, y: 1 },
+      { x: 2, y: -1 },
+      { x: 1, y: 2 },
+      { x: 1, y: -2 },
+      { x: -2, y: 1 },
+      { x: -2, y: -1 },
+      { x: -1, y: 2 },
+      { x: -1, y: -2 },
+    ]
+    for (const delta of deltas)
+      moves.push({ kind: 'normal', from: coord, to: coord.shift(delta) })
+  }
 
   if (piece.toLowerCase() === 'p')
-    moves = [...moves, ...pawnQuasiLegalMoves(board, { x, y })]
+    moves.push(...pawnQuasiLegalMoves(board, coord))
 
   return moves
 }

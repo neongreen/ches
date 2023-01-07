@@ -51,8 +51,11 @@ let currentBoard = new Board()
 
 let currentEval = null
 
-// Which piece is being dragged
-let draggedIndex = null
+/** Which piece is currently being dragged.
+ *
+ * @type {Coord | null}
+ */
+let dragged = null
 
 function setup() {
   createCanvas(CELL * 8, CELL * 8 + 20)
@@ -66,9 +69,9 @@ function drawBoard() {
     for (let y = 0; y < 8; y++) {
       const light = (x + y) % 2 !== 0
       fill(light ? 240 : 170)
-      const coord = squareCenter({ x, y })
+      const xy = squareCenter(new Coord(x, y))
       rectMode(CENTER)
-      square(coord.x, coord.y, CELL)
+      square(xy.x, xy.y, CELL)
     }
   }
   pop()
@@ -87,24 +90,16 @@ function isTouching(square) {
   )
 }
 
-/** Is a specific square empty?
- *
- * @param {Coord} square
- */
-function isEmpty({ x, y }) {
-  return currentBoard.at(x, y) === '-'
-}
-
 /** Draw one piece.
  *
  * @param {Coord} coord
  */
-function drawPiece({ x, y }) {
+function drawPiece(coord) {
   push()
   imageMode(CENTER)
-  const { x: squareX, y: squareY } = squareCenter({ x, y })
-  if (pieceImages[currentBoard.at(x, y)]) {
-    image(pieceImages[currentBoard.at(x, y)], squareX, squareY, PIECE, PIECE)
+  const { x: squareX, y: squareY } = squareCenter(coord)
+  if (pieceImages[currentBoard.at(coord)]) {
+    image(pieceImages[currentBoard.at(coord)], squareX, squareY, PIECE, PIECE)
   }
   pop()
 }
@@ -113,13 +108,8 @@ function drawPiece({ x, y }) {
 function drawDraggedPiece() {
   push()
   imageMode(CENTER)
-  image(
-    pieceImages[currentBoard.at(draggedIndex.x, draggedIndex.y)],
-    mouseX,
-    mouseY,
-    PIECE * 1.3,
-    PIECE * 1.3
-  )
+  const piece = currentBoard.at(dragged)
+  image(pieceImages[piece], mouseX, mouseY, PIECE * 1.3, PIECE * 1.3)
   pop()
 }
 
@@ -127,10 +117,7 @@ function drawDraggedPiece() {
 function drawPieces() {
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
-      if (
-        draggedIndex === null ||
-        !(draggedIndex.x === x && draggedIndex.y === y)
-      )
+      if (dragged === null || !(dragged.x === x && dragged.y === y))
         drawPiece({ x, y })
     }
   }
@@ -157,7 +144,7 @@ function draw() {
   background(220)
   drawBoard()
   drawPieces()
-  if (draggedIndex !== null) drawDraggedPiece()
+  if (dragged !== null) drawDraggedPiece()
 
   if (currentEval === null) currentEval = evalNode(new EvalNode(currentBoard))
   drawBestMove()
@@ -170,11 +157,11 @@ function draw() {
 
 // If we are touching a piece when the mouse is pressed, start dragging it
 function mousePressed() {
-  draggedIndex = null
+  dragged = null
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
-      if (isTouching({ x, y })) {
-        draggedIndex = { x, y }
+      if (isTouching(new Coord(x, y))) {
+        dragged = new Coord(x, y)
         return
       }
     }
@@ -182,12 +169,12 @@ function mousePressed() {
 }
 
 function mouseReleased() {
-  if (draggedIndex !== null) {
+  if (dragged !== null) {
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        if (isTouching({ x, y })) {
+        if (isTouching(new Coord(x, y))) {
           // We found the square we are dropping the piece on
-          const move = { kind: 'normal', from: draggedIndex, to: { x, y } }
+          const move = { kind: 'normal', from: dragged, to: new Coord(x, y) }
           // TODO: remove assumeQuasiLegal
           if (isLegalMove(currentBoard, move, { assumeQuasiLegal: true })) {
             currentBoard.executeMove(move)
@@ -196,7 +183,7 @@ function mouseReleased() {
         }
       }
     }
-    draggedIndex = null
+    dragged = null
   }
 }
 

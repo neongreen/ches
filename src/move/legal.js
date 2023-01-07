@@ -23,23 +23,13 @@ function isLegalMove(board, move, options) {
     throw new Error('isLegalMove: assumeQuasiLegal is currently required')
   if (move.kind === 'normal') {
     // No moving outside the board boundaries
-    if (
-      move.from.x < 0 ||
-      move.from.x >= 8 ||
-      move.from.y < 0 ||
-      move.from.y >= 8 ||
-      move.to.x < 0 ||
-      move.to.x >= 8 ||
-      move.to.y < 0 ||
-      move.to.y >= 8
-    )
-      return false
+    if (!move.from.isValid() || !move.to.isValid()) return false
 
     // Can't stay on the same spot
     if (move.from.x === move.to.x && move.from.y === move.to.y) return false
 
-    const from = board.at(move.from.x, move.from.y)
-    const to = board.at(move.to.x, move.to.y)
+    const from = board.at(move.from)
+    const to = board.at(move.to)
 
     // The piece has to be there
     if (from === '-') return false

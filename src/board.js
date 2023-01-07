@@ -1,7 +1,5 @@
 // @ts-check
 
-/** @typedef {{x: number, y: number}} Coord */
-
 /** @typedef {{kind: 'normal', from: Coord, to: Coord}} Move */
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
@@ -42,11 +40,32 @@ class Board {
    *
    * Pieces are represented with P, N, B, R, Q, K for white and p, n, b, r, q, k for black. If there is no piece, we return '-'.
    *
-   * @param {number} x
-   * @param {number} y
+   * @param {Coord} coord
    */
-  at(x, y) {
-    return this.board[y][x]
+  at(coord) {
+    return this.board[coord.y][coord.x]
+  }
+
+  /**
+   * Is a square empty? NB: returns undefined if the square is off the board.
+   *
+   * @param {Coord} coord
+   * @returns {boolean | undefined}
+   */
+  isEmpty(coord) {
+    if (!coord.isValid()) return undefined
+    return this.at(coord) === '-'
+  }
+
+  /**
+   * Is a square occupied? NB: returns undefined if the square is off the board.
+   *
+   * @param {Coord} coord
+   * @returns {boolean | undefined}
+   */
+  isOccupied(coord) {
+    if (!coord.isValid()) return undefined
+    return this.at(coord) !== '-'
   }
 
   /** Set the board state, based on a FEN string.
