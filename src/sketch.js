@@ -150,7 +150,8 @@ function draw() {
   drawBestMove()
 
   fill(0)
-  text(`eval: ${currentEval.eval}`, 5, CELL * 8 + 14)
+  const time = Math.round(currentEval.time * 100) / 100
+  text(`eval: ${currentEval.eval} (${time}s)`, 5, CELL * 8 + 14)
 
   // noLoop();
 }

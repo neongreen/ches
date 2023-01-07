@@ -13,9 +13,11 @@ function leafEvalNode(node) {
 /** Evaluate a position up to a certain depth.
  *
  * @param {EvalNode} node
- * @returns {{bestMove: Move | null, eval: number}}
+ * @returns {{bestMove: Move | null, eval: number, time: number}}
  */
 function evalNode(node) {
+  const startTime = performance.now()
+
   const go = (
     /** @type {number} */ depthBudget,
     /** @type {EvalNode} */ node
@@ -47,5 +49,8 @@ function evalNode(node) {
     }
   }
   const result = go(MAX_DEPTH, node)
-  return result
+
+  const endTime = performance.now()
+
+  return { ...result, time: (endTime - startTime) / 1000 }
 }
