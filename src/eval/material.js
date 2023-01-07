@@ -1,16 +1,14 @@
 // @ts-check
 
-const PIECE_POINTS = {
-  K: 4,
-  Q: 9,
-  R: 5,
-  B: 3,
-  N: 3,
-  P: 1,
-}
-
+/**
+ * @param {Piece} piece
+ */
 function piecePoints(piece) {
-  if (piece === '-') return 0
-  if (piece >= 'a' && piece <= 'z') return PIECE_POINTS[piece.toUpperCase()]
-  return PIECE_POINTS[piece]
+  if (isPawn(piece)) return 1
+  if (isKnight(piece)) return 3
+  if (isBishop(piece)) return 3
+  if (isRook(piece)) return 5
+  if (isQueen(piece)) return 9
+  if (isKing(piece)) return 4
+  return 0
 }

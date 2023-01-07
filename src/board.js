@@ -4,12 +4,12 @@
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 class Board {
-  /** @type {string[]} */
+  /** @type {Piece[]} */
   board
 
   /** Whose move it is now.
    *
-   * @type {'white' | 'black'}
+   * @type {Color}
    */
   side
 
@@ -18,7 +18,7 @@ class Board {
    * By default, the board is set up in the standard chess starting position.
    */
   constructor() {
-    this.board = new Array(64).fill('-')
+    this.board = new Array(64).fill(EMPTY)
     this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
   }
 
@@ -38,9 +38,8 @@ class Board {
    *
    * The bottom left corner is (0, 0) and the top right corner is (7, 7).
    *
-   * Pieces are represented with P, N, B, R, Q, K for white and p, n, b, r, q, k for black. If there is no piece, we return '-'.
-   *
    * @param {Coord} coord
+   * @returns {Piece}
    */
   at(coord) {
     return this.board[coord.y * 8 + coord.x]
@@ -49,7 +48,7 @@ class Board {
   /** Set the piece at coordinates (x, y).
    *
    * @param {Coord} coord
-   * @param {string} piece
+   * @param {Piece} piece
    */
   setAt(coord, piece) {
     this.board[coord.y * 8 + coord.x] = piece
@@ -63,7 +62,7 @@ class Board {
    */
   isEmpty(coord) {
     if (!coord.isValid()) return undefined
-    return this.at(coord) === '-'
+    return this.at(coord) === EMPTY
   }
 
   /**
@@ -74,7 +73,7 @@ class Board {
    */
   isOccupied(coord) {
     if (!coord.isValid()) return undefined
-    return this.at(coord) !== '-'
+    return this.at(coord) !== EMPTY
   }
 
   /** Set the board state, based on a FEN string.
@@ -88,8 +87,8 @@ class Board {
   setFen(fen) {
     const [pieces, side, castling, enPassant, halfmove, fullmove] =
       fen.split(' ')
-    this.side = side === 'w' ? 'white' : 'black'
-    this.board = new Array(64).fill('-')
+    this.side = side === 'w' ? WHITE : BLACK
+    this.board = new Array(64).fill(EMPTY)
 
     let rows = pieces.split('/')
     rows.reverse()
@@ -99,7 +98,7 @@ class Board {
         if (char >= '1' && char <= '8') {
           x += parseInt(char)
         } else {
-          this.setAt(new Coord(x, y), char)
+          this.setAt(new Coord(x, y), letterToPiece(char))
           x++
         }
       }
@@ -112,7 +111,7 @@ class Board {
    */
   executeMove(move) {
     this.setAt(move.to, this.at(move.from))
-    this.setAt(move.from, '-')
-    this.side = this.side === 'white' ? 'black' : 'white'
+    this.setAt(move.from, EMPTY)
+    this.side = this.side === WHITE ? BLACK : WHITE
   }
 }

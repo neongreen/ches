@@ -13,42 +13,21 @@ TODO: perhaps this should be "square" and not "piece"
  */
 function isAttacked(board, target) {
   // For all pieces on the board, let's see if they can take the target
-  for (let pieceX = 0; pieceX < 8; pieceX++) {
-    for (let pieceY = 0; pieceY < 8; pieceY++) {
-      const xy = new Coord(pieceX, pieceY)
-      const piece = board.at(xy)
-      if (piece === '-') continue
-      if (pieceColor(piece) === pieceColor(board.at(target))) continue
-
-      switch (piece) {
-        case 'r':
-        case 'R':
-          if (isAttackedByRook(board, xy, target)) return true
-          break
-        case 'b':
-        case 'B':
-          if (isAttackedByBishop(board, xy, target)) return true
-          break
-        case 'q':
-        case 'Q':
-          if (isAttackedByQueen(board, xy, target)) return true
-          break
-        case 'n':
-        case 'N':
-          if (isAttackedByKnight(board, xy, target)) return true
-          break
-        case 'p':
-        case 'P':
-          if (isAttackedByPawn(board, xy, target)) return true
-          break
-        case 'k':
-        case 'K':
-          if (isAttackedByKing(board, xy, target)) return true
-          break
-      }
-    }
+  const targetPiece = board.at(target)
+  const isAttackedBy = (coord) => {
+    const piece = board.at(coord)
+    if (piece === EMPTY) return false
+    if (color(piece) === color(targetPiece)) return false
+    if (isRook(piece)) return isAttackedByRook(board, coord, target)
+    if (isBishop(piece)) return isAttackedByBishop(board, coord, target)
+    if (isQueen(piece)) return isAttackedByQueen(board, coord, target)
+    if (isKnight(piece)) return isAttackedByKnight(board, coord, target)
+    if (isPawn(piece)) return isAttackedByPawn(board, coord, target)
+    if (isKing(piece)) return isAttackedByKing(board, coord, target)
   }
-
+  for (let pieceX = 0; pieceX < 8; pieceX++)
+    for (let pieceY = 0; pieceY < 8; pieceY++)
+      if (isAttackedBy(new Coord(pieceX, pieceY))) return true
   return false
 }
 
@@ -146,7 +125,7 @@ function isAttackedByKing(board, king, target) {
  * @param {Coord} target
  */
 function isAttackedByPawn(board, pawn, target) {
-  if (pieceColor(board.at(pawn)) === 'white') {
+  if (color(board.at(pawn)) === WHITE) {
     return target.y === pawn.y + 1 && Math.abs(target.x - pawn.x) === 1
   } else {
     return target.y === pawn.y - 1 && Math.abs(target.x - pawn.x) === 1

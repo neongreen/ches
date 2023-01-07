@@ -27,7 +27,7 @@ function evalNode(node) {
       const moves = generateMoves(node.board)
       if (moves.length === 0) {
         // checkmate
-        if (node.board.side === 'white') return { bestMove: null, eval: -999 }
+        if (node.board.side === WHITE) return { bestMove: null, eval: -999 }
         else return { bestMove: null, eval: 999 }
       }
       const results = moves.map((move) => {
@@ -40,10 +40,8 @@ function evalNode(node) {
         }
       })
       return results.reduce((best, result) => {
-        if (node.board.side === 'white' && result.eval > best.eval)
-          return result
-        if (node.board.side === 'black' && result.eval < best.eval)
-          return result
+        if (node.board.side === WHITE && result.eval > best.eval) return result
+        if (node.board.side === BLACK && result.eval < best.eval) return result
         return best
       }, results[0])
     }

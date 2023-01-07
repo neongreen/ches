@@ -26,7 +26,7 @@ function pawnQuasiLegalMoves(board, pawn) {
   const piece = board.at(pawn)
   /** @type {Move[]} */
   let moves = []
-  if (piece === 'P') {
+  if (piece === WHITE_PAWN) {
     // going up 1 if empty
     if (board.isEmpty(pawn.n()))
       moves.push({ kind: 'normal', from: pawn, to: pawn.n() })
@@ -39,7 +39,7 @@ function pawnQuasiLegalMoves(board, pawn) {
     if (board.isOccupied(pawn.nw()))
       moves.push({ kind: 'normal', from: pawn, to: pawn.nw() })
   }
-  if (piece === 'p') {
+  if (piece === BLACK_PAWN) {
     // going down 1 if empty
     if (board.isEmpty(pawn.s()))
       moves.push({ kind: 'normal', from: pawn, to: pawn.s() })
@@ -116,25 +116,23 @@ function quasiLegalNormalMoves(board, coord) {
   /** @type {Move[]} */
   let moves = []
 
-  if (piece === '-') return []
+  if (piece === EMPTY) return []
 
-  if (piece.toLowerCase() === 'k')
+  if (isKing(piece))
     for (let x = -1; x <= 1; x++)
       for (let y = -1; y <= 1; y++)
         moves.push({ kind: 'normal', from: coord, to: coord.shift({ x, y }) })
 
-  if (piece.toLowerCase() === 'q') {
+  if (isQueen(piece)) {
     moves.push(...rookQuasiLegalMoves(board, coord))
     moves.push(...bishopQuasiLegalMoves(board, coord))
   }
 
-  if (piece.toLowerCase() === 'r')
-    moves.push(...rookQuasiLegalMoves(board, coord))
+  if (isRook(piece)) moves.push(...rookQuasiLegalMoves(board, coord))
 
-  if (piece.toLowerCase() === 'b')
-    moves.push(...bishopQuasiLegalMoves(board, coord))
+  if (isBishop(piece)) moves.push(...bishopQuasiLegalMoves(board, coord))
 
-  if (piece.toLowerCase() === 'n') {
+  if (isKnight(piece)) {
     const deltas = [
       { x: 2, y: 1 },
       { x: 2, y: -1 },
@@ -149,8 +147,7 @@ function quasiLegalNormalMoves(board, coord) {
       moves.push({ kind: 'normal', from: coord, to: coord.shift(delta) })
   }
 
-  if (piece.toLowerCase() === 'p')
-    moves.push(...pawnQuasiLegalMoves(board, coord))
+  if (isPawn(piece)) moves.push(...pawnQuasiLegalMoves(board, coord))
 
   return moves
 }

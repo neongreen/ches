@@ -6,49 +6,11 @@ const CELL = 60
 // Piece size
 const PIECE = CELL * 1
 
-let pieceImages = {}
-
 function preload() {
-  pieceImages.k = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Chess_kdt45.svg/240px-Chess_kdt45.svg.png'
-  )
-  pieceImages.q = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Chess_qdt45.svg/240px-Chess_qdt45.svg.png'
-  )
-  pieceImages.r = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Chess_rdt45.svg/240px-Chess_rdt45.svg.png'
-  )
-  pieceImages.b = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Chess_bdt45.svg/240px-Chess_bdt45.svg.png'
-  )
-  pieceImages.n = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Chess_ndt45.svg/240px-Chess_ndt45.svg.png'
-  )
-  pieceImages.p = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Chess_pdt45.svg/240px-Chess_pdt45.svg.png'
-  )
-  pieceImages.K = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Chess_klt45.svg/240px-Chess_klt45.svg.png'
-  )
-  pieceImages.Q = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Chess_qlt45.svg/240px-Chess_qlt45.svg.png'
-  )
-  pieceImages.R = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Chess_rlt45.svg/240px-Chess_rlt45.svg.png'
-  )
-  pieceImages.B = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Chess_blt45.svg/240px-Chess_blt45.svg.png'
-  )
-  pieceImages.N = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Chess_nlt45.svg/240px-Chess_nlt45.svg.png'
-  )
-  pieceImages.P = loadImage(
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Chess_plt45.svg/240px-Chess_plt45.svg.png'
-  )
+  preloadPieceImages()
 }
 
 let currentBoard = new Board()
-
 let currentEval = null
 
 /** Which piece is currently being dragged.
@@ -90,35 +52,12 @@ function isTouching(square) {
   )
 }
 
-/** Draw one piece.
- *
- * @param {Coord} coord
- */
-function drawPiece(coord) {
-  push()
-  imageMode(CENTER)
-  const { x: squareX, y: squareY } = squareCenter(coord)
-  if (pieceImages[currentBoard.at(coord)]) {
-    image(pieceImages[currentBoard.at(coord)], squareX, squareY, PIECE, PIECE)
-  }
-  pop()
-}
-
-// Draw the currently dragged piece
-function drawDraggedPiece() {
-  push()
-  imageMode(CENTER)
-  const piece = currentBoard.at(dragged)
-  image(pieceImages[piece], mouseX, mouseY, PIECE * 1.3, PIECE * 1.3)
-  pop()
-}
-
 // Draw all pieces except the one currently being dragged
 function drawPieces() {
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
       if (dragged === null || !(dragged.x === x && dragged.y === y))
-        drawPiece({ x, y })
+        drawPiece(new Coord(x, y), currentBoard.at(new Coord(x, y)))
     }
   }
 }
@@ -144,14 +83,14 @@ function draw() {
   background(220)
   drawBoard()
   drawPieces()
-  if (dragged !== null) drawDraggedPiece()
+  if (dragged !== null) drawDraggedPiece(currentBoard.at(dragged))
 
   if (currentEval === null) currentEval = evalNode(new EvalNode(currentBoard))
   drawBestMove()
 
   fill(0)
-  const time = Math.round(currentEval.time * 100) / 100
-  text(`eval: ${currentEval.eval} (${time}s)`, 5, CELL * 8 + 14)
+  const evalTime = Math.round(currentEval.time * 100) / 100
+  text(`eval: ${currentEval.eval} (${evalTime}s)`, 5, CELL * 8 + 14)
 
   // noLoop();
 }
