@@ -1,7 +1,7 @@
 p5.disableFriendlyErrors = true;
 
 // Размер квадратика
-const CELL = 50;
+const CELL = 60;
 
 // Размер фигур
 const PIECE = CELL * 1;
