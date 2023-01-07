@@ -54,65 +54,6 @@ function pawnQuasiLegalMoves(board, pawn) {
   return moves
 }
 
-/**
- *
- * @param {Board} board
- * @param {Coord} rook
- * @returns {Move[]}
- */
-function rookQuasiLegalMoves(board, rook) {
-  /** @type {Move[]} */
-  let moves = []
-  const deltas = [
-    { x: 1, y: 0 },
-    { x: -1, y: 0 },
-    { x: 0, y: 1 },
-    { x: 0, y: -1 },
-  ]
-  for (let delta of deltas) {
-    let xy = rook.shift(delta)
-    while (board.isEmpty(xy)) {
-      moves.push({ kind: 'normal', from: rook, to: xy })
-      xy = xy.shift(delta)
-    }
-    if (board.isOccupied(xy) && color(board.at(xy)) !== color(board.at(rook))) {
-      moves.push({ kind: 'normal', from: rook, to: xy })
-    }
-  }
-  return moves
-}
-
-/**
- *
- * @param {Board} board
- * @param {Coord} bishop
- * @returns {Move[]}
- */
-function bishopQuasiLegalMoves(board, bishop) {
-  /** @type {Move[]} */
-  let moves = []
-  const deltas = [
-    { x: 1, y: 1 },
-    { x: -1, y: 1 },
-    { x: 1, y: -1 },
-    { x: -1, y: -1 },
-  ]
-  for (let delta of deltas) {
-    let xy = bishop.shift(delta)
-    while (board.isEmpty(xy)) {
-      moves.push({ kind: 'normal', from: bishop, to: xy })
-      xy = xy.shift(delta)
-    }
-    if (
-      board.isOccupied(xy) &&
-      color(board.at(xy)) !== color(board.at(bishop))
-    ) {
-      moves.push({ kind: 'normal', from: bishop, to: xy })
-    }
-  }
-  return moves
-}
-
 /** Generates possible moves for a specific piece based on how pieces move, but without advanced checks.
  *
  * @param {Board} board
@@ -139,33 +80,13 @@ function quasiLegalNormalMoves(board, coord) {
   }
 
   if (isQueen(piece)) {
-    moves.push(...rookQuasiLegalMoves(board, coord))
-    moves.push(...bishopQuasiLegalMoves(board, coord))
+    moves.push(...rookMoves(board, coord))
+    moves.push(...bishopMoves(board, coord))
   }
 
-  if (isRook(piece)) moves.push(...rookQuasiLegalMoves(board, coord))
-
-  if (isBishop(piece)) moves.push(...bishopQuasiLegalMoves(board, coord))
-
-  if (isKnight(piece)) {
-    const deltas = [
-      { x: 2, y: 1 },
-      { x: 2, y: -1 },
-      { x: 1, y: 2 },
-      { x: 1, y: -2 },
-      { x: -2, y: 1 },
-      { x: -2, y: -1 },
-      { x: -1, y: 2 },
-      { x: -1, y: -2 },
-    ]
-    for (const delta of deltas) {
-      const target = coord.shift(delta)
-      if (target.isValid() && color(board.at(target)) !== color(piece)) {
-        moves.push({ kind: 'normal', from: coord, to: target })
-      }
-    }
-  }
-
+  if (isRook(piece)) moves.push(...rookMoves(board, coord))
+  if (isBishop(piece)) moves.push(...bishopMoves(board, coord))
+  if (isKnight(piece)) moves.push(...knightMoves(board, coord))
   if (isPawn(piece)) moves.push(...pawnQuasiLegalMoves(board, coord))
 
   return moves

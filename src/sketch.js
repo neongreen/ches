@@ -125,8 +125,7 @@ function mouseReleased() {
         if (isTouching(new Coord(x, y))) {
           // We found the square we are dropping the piece on
           const move = { kind: 'normal', from: dragged, to: new Coord(x, y) }
-          // TODO: remove assumeQuasiLegal
-          if (isLegalMove(currentBoard, move, { assumeQuasiLegal: true })) {
+          if (isLegalMove(currentBoard, move)) {
             currentBoard.executeMove(move)
             currentEval = null
           }

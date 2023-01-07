@@ -91,3 +91,22 @@ class Coord {
     return new Coord(this.x + 1, this.y - 1)
   }
 }
+
+/** All squares between two points (but not counting those points), when shifting by delta.
+ *
+ * Useful for sliding pieces (rook, bishop, queen).
+ *
+ * @param {Coord} from
+ * @param {Coord} to
+ * @param {{x: number, y: number}} delta
+ * @returns {Coord[]}
+ */
+function squaresBetween(from, to, delta) {
+  let squares = []
+  let xy = from.shift(delta)
+  while (!(xy.x === to.x && xy.y === to.y)) {
+    squares.push(xy)
+    xy = xy.shift(delta)
+  }
+  return squares
+}
