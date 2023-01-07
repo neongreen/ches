@@ -4,7 +4,7 @@
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 class Board {
-  /** @type {Array<Array<string>>} */
+  /** @type {string[]} */
   board
 
   /** Whose move it is now.
@@ -18,7 +18,7 @@ class Board {
    * By default, the board is set up in the standard chess starting position.
    */
   constructor() {
-    this.board = new Array(8).fill(null).map(() => new Array(8).fill('-'))
+    this.board = new Array(64).fill('-')
     this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
   }
 
@@ -28,7 +28,7 @@ class Board {
    */
   clone() {
     const clone = new Board()
-    clone.board = this.board.map((row) => row.slice())
+    clone.board = this.board.slice()
     clone.side = this.side
     return clone
   }
@@ -43,7 +43,16 @@ class Board {
    * @param {Coord} coord
    */
   at(coord) {
-    return this.board[coord.y][coord.x]
+    return this.board[coord.y * 8 + coord.x]
+  }
+
+  /** Set the piece at coordinates (x, y).
+   *
+   * @param {Coord} coord
+   * @param {string} piece
+   */
+  setAt(coord, piece) {
+    this.board[coord.y * 8 + coord.x] = piece
   }
 
   /**
@@ -80,6 +89,7 @@ class Board {
     const [pieces, side, castling, enPassant, halfmove, fullmove] =
       fen.split(' ')
     this.side = side === 'w' ? 'white' : 'black'
+    this.board = new Array(64).fill('-')
 
     let rows = pieces.split('/')
     rows.reverse()
@@ -89,7 +99,7 @@ class Board {
         if (char >= '1' && char <= '8') {
           x += parseInt(char)
         } else {
-          this.board[y][x] = char
+          this.setAt(new Coord(x, y), char)
           x++
         }
       }
@@ -101,8 +111,8 @@ class Board {
    * @param {Move} move
    */
   executeMove(move) {
-    this.board[move.to.y][move.to.x] = this.board[move.from.y][move.from.x]
-    this.board[move.from.y][move.from.x] = '-'
+    this.setAt(move.to, this.at(move.from))
+    this.setAt(move.from, '-')
     this.side = this.side === 'white' ? 'black' : 'white'
   }
 }
