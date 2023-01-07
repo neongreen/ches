@@ -7,7 +7,6 @@ Checks we do:
   - can only capture your opponent's pieces, not your own
 
 Checks we *don't* do:
-  - moving out of board boundaries
   - king check stuff
   
 Moves we are currently entirely ignoring:
@@ -34,9 +33,9 @@ function pawnQuasiLegalMoves(board, pawn) {
     if (pawn.y === 1 && board.isEmpty(pawn.n()) && board.isEmpty(pawn.n().n()))
       moves.push({ kind: 'normal', from: pawn, to: pawn.n().n() })
     // captures if there's something to capture
-    if (board.isOccupied(pawn.ne()))
+    if (board.isOccupied(pawn.ne()) && color(board.at(pawn.ne())) === BLACK)
       moves.push({ kind: 'normal', from: pawn, to: pawn.ne() })
-    if (board.isOccupied(pawn.nw()))
+    if (board.isOccupied(pawn.nw()) && color(board.at(pawn.ne())) === BLACK)
       moves.push({ kind: 'normal', from: pawn, to: pawn.nw() })
   }
   if (piece === BLACK_PAWN) {
@@ -47,9 +46,9 @@ function pawnQuasiLegalMoves(board, pawn) {
     if (pawn.y === 6 && board.isEmpty(pawn.s()) && board.isEmpty(pawn.s().s()))
       moves.push({ kind: 'normal', from: pawn, to: pawn.s().s() })
     // captures if there's something to capture
-    if (board.isOccupied(pawn.se()))
+    if (board.isOccupied(pawn.se()) && color(board.at(pawn.ne())) === WHITE)
       moves.push({ kind: 'normal', from: pawn, to: pawn.se() })
-    if (board.isOccupied(pawn.sw()))
+    if (board.isOccupied(pawn.sw()) && color(board.at(pawn.ne())) === WHITE)
       moves.push({ kind: 'normal', from: pawn, to: pawn.sw() })
   }
   return moves
@@ -76,6 +75,9 @@ function rookQuasiLegalMoves(board, rook) {
       moves.push({ kind: 'normal', from: rook, to: xy })
       xy = xy.shift(delta)
     }
+    if (board.isOccupied(xy) && color(board.at(xy)) !== color(board.at(rook))) {
+      moves.push({ kind: 'normal', from: rook, to: xy })
+    }
   }
   return moves
 }
@@ -83,10 +85,10 @@ function rookQuasiLegalMoves(board, rook) {
 /**
  *
  * @param {Board} board
- * @param {Coord} rook
+ * @param {Coord} bishop
  * @returns {Move[]}
  */
-function bishopQuasiLegalMoves(board, rook) {
+function bishopQuasiLegalMoves(board, bishop) {
   /** @type {Move[]} */
   let moves = []
   const deltas = [
@@ -96,10 +98,16 @@ function bishopQuasiLegalMoves(board, rook) {
     { x: -1, y: -1 },
   ]
   for (let delta of deltas) {
-    let xy = rook.shift(delta)
+    let xy = bishop.shift(delta)
     while (board.isEmpty(xy)) {
-      moves.push({ kind: 'normal', from: rook, to: xy })
+      moves.push({ kind: 'normal', from: bishop, to: xy })
       xy = xy.shift(delta)
+    }
+    if (
+      board.isOccupied(xy) &&
+      color(board.at(xy)) !== color(board.at(bishop))
+    ) {
+      moves.push({ kind: 'normal', from: bishop, to: xy })
     }
   }
   return moves
@@ -118,10 +126,17 @@ function quasiLegalNormalMoves(board, coord) {
 
   if (piece === EMPTY) return []
 
-  if (isKing(piece))
-    for (let x = -1; x <= 1; x++)
-      for (let y = -1; y <= 1; y++)
-        moves.push({ kind: 'normal', from: coord, to: coord.shift({ x, y }) })
+  if (isKing(piece)) {
+    for (let x = -1; x <= 1; x++) {
+      for (let y = -1; y <= 1; y++) {
+        if (x === 0 && y === 0) continue
+        const target = coord.shift({ x, y })
+        if (target.isValid() && color(board.at(target)) !== color(piece)) {
+          moves.push({ kind: 'normal', from: coord, to: target })
+        }
+      }
+    }
+  }
 
   if (isQueen(piece)) {
     moves.push(...rookQuasiLegalMoves(board, coord))
@@ -143,8 +158,12 @@ function quasiLegalNormalMoves(board, coord) {
       { x: -1, y: 2 },
       { x: -1, y: -2 },
     ]
-    for (const delta of deltas)
-      moves.push({ kind: 'normal', from: coord, to: coord.shift(delta) })
+    for (const delta of deltas) {
+      const target = coord.shift(delta)
+      if (target.isValid() && color(board.at(target)) !== color(piece)) {
+        moves.push({ kind: 'normal', from: coord, to: target })
+      }
+    }
   }
 
   if (isPawn(piece)) moves.push(...pawnQuasiLegalMoves(board, coord))

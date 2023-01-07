@@ -38,10 +38,13 @@ class Board {
    *
    * The bottom left corner is (0, 0) and the top right corner is (7, 7).
    *
+   * If the coordinates are off the board, returns EMPTY.
+   *
    * @param {Coord} coord
    * @returns {Piece}
    */
   at(coord) {
+    if (!coord.isValid()) return EMPTY
     return this.board[coord.y * 8 + coord.x]
   }
 
