@@ -199,3 +199,13 @@ function mouseReleased() {
     draggedIndex = null
   }
 }
+
+function keyPressed() {
+  // Do best move
+  if (key === ' ') {
+    if (currentEval.bestMove) {
+      currentBoard.executeMove(currentEval.bestMove)
+      currentEval = null
+    }
+  }
+}
