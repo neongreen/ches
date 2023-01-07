@@ -16,8 +16,8 @@
 */
 function isLegalMove(pos, move, options) {
   if (!options.assumeQuasiLegal)
-    throw new Error("isLegalMove: assumeQuasiLegal is currently required");
-  if (move.kind === "normal") {
+    throw new Error('isLegalMove: assumeQuasiLegal is currently required')
+  if (move.kind === 'normal') {
     // No moving outside the board boundaries
     if (
       move.from.x < 0 ||
@@ -29,27 +29,27 @@ function isLegalMove(pos, move, options) {
       move.to.y < 0 ||
       move.to.y >= 8
     )
-      return false;
+      return false
 
     // Can't stay on the same spot
-    if (move.from.x === move.to.x && move.from.y === move.to.y) return false;
+    if (move.from.x === move.to.x && move.from.y === move.to.y) return false
 
-    const from = pos.board[move.from.y][move.from.x];
-    const to = pos.board[move.to.y][move.to.x];
+    const from = pos.board[move.from.y][move.from.x]
+    const to = pos.board[move.to.y][move.to.x]
 
-    const newPos = executeMove(pos, move);
+    const newPos = executeMove(pos, move)
 
     // The piece has to be there
-    if (from === "-") return false;
+    if (from === '-') return false
 
     // Taking your own pieces is not allowed
-    if (pieceColor(from) === pieceColor(to)) return false;
+    if (pieceColor(from) === pieceColor(to)) return false
 
     if (!options || !options.ignoreCheck) {
       // Taking a king is not allowed
-      if (to.toLowerCase() === "k") return false;
+      if (to.toLowerCase() === 'k') return false
       // The side to move must not be in check after the move
-      if (isInCheck({ ...newPos, side: pos.side })) return false;
+      if (isInCheck({ ...newPos, side: pos.side })) return false
     }
 
     if (!options || !options.assumeQuasiLegal) {
@@ -58,7 +58,7 @@ function isLegalMove(pos, move, options) {
 
     // TODO: en passant rules
 
-    return true;
+    return true
   }
 
   // TODO castling
