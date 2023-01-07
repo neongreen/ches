@@ -60,50 +60,51 @@ function setup() {
 
 // Checkered board
 function drawBoard() {
+  push()
   noStroke()
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
-      if ((x + y) % 2 !== 0) {
-        fill(170)
-      } else {
-        fill(240)
-      }
-      square(x * CELL, y * CELL, CELL)
+      const light = (x + y) % 2 !== 0
+      fill(light ? 240 : 170)
+      const coord = squareCenter({ x, y })
+      rectMode(CENTER)
+      square(coord.x, coord.y, CELL)
     }
   }
+  pop()
 }
 
-// Is the mouse hovering over a specific square
+/** Is the mouse hovering over a specific square?
+ *
+ * @param {Coord} square
+ */
 function isTouching(square) {
-  const squareX = square.x * CELL
-  const squareY = square.y * CELL
+  const { x: squareX, y: squareY } = squareCenter(square)
+  const between = (left, right, x) => left <= x && x < right
   return (
-    squareX < mouseX &&
-    mouseX < squareX + CELL &&
-    squareY < mouseY &&
-    mouseY < squareY + CELL
+    between(squareX - CELL / 2, squareX + CELL / 2, mouseX) &&
+    between(squareY - CELL / 2, squareY + CELL / 2, mouseY)
   )
 }
 
-// Is a specific square empty
+/** Is a specific square empty?
+ *
+ * @param {Coord} square
+ */
 function isEmpty({ x, y }) {
   return currentBoard.at(x, y) === '-'
 }
 
-// Draw one piece
+/** Draw one piece.
+ *
+ * @param {Coord} coord
+ */
 function drawPiece({ x, y }) {
   push()
   imageMode(CENTER)
-  const squareX = x * CELL
-  const squareY = y * CELL
+  const { x: squareX, y: squareY } = squareCenter({ x, y })
   if (pieceImages[currentBoard.at(x, y)]) {
-    image(
-      pieceImages[currentBoard.at(x, y)],
-      squareX + CELL / 2,
-      squareY + CELL / 2,
-      PIECE,
-      PIECE
-    )
+    image(pieceImages[currentBoard.at(x, y)], squareX, squareY, PIECE, PIECE)
   }
   pop()
 }
@@ -138,20 +139,16 @@ function drawPieces() {
 function drawBestMove() {
   if (currentEval.bestMove) {
     const { from, to } = currentEval.bestMove
+    const fromCoord = squareCenter(from)
+    const toCoord = squareCenter(to)
     push()
     stroke('rgba(255,0,0,0.5)')
     strokeWeight(6)
     // Draw an arrow
-    line(
-      from.x * CELL + CELL / 2,
-      from.y * CELL + CELL / 2,
-      to.x * CELL + CELL / 2,
-      to.y * CELL + CELL / 2
-    )
-    translate(to.x * CELL + CELL / 2, to.y * CELL + CELL / 2)
+    line(fromCoord.x, fromCoord.y, toCoord.x, toCoord.y)
     noFill()
     strokeWeight(3)
-    circle(0, 0, CELL * 0.75)
+    circle(toCoord.x, toCoord.y, CELL * 0.75)
     pop()
   }
 }

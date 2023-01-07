@@ -62,7 +62,8 @@ class Board {
       fen.split(' ')
     this.side = side === 'w' ? 'white' : 'black'
 
-    const rows = pieces.split('/')
+    let rows = pieces.split('/')
+    rows.reverse()
     for (let y = 0; y < 8; y++) {
       let x = 0
       for (const char of rows[y]) {

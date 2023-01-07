@@ -41,9 +41,6 @@ function isLegalMove(board, move, options) {
     const from = board.at(move.from.x, move.from.y)
     const to = board.at(move.to.x, move.to.y)
 
-    let newBoard = board.clone()
-    newBoard.executeMove(move)
-
     // The piece has to be there
     if (from === '-') return false
 
@@ -53,7 +50,10 @@ function isLegalMove(board, move, options) {
     if (!options || !options.ignoreCheck) {
       // Taking a king is not allowed
       if (to.toLowerCase() === 'k') return false
+
       // The side to move must not be in check after the move
+      let newBoard = board.clone()
+      newBoard.executeMove(move)
       newBoard.side = invertColor(newBoard.side)
       if (isInCheck(newBoard)) return false
     }

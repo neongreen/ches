@@ -27,44 +27,44 @@ function pawnQuasiLegalMoves(board, { x, y }) {
   let moves = []
   if (piece === 'P') {
     // going up 1 if empty
-    if (y >= 1 && board.at(x, y - 1) === '-')
-      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y - 1 } })
-    // going up 2 if empty && we are on the second rank
-    if (y === 6 && board.at(x, y - 1) === '-' && board.at(x, y - 2) === '-')
-      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y - 2 } })
-    // captures if there's something to capture
-    if (y >= 1 && x >= 1 && board.at(x - 1, y - 1) !== '-')
-      moves.push({
-        kind: 'normal',
-        from: { x, y },
-        to: { x: x - 1, y: y - 1 },
-      })
-    if (y >= 1 && x <= 6 && board.at(x + 1, y - 1) !== '-')
-      moves.push({
-        kind: 'normal',
-        from: { x, y },
-        to: { x: x + 1, y: y - 1 },
-      })
-  }
-  if (piece === 'p') {
-    // going down 1 if empty
-    if (y <= 6 && board.at(x, y + 1) === '-')
+    if (y < 7 && board.at(x, y + 1) === '-')
       moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y + 1 } })
-    // going down 2 if empty && we are on the seventh rank
+    // going up 2 if empty && we are on the second rank
     if (y === 1 && board.at(x, y + 1) === '-' && board.at(x, y + 2) === '-')
       moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y + 2 } })
     // captures if there's something to capture
-    if (y <= 6 && x <= 6 && board.at(x + 1, y + 1) !== '-')
+    if (y < 7 && x >= 1 && board.at(x - 1, y + 1) !== '-')
+      moves.push({
+        kind: 'normal',
+        from: { x, y },
+        to: { x: x - 1, y: y + 1 },
+      })
+    if (y < 7 && x < 7 && board.at(x + 1, y + 1) !== '-')
       moves.push({
         kind: 'normal',
         from: { x, y },
         to: { x: x + 1, y: y + 1 },
       })
-    if (y <= 6 && x >= 1 && board.at(x + 1, y - 1) !== '-')
+  }
+  if (piece === 'p') {
+    // going down 1 if empty
+    if (y > 0 && board.at(x, y - 1) === '-')
+      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y - 1 } })
+    // going down 2 if empty && we are on the seventh rank
+    if (y === 6 && board.at(x, y - 1) === '-' && board.at(x, y - 2) === '-')
+      moves.push({ kind: 'normal', from: { x, y }, to: { x, y: y - 2 } })
+    // captures if there's something to capture
+    if (y > 0 && x < 7 && board.at(x + 1, y - 1) !== '-')
       moves.push({
         kind: 'normal',
         from: { x, y },
-        to: { x: x - 1, y: y + 1 },
+        to: { x: x + 1, y: y - 1 },
+      })
+    if (y > 0 && x >= 1 && board.at(x - 1, y - 1) !== '-')
+      moves.push({
+        kind: 'normal',
+        from: { x, y },
+        to: { x: x - 1, y: y - 1 },
       })
   }
   return moves

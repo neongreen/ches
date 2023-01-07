@@ -2,8 +2,6 @@
 TODO: doesn't handle en passant
 
 TODO: perhaps this should be "square" and not "piece"
-
-TODO: I'm half-sure I'm wrong about which way the pawns go
 */
 
 /** Determine if a piece is attacked by the opponent pieces.
@@ -17,7 +15,8 @@ function isAttacked(board, target) {
     for (let pieceY = 0; pieceY < 8; pieceY++) {
       const piece = board.at(pieceX, pieceY)
       if (piece === '-') continue
-      if (pieceColor(piece) === pieceColor(board.at(target.x, target.y))) continue
+      if (pieceColor(piece) === pieceColor(board.at(target.x, target.y)))
+        continue
 
       const xy = { x: pieceX, y: pieceY }
       switch (piece) {
@@ -95,7 +94,10 @@ function isAttackedByBishop(board, bishop, target) {
 }
 
 function isAttackedByQueen(board, queen, target) {
-  return isAttackedByRook(board, queen, target) || isAttackedByBishop(board, queen, target)
+  return (
+    isAttackedByRook(board, queen, target) ||
+    isAttackedByBishop(board, queen, target)
+  )
 }
 
 function isAttackedByKnight(board, knight, target) {
