@@ -35,7 +35,7 @@ function pawnQuasiLegalMoves(board, pawn) {
     // captures if there's something to capture
     if (board.isOccupied(pawn.ne()) && color(board.at(pawn.ne())) === BLACK)
       moves.push({ kind: 'normal', from: pawn, to: pawn.ne() })
-    if (board.isOccupied(pawn.nw()) && color(board.at(pawn.ne())) === BLACK)
+    if (board.isOccupied(pawn.nw()) && color(board.at(pawn.nw())) === BLACK)
       moves.push({ kind: 'normal', from: pawn, to: pawn.nw() })
   }
   if (piece === BLACK_PAWN) {
@@ -46,9 +46,9 @@ function pawnQuasiLegalMoves(board, pawn) {
     if (pawn.y === 6 && board.isEmpty(pawn.s()) && board.isEmpty(pawn.s().s()))
       moves.push({ kind: 'normal', from: pawn, to: pawn.s().s() })
     // captures if there's something to capture
-    if (board.isOccupied(pawn.se()) && color(board.at(pawn.ne())) === WHITE)
+    if (board.isOccupied(pawn.se()) && color(board.at(pawn.se())) === WHITE)
       moves.push({ kind: 'normal', from: pawn, to: pawn.se() })
-    if (board.isOccupied(pawn.sw()) && color(board.at(pawn.ne())) === WHITE)
+    if (board.isOccupied(pawn.sw()) && color(board.at(pawn.sw())) === WHITE)
       moves.push({ kind: 'normal', from: pawn, to: pawn.sw() })
   }
   return moves

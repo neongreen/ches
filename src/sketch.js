@@ -85,12 +85,22 @@ function draw() {
   drawPieces()
   if (dragged !== null) drawDraggedPiece(currentBoard.at(dragged))
 
-  if (currentEval === null) currentEval = evalNode(new EvalNode(currentBoard))
+  if (currentEval === null) {
+    const startTime = performance.now()
+    currentEval = findBestMove(new EvalNode(currentBoard), MAX_DEPTH)
+    currentEval.time = (performance.now() - startTime) / 1000
+  }
   drawBestMove()
 
   fill(0)
+  const evalEval = Math.round(currentEval.eval * 100) / 100
+  const evalSign = evalEval > 0 ? '+' : ''
   const evalTime = Math.round(currentEval.time * 100) / 100
-  text(`eval: ${currentEval.eval} (${evalTime}s)`, 5, CELL * 8 + 14)
+  text(
+    `eval: ${evalSign}${evalEval.toFixed(2)} (${evalTime}s)`,
+    5,
+    CELL * 8 + 14
+  )
 
   // noLoop();
 }

@@ -1,54 +1,96 @@
 // @ts-check
 
-const MAX_DEPTH = 3
+const MAX_DEPTH = 2
 
 /** Evaluate a node without recursion, based on heuristics.
  *
  * @param {EvalNode} node
  */
 function leafEvalNode(node) {
-  return node.material.white - node.material.black
+  const whiteEval = node.material.white + node.development.white / 5
+  const blackEval = node.material.black + node.development.black / 5
+  return whiteEval - blackEval
 }
 
-/** Evaluate a position up to a certain depth.
+/** How good would a move be?
  *
  * @param {EvalNode} node
- * @returns {{bestMove: Move | null, eval: number, time: number}}
+ * @param {number} depth How many moves to look ahead; if 0 then just eval the position
+ * @param {Move} move The move to consider
+ * @returns {{eval: number, line: Move[]}}
  */
-function evalNode(node) {
-  const startTime = performance.now()
+function evalMove(node, depth, move) {
+  let newNode = node.clone()
+  newNode.executeMove(move)
 
-  const go = (
-    /** @type {number} */ depthBudget,
-    /** @type {EvalNode} */ node
-  ) => {
-    if (depthBudget === 0) return { bestMove: null, eval: leafEvalNode(node) }
-    else {
-      const moves = generateMoves(node.board)
-      if (moves.length === 0) {
-        // checkmate
-        if (node.board.side === WHITE) return { bestMove: null, eval: -999 }
-        else return { bestMove: null, eval: 999 }
-      }
-      const results = moves.map((move) => {
-        let newNode = node.clone()
-        newNode.executeMove(move)
-        return {
-          bestMove: move,
-          node: newNode,
-          eval: go(depthBudget - 1, newNode).eval,
-        }
-      })
-      return results.reduce((best, result) => {
-        if (node.board.side === WHITE && result.eval > best.eval) return result
-        if (node.board.side === BLACK && result.eval < best.eval) return result
-        return best
-      }, results[0])
+  if (depth === 0) {
+    return {
+      eval: leafEvalNode(newNode),
+      line: [move],
+    }
+  } else {
+    // Find the best move for the opponent from this position
+    const continuation = findBestMove(newNode, depth - 1)
+    return {
+      eval: continuation.eval,
+      line: [move, ...continuation.line],
     }
   }
-  const result = go(MAX_DEPTH, node)
+}
 
-  const endTime = performance.now()
+/** What is the best move for the current side?
+ *
+ * @param {EvalNode} node
+ * @param {number} depth
+ * @returns {{bestMove: Move | null, eval: number, line: Move[]}}
+ */
+function findBestMove(node, depth) {
+  const moves = generateMoves(node.board)
+  if (moves.length === 0) {
+    // checkmate
+    return {
+      bestMove: null,
+      eval: node.board.side === WHITE ? -999 : 999,
+      line: [],
+    }
+  }
+  const results = moves.map((move) => ({
+    bestMove: move,
+    ...evalMove(node, depth, move),
+  }))
+  return results.reduce((best, result) => {
+    if (node.board.side === WHITE && result.eval > best.eval) return result
+    if (node.board.side === BLACK && result.eval < best.eval) return result
+    return best
+  }, results[0])
+}
 
-  return { ...result, time: (endTime - startTime) / 1000 }
+/** Find up to N best moves for the current side, ranked.
+ *
+ * @param {EvalNode} node
+ * @param {number} depth
+ * @param {number} lines
+ * @returns {{move: Move | null, eval: number, line: Move[]}[]}
+ */
+function findBestMoves(node, depth, lines) {
+  const moves = generateMoves(node.board)
+  if (moves.length === 0) {
+    // checkmate
+    return [
+      {
+        move: null,
+        eval: node.board.side === WHITE ? -999 : 999,
+        line: [],
+      },
+    ]
+  }
+  const results = moves.map((move) => ({
+    move,
+    ...evalMove(node, depth, move),
+  }))
+  results.sort((a, b) => {
+    if (node.board.side === WHITE) return b.eval - a.eval
+    else return a.eval - b.eval
+  })
+  return results.slice(0, lines)
 }
