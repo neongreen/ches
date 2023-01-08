@@ -136,7 +136,10 @@ function mousePressed() {
   dragged = null
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
-      if (isTouching(new Coord(x, y))) {
+      if (
+        isTouching(new Coord(x, y)) &&
+        currentBoard.isOccupied(new Coord(x, y))
+      ) {
         dragged = new Coord(x, y)
         return
       }
