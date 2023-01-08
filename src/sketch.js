@@ -9,6 +9,8 @@ const PIECE = CELL * 1
 // Move delay for AI, in milliseconds
 const AI_MOVE_DELAY = 400
 
+let synth
+
 function preload() {
   preloadPieceImages()
 }
@@ -54,6 +56,8 @@ function setup() {
   createCanvas(CELL * 8, CELL * 8 + 20)
   stopTouchScrolling(document.querySelector('canvas'))
   autoPlay = createCheckbox('Black makes moves automatically', true)
+
+  synth = new p5.PolySynth()
 }
 
 // Checkered board
@@ -118,6 +122,14 @@ function drawBestMove() {
  */
 let lastMoveTimestamp = 0
 
+let beat = 0
+const beatPattern = [
+  ...[12, 7, 6, 5, 6, 5, 4, 3],
+  ...[20, 7, 6, 5, 6, 5, 4, 3],
+  ...[12, 7, 6, 5, 6, 5, 4, 3],
+  ...[32, 7, 6, 5, 6, 5, 4, 3],
+].map((x) => Math.log2(x) / 5)
+
 function draw() {
   background(220)
   drawBoard()
@@ -147,6 +159,13 @@ function draw() {
       CELL * 8 + 14
     )
   }
+
+  if (audioStarted) {
+    if (frameCount % 15 === 0) {
+      synth.play('C3', beatPattern[beat % beatPattern.length], 0, 0.1)
+      beat++
+    }
+  }
 }
 
 /** Make the best move for the current side */
@@ -161,8 +180,15 @@ function makeMove(move) {
   lastMoveTimestamp = performance.now()
 }
 
+let audioStarted = false
+
 // If we are touching a piece when the mouse is pressed, start dragging it
 function mousePressed() {
+  // if (!audioStarted) {
+  //   userStartAudio()
+  //   audioStarted = true
+  // }
+
   dragged = null
   for (let x = 0; x < 8; x++) {
     for (let y = 0; y < 8; y++) {
