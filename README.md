@@ -1,1 +1,5 @@
-# p5-chess
+Ches
+
+A small little game I'm making
+
+Ches
