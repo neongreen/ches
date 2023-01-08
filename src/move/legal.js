@@ -33,6 +33,9 @@ function isLegalMove(board, move, options) {
     // If we can't rely on the move being quasi-legal (e.g. when we are checking
     // a move that a human player wants to make), we have to be more thorough:
     if (!optAssumeQuasiLegal) {
+      // It has to be the right side making the move
+      if (color(from) !== board.side) return false
+
       // No moving outside the board boundaries
       if (!move.from.isValid() || !move.to.isValid()) return false
 
