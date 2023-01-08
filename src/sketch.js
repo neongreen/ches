@@ -6,6 +6,9 @@ const CELL = 60
 // Piece size
 const PIECE = CELL * 1
 
+// Move delay for AI, in milliseconds
+const AI_MOVE_DELAY = 400
+
 function preload() {
   preloadPieceImages()
 }
@@ -44,9 +47,13 @@ function stopTouchScrolling(canvas) {
   )
 }
 
+// Widgets
+let autoPlay
+
 function setup() {
   createCanvas(CELL * 8, CELL * 8 + 20)
   stopTouchScrolling(document.querySelector('canvas'))
+  autoPlay = createCheckbox('Black makes moves automatically', true)
 }
 
 // Checkered board
@@ -105,6 +112,12 @@ function drawBestMove() {
   }
 }
 
+/** When was the last move made?
+ *
+ * If autoplay is enabled, we don't want to make the move immediately, but want to wait a little bit. Hence this variable.
+ */
+let lastMoveTimestamp = 0
+
 function draw() {
   background(220)
   drawBoard()
@@ -116,19 +129,36 @@ function draw() {
     currentEval = findBestMove(new EvalNode(currentBoard), MAX_DEPTH)
     currentEval.time = (performance.now() - startTime) / 1000
   }
-  drawBestMove()
+  if (
+    currentEval.bestMove &&
+    currentBoard.side === BLACK &&
+    autoPlay.checked()
+  ) {
+    if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
+  } else {
+    drawBestMove()
+    fill(0)
+    const evalEval = Math.round(currentEval.eval * 100) / 100
+    const evalSign = evalEval > 0 ? '+' : ''
+    const evalTime = Math.round(currentEval.time * 100) / 100
+    text(
+      `eval: ${evalSign}${evalEval.toFixed(2)} (${evalTime}s)`,
+      5,
+      CELL * 8 + 14
+    )
+  }
+}
 
-  fill(0)
-  const evalEval = Math.round(currentEval.eval * 100) / 100
-  const evalSign = evalEval > 0 ? '+' : ''
-  const evalTime = Math.round(currentEval.time * 100) / 100
-  text(
-    `eval: ${evalSign}${evalEval.toFixed(2)} (${evalTime}s)`,
-    5,
-    CELL * 8 + 14
-  )
+/** Make the best move for the current side */
+function makeBestMove() {
+  if (currentEval.bestMove) makeMove(currentEval.bestMove)
+}
 
-  // noLoop();
+/** Make a move (assuming it's already been checked for legality) */
+function makeMove(move) {
+  currentBoard.executeMove(move)
+  currentEval = null
+  lastMoveTimestamp = performance.now()
 }
 
 // If we are touching a piece when the mouse is pressed, start dragging it
@@ -154,10 +184,7 @@ function mouseReleased() {
         if (isTouching(new Coord(x, y))) {
           // We found the square we are dropping the piece on
           const move = { kind: 'normal', from: dragged, to: new Coord(x, y) }
-          if (isLegalMove(currentBoard, move)) {
-            currentBoard.executeMove(move)
-            currentEval = null
-          }
+          if (isLegalMove(currentBoard, move)) makeMove(move)
         }
       }
     }
@@ -166,11 +193,5 @@ function mouseReleased() {
 }
 
 function keyPressed() {
-  // Do best move
-  if (key === ' ') {
-    if (currentEval.bestMove) {
-      currentBoard.executeMove(currentEval.bestMove)
-      currentEval = null
-    }
-  }
+  if (key === ' ') makeBestMove()
 }

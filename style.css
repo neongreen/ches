@@ -3,7 +3,11 @@ body {
   margin: 0;
   padding: 0;
 }
-canvas {
-  display: block;
-  margin: auto;
+
+body {
+  margin: 0;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
