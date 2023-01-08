@@ -11,7 +11,7 @@
 function queenPath(a, b) {
   if (a.x === b.x || a.y === b.y) {
     return rookPath(a, b)
-  } else if (a.x - b.x === a.y - b.y || a.x + b.x === a.y + b.y) {
+  } else if (a.x - a.y === b.x - b.y || a.x + a.y === b.x + b.y) {
     return bishopPath(a, b)
   } else {
     return undefined

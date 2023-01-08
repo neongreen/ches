@@ -9,7 +9,7 @@
  * @returns {Coord[] | undefined}
  */
 function bishopPath(a, b) {
-  if (a.x - b.x === a.y - b.y || a.x + b.x === a.y + b.y) {
+  if (a.x - a.y === b.x - b.y || a.x + a.y === b.x + b.y) {
     return squaresBetween(a, b, {
       x: a.x < b.x ? 1 : -1,
       y: a.y < b.y ? 1 : -1,
