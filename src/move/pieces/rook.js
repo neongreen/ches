@@ -6,7 +6,7 @@
  *
  * @param {Coord} a
  * @param {Coord} b
- * @returns {Coord[]}
+ * @returns {Coord[] | undefined}
  */
 function rookPath(a, b) {
   if (a.x === b.x) {
@@ -14,7 +14,7 @@ function rookPath(a, b) {
   } else if (a.y === b.y) {
     return squaresBetween(a, b, { x: a.x < b.x ? 1 : -1, y: 0 })
   } else {
-    throw new Error('Not a rook move')
+    return undefined
   }
 }
 
@@ -54,8 +54,10 @@ function rookMoves(board, coord) {
  * @returns {boolean}
  */
 function isRookMoveValid(board, move) {
+  const path = rookPath(move.from, move.to)
   return (
-    rookPath(move.from, move.to).every((coord) => board.isEmpty(coord)) &&
+    path !== undefined &&
+    path.every((coord) => board.isEmpty(coord)) &&
     (board.isEmpty(move.to) ||
       color(board.at(move.from)) !== color(board.at(move.to)))
   )

@@ -50,7 +50,7 @@ function isLegalMove(board, move, options) {
       if (isKnight(from) && !isKnightMoveValid(board, move)) return false
       if (isBishop(from) && !isBishopMoveValid(board, move)) return false
       if (isRook(from) && !isRookMoveValid(board, move)) return false
-      // TODO: if (isQueen(from) && !isQueenMoveValid(board, move)) return false
+      if (isQueen(from) && !isQueenMoveValid(board, move)) return false
       // TODO: if (isKing(from) && !isKingMoveValid(board, move)) return false
     }
 

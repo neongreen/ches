@@ -79,14 +79,10 @@ function quasiLegalNormalMoves(board, coord) {
     }
   }
 
-  if (isQueen(piece)) {
-    moves.push(...rookMoves(board, coord))
-    moves.push(...bishopMoves(board, coord))
-  }
-
-  if (isRook(piece)) moves.push(...rookMoves(board, coord))
   if (isBishop(piece)) moves.push(...bishopMoves(board, coord))
   if (isKnight(piece)) moves.push(...knightMoves(board, coord))
+  if (isRook(piece)) moves.push(...rookMoves(board, coord))
+  if (isQueen(piece)) moves.push(...queenMoves(board, coord))
   if (isPawn(piece)) moves.push(...pawnQuasiLegalMoves(board, coord))
 
   return moves

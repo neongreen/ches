@@ -6,16 +6,16 @@
  *
  * @param {Coord} a
  * @param {Coord} b
- * @returns {Coord[]}
+ * @returns {Coord[] | undefined}
  */
 function bishopPath(a, b) {
-  if (Math.abs(a.x - b.x) === Math.abs(a.y - b.y)) {
+  if (a.x - b.x === a.y - b.y || a.x + b.x === a.y + b.y) {
     return squaresBetween(a, b, {
       x: a.x < b.x ? 1 : -1,
       y: a.y < b.y ? 1 : -1,
     })
   } else {
-    throw new Error('Not a bishop move')
+    return undefined
   }
 }
 
@@ -55,8 +55,10 @@ function bishopMoves(board, coord) {
  * @returns {boolean}
  */
 function isBishopMoveValid(board, move) {
+  const path = bishopPath(move.from, move.to)
   return (
-    bishopPath(move.from, move.to).every((coord) => board.isEmpty(coord)) &&
+    path !== undefined &&
+    path.every((coord) => board.isEmpty(coord)) &&
     (board.isEmpty(move.to) ||
       color(board.at(move.from)) !== color(board.at(move.to)))
   )
