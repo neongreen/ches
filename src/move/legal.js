@@ -46,20 +46,14 @@ function isLegalMove(board, move, options) {
       if (color(from) === color(to)) return false
 
       // Piece movement rules
-      // TODO: if (isPawn(from) && !isPawnMoveValid(board, move)) return false
+      if (isPawn(from) && !isPawnMoveValid(board, move)) return false
       if (isKnight(from) && !isKnightMoveValid(board, move)) return false
       if (isBishop(from) && !isBishopMoveValid(board, move)) return false
       if (isRook(from) && !isRookMoveValid(board, move)) return false
       if (isQueen(from) && !isQueenMoveValid(board, move)) return false
-      // TODO: if (isKing(from) && !isKingMoveValid(board, move)) return false
+      if (isKing(from) && !isKingMoveValid(board, move)) return false
     }
-
-    // TODO: en passant rules
   }
-
-  // TODO castling
-
-  // TODO promotion
 
   return true
 }
