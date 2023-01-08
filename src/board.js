@@ -1,7 +1,5 @@
 // @ts-check
 
-/** @typedef {{kind: 'normal', from: Coord, to: Coord}} Move */
-
 /** Game state representation. Includes pieces, whose move it is, etc. */
 class Board {
   /** @type {Piece[]} */
@@ -113,7 +111,7 @@ class Board {
    * @param {Move} move
    */
   executeMove(move) {
-    this.setAt(move.to, this.at(move.from))
+    this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
     this.setAt(move.from, EMPTY)
     this.side = this.side === WHITE ? BLACK : WHITE
   }

@@ -1,10 +1,7 @@
 // @ts-check
 
-/*
-TODO: doesn't handle en passant
-
-TODO: perhaps this should be "square" and not "piece"
-*/
+// TODO: en passant
+// TODO: maybe "square" and not "piece"?
 
 /** Determine if a piece is attacked by the opponent pieces.
  *

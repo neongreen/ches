@@ -38,7 +38,5 @@ function knightMoves(board, coord) {
  * @returns {boolean}
  */
 function isKnightMoveValid(board, move) {
-  return knightMoves(board, move.from).some(
-    (m) => m.to.x === move.to.x && m.to.y === move.to.y
-  )
+  return knightMoves(board, move.from).some((m) => _.isEqual(m, move))
 }

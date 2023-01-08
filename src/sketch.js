@@ -205,11 +205,23 @@ function mousePressed() {
 
 function mouseReleased() {
   if (dragged !== null) {
+    const piece = currentBoard.at(dragged)
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        if (isTouching(new Coord(x, y))) {
+        const dest = new Coord(x, y)
+        if (isTouching(dest)) {
           // We found the square we are dropping the piece on
-          const move = { kind: 'normal', from: dragged, to: new Coord(x, y) }
+          const move = {
+            kind: 'normal',
+            from: dragged,
+            to: dest,
+            ...(piece === WHITE_PAWN && y === 7
+              ? { promotion: WHITE_QUEEN }
+              : {}),
+            ...(piece === BLACK_PAWN && y === 0
+              ? { promotion: BLACK_QUEEN }
+              : {}),
+          }
           if (isLegalMove(currentBoard, move)) makeMove(move)
         }
       }

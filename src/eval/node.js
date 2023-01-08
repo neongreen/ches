@@ -33,8 +33,7 @@ class EvalNode {
       for (let y = 0; y < 8; y++) {
         const piece = board.at(new Coord(x, y))
         if (piece === EMPTY) continue
-        this.material[color(piece) === WHITE ? 'white' : 'black'] +=
-          piecePoints(piece)
+        this.material[colorName(piece)] += piecePoints(piece)
         if (color(piece) === WHITE && !isPawn(piece) && y !== 0)
           this.development.white++
         if (color(piece) === BLACK && !isPawn(piece) && y !== 7)
@@ -48,31 +47,35 @@ class EvalNode {
    * @param {Move} move
    */
   executeMove(move) {
-    const moved = this.board.at(move.from)
-    const captured = this.board.at(move.to)
+    const piece = this.board.at(move.from)
+    const dest = this.board.at(move.to)
 
-    if (captured !== EMPTY) {
-      this.material[color(captured) === WHITE ? 'white' : 'black'] -=
-        piecePoints(captured)
-      // If the captured piece was a developed piece:
-      if (!isPawn(captured)) {
-        if (color(captured) === WHITE && move.to.y !== 0)
-          this.development.white--
-        if (color(captured) === BLACK && move.to.y !== 7)
-          this.development.black--
+    // If we have captured a piece, update the material score and development
+    if (dest !== EMPTY) {
+      this.material[colorName(dest)] -= piecePoints(dest)
+      if (!isPawn(dest)) {
+        if (color(dest) === WHITE && move.to.y !== 0) this.development.white--
+        if (color(dest) === BLACK && move.to.y !== 7) this.development.black--
       }
     }
 
-    // If the moved piece was undeveloped and became developed, or vice-versa:
-    if (!isPawn(moved)) {
-      if (color(moved) === WHITE) {
+    // If the moved piece (not a pawn) was undeveloped and became developed, or vice-versa:
+    if (!isPawn(piece)) {
+      if (color(piece) === WHITE) {
         if (move.from.y !== 0) this.development.white--
         if (move.to.y !== 0) this.development.white++
       }
-      if (color(moved) === BLACK) {
+      if (color(piece) === BLACK) {
         if (move.from.y !== 7) this.development.black--
         if (move.to.y !== 7) this.development.black++
       }
+    }
+
+    // If the moved piece *was* a pawn but became promoted:
+    if (isPawn(piece) && move.promotion) {
+      this.material[colorName(piece)] -= 1
+      this.material[colorName(piece)] += piecePoints(move.promotion)
+      this.development[colorName(piece)]++
     }
 
     this.board.executeMove(move)

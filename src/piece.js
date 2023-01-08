@@ -1,3 +1,5 @@
+// @ts-check
+
 /** @typedef {number} Piece */
 /** @typedef {0x10 | 0x20} Color */
 
@@ -30,7 +32,18 @@ const color = (piece) => piece & 0xf0
 const isWhite = (piece) => color(piece) === WHITE
 const isBlack = (piece) => color(piece) === BLACK
 
-const letterToPiece = (letter) => {
+/**
+ * @param {Piece} piece
+ * @returns {'white' | 'black'}
+ */
+function colorName(piece) {
+  return isWhite(piece) ? 'white' : 'black'
+}
+
+/**
+ * @param {string} letter
+ */
+function letterToPiece(letter) {
   switch (letter) {
     case 'P':
       return WHITE_PAWN
@@ -58,5 +71,39 @@ const letterToPiece = (letter) => {
       return BLACK_KING
     default:
       return EMPTY
+  }
+}
+
+/**
+ * @param {Piece} piece
+ */
+function pieceToLetter(piece) {
+  switch (piece) {
+    case WHITE_PAWN:
+      return 'P'
+    case WHITE_KNIGHT:
+      return 'N'
+    case WHITE_BISHOP:
+      return 'B'
+    case WHITE_ROOK:
+      return 'R'
+    case WHITE_QUEEN:
+      return 'Q'
+    case WHITE_KING:
+      return 'K'
+    case BLACK_PAWN:
+      return 'p'
+    case BLACK_KNIGHT:
+      return 'n'
+    case BLACK_BISHOP:
+      return 'b'
+    case BLACK_ROOK:
+      return 'r'
+    case BLACK_QUEEN:
+      return 'q'
+    case BLACK_KING:
+      return 'k'
+    default:
+      return '-'
   }
 }

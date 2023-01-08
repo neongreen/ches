@@ -37,7 +37,7 @@ function isLegalMove(board, move, options) {
       if (!move.from.isValid() || !move.to.isValid()) return false
 
       // Can't stay in the same spot
-      if (move.from.x === move.to.x && move.from.y === move.to.y) return false
+      if (_.isEqual(move.from, move.to)) return false
 
       // The 'from' piece has to be there
       if (from === EMPTY) return false

@@ -54,8 +54,8 @@ function findBestMove(node, depth, alpha = -Infinity, beta = Infinity) {
   const moves = generateMoves(node.board)
   if (moves.length === 0) {
     // checkmate
-    // (TODO: could also be stalemate)
-    // (TODO: use a better eval than 999)
+    // TODO: could also be stalemate
+    // TODO: use a better eval than 999
     return {
       bestMove: null,
       eval: node.board.side === WHITE ? -999 : 999,
@@ -90,8 +90,6 @@ function findBestMove(node, depth, alpha = -Infinity, beta = Infinity) {
 }
 
 /** Find up to N best moves for the current side, ranked.
- *
- * TODO: also use alpha-beta pruning?
  *
  * @param {EvalNode} node
  * @param {number} depth

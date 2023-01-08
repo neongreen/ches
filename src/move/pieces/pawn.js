@@ -4,7 +4,7 @@
 
 /** All possible pawn moves on the board, including captures.
  *
- * TODO: en passant, promotion
+ * TODO: en passant, promotion to pieces other than queen
  *
  * @param {Board} board
  * @param {Coord} coord
@@ -17,37 +17,69 @@ function pawnMoves(board, coord) {
 
   if (piece === WHITE_PAWN) {
     // going up 1 if empty
-    if (board.isEmpty(coord.n()))
-      moves.push({ kind: 'normal', from: coord, to: coord.n() })
+    {
+      const dest = coord.n()
+      if (board.isEmpty(dest))
+        moves.push({
+          kind: 'normal',
+          from: coord,
+          to: dest,
+          ...(dest.y === 7 ? { promotion: WHITE_QUEEN } : {}),
+        })
+    }
+
     // going up 2 if empty && we are on the second rank
     if (
       coord.y === 1 &&
       board.isEmpty(coord.n()) &&
       board.isEmpty(coord.n().n())
-    )
+    ) {
       moves.push({ kind: 'normal', from: coord, to: coord.n().n() })
+    }
+
     // captures if there's something to capture
-    for (const target of [coord.ne(), coord.nw()]) {
-      if (board.isOccupied(target) && color(board.at(target)) === BLACK)
-        moves.push({ kind: 'normal', from: coord, to: target })
+    for (const dest of [coord.ne(), coord.nw()]) {
+      if (board.isOccupied(dest) && color(board.at(dest)) === BLACK)
+        moves.push({
+          kind: 'normal',
+          from: coord,
+          to: dest,
+          ...(dest.y === 7 ? { promotion: WHITE_QUEEN } : {}),
+        })
     }
   }
 
   if (piece === BLACK_PAWN) {
     // going down 1 if empty
-    if (board.isEmpty(coord.s()))
-      moves.push({ kind: 'normal', from: coord, to: coord.s() })
+    {
+      const dest = coord.s()
+      if (board.isEmpty(dest))
+        moves.push({
+          kind: 'normal',
+          from: coord,
+          to: dest,
+          ...(dest.y === 0 ? { promotion: BLACK_QUEEN } : {}),
+        })
+    }
+
     // going down 2 if empty && we are on the seventh rank
     if (
       coord.y === 6 &&
       board.isEmpty(coord.s()) &&
       board.isEmpty(coord.s().s())
-    )
+    ) {
       moves.push({ kind: 'normal', from: coord, to: coord.s().s() })
+    }
+
     // captures if there's something to capture
-    for (const target of [coord.se(), coord.sw()]) {
-      if (board.isOccupied(target) && color(board.at(target)) === WHITE)
-        moves.push({ kind: 'normal', from: coord, to: target })
+    for (const dest of [coord.se(), coord.sw()]) {
+      if (board.isOccupied(dest) && color(board.at(dest)) === WHITE)
+        moves.push({
+          kind: 'normal',
+          from: coord,
+          to: dest,
+          ...(dest.y === 0 ? { promotion: BLACK_QUEEN } : {}),
+        })
     }
   }
   return moves
@@ -60,7 +92,5 @@ function pawnMoves(board, coord) {
  * @returns {boolean}
  */
 function isPawnMoveValid(board, move) {
-  return pawnMoves(board, move.from).some(
-    (m) => m.to.x === move.to.x && m.to.y === move.to.y
-  )
+  return pawnMoves(board, move.from).some((m) => _.isEqual(m, move))
 }

@@ -1,5 +1,7 @@
 // @ts-check
 
+/** @typedef {{kind: 'normal', from: Coord, to: Coord, promotion?: Piece}} Move */
+
 /**
   generateMoves(pos: Position, options: {
     // Allow all normal moves even if the side to move is in check
@@ -54,27 +56,34 @@ function notateMove(board, move) {
   const algebraicCoord = (coord) => {
     return String.fromCharCode('a'.charCodeAt(0) + coord.x) + (coord.y + 1)
   }
+
   const pieceFrom = board.at(move.from)
   const pieceTo = board.at(move.to)
+
   if (isPawn(pieceFrom)) {
-    if (pieceTo === EMPTY) {
-      return algebraicCoord(move.to)
-    } else {
-      return algebraicCoord(move.from).charAt(0) + 'x' + algebraicCoord(move.to)
-    }
-  } else if (isKnight(pieceFrom)) {
-    return 'N' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
-  } else if (isBishop(pieceFrom)) {
-    return 'B' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
-  } else if (isRook(pieceFrom)) {
-    return 'R' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
-  } else if (isQueen(pieceFrom)) {
-    return 'Q' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
-  } else if (isKing(pieceFrom)) {
-    return 'K' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
-  } else {
-    throw new Error('Unknown piece type')
+    let notation = ''
+    if (pieceTo !== EMPTY) notation += algebraicCoord(move.from).charAt(0) + 'x'
+    notation += algebraicCoord(move.to)
+    if (move.promotion)
+      notation += '=' + pieceToLetter(move.promotion).toUpperCase()
+    return notation
   }
+  if (isKnight(pieceFrom)) {
+    return 'N' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
+  }
+  if (isBishop(pieceFrom)) {
+    return 'B' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
+  }
+  if (isRook(pieceFrom)) {
+    return 'R' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
+  }
+  if (isQueen(pieceFrom)) {
+    return 'Q' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
+  }
+  if (isKing(pieceFrom)) {
+    return 'K' + (pieceTo === EMPTY ? '' : 'x') + algebraicCoord(move.to)
+  }
+  throw new Error('Unknown piece type')
 }
 
 /** Render all moves in a line in algebraic notation.

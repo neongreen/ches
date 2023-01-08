@@ -33,7 +33,5 @@ function kingMoves(board, coord) {
  * @returns {boolean}
  */
 function isKingMoveValid(board, move) {
-  return kingMoves(board, move.from).some(
-    (m) => m.to.x === move.to.x && m.to.y === move.to.y
-  )
+  return kingMoves(board, move.from).some((m) => _.isEqual(m, move))
 }
