@@ -61,10 +61,10 @@ export function kingMoves(board: Board, coord: Coord): Move[] {
   const checkCastling = (move: Extract<Move, { kind: 'castling' }>) => {
     const opposite = pieceColor(piece) === Color.White ? Color.Black : Color.White
     return (
+      move.kingFrom.pathTo(move.rookFrom, 'exclusive').every((c) => board.isEmpty(c)) &&
       move.kingFrom
         .pathTo(move.kingTo, 'inclusive')
-        .every((c) => !isAttackedByColor(board, opposite, c)) &&
-      move.kingFrom.pathTo(move.rookFrom, 'exclusive').every((c) => board.isEmpty(c))
+        .every((c) => !isAttackedByColor(board, opposite, c))
     )
   }
 
