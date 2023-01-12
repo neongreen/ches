@@ -116,7 +116,6 @@ export const sketch = (p5: P5CanvasInstance) => {
     const renderer = p5.createCanvas(DrawConstants.CELL * 8, DrawConstants.CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
     autoPlay = p5.createCheckbox('Black makes moves automatically', true)
-    p5.frameRate(3)
     // synth = new p5.PolySynth()
   }
 
