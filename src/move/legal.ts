@@ -64,7 +64,7 @@ export function isLegalMove(
         // No moving outside the board boundaries
         if (!move.from.isValid() || !move.to.isValid()) return false
         // Can't stay in the same spot
-        if (_.isEqual(move.from, move.to)) return false
+        if (move.from.equals(move.to)) return false
         // The 'from' piece has to be there
         if (from === Piece.Empty) return false
         // Capturing your own pieces is not allowed

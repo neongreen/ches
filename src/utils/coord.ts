@@ -13,6 +13,10 @@ export class Coord {
     return this.x >= 0 && this.x <= 7 && this.y >= 0 && this.y <= 7
   }
 
+  equals(other: Coord) {
+    return this.x === other.x && this.y === other.y
+  }
+
   /** Shift by delta.
    */
   shift(delta: { x: number; y: number }) {

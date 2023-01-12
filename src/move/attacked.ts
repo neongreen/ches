@@ -3,7 +3,6 @@
 import { Board } from '@/board'
 import { pieceColor, Piece, PieceType, pieceType, Color } from '@/piece'
 import { Coord } from '@/utils/coord'
-import _ from 'lodash'
 
 /**
  * Determine if a square is attacked by pieces of a certain color.
@@ -13,7 +12,7 @@ import _ from 'lodash'
 export function isAttackedByColor(board: Board, color: Color, target: Coord) {
   // For all pieces on the board, let's see if they can move to the target square.
   const isAttackedBy = (coord: Coord) => {
-    if (_.isEqual(coord, target)) return false
+    if (coord.equals(target)) return false
     const piece = board.at(coord)
     if (piece === Piece.Empty) return false
     if (pieceColor(piece) !== color) return false
