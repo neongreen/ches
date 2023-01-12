@@ -31,11 +31,11 @@ export function queenMoves(board: Board, coord: Coord): Move[] {
  * Is a queen move valid? (Does not take checks into account.)
  */
 export function isQueenMoveValid(board: Board, move: Move): boolean {
+  if (move.kind !== 'normal') return false
   const path = queenPath(move.from, move.to)
   return (
     path !== undefined &&
     path.every((coord) => board.isEmpty(coord)) &&
-    (board.isEmpty(move.to) ||
-      pieceColor(board.at(move.from)) !== pieceColor(board.at(move.to)))
+    (board.isEmpty(move.to) || pieceColor(board.at(move.from)) !== pieceColor(board.at(move.to)))
   )
 }

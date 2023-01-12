@@ -3,17 +3,14 @@
 import { Board } from '@/board'
 import { Move } from '@/move'
 import { pieceColor } from '@/piece'
-import { Coord, squaresBetween } from '@/utils/coord'
+import { Coord } from '@/utils/coord'
 
 /**
  * Squares that a bishop passes between points A and B (not including either of those).
  */
 export function bishopPath(a: Coord, b: Coord): Coord[] | undefined {
   if (a.x - a.y === b.x - b.y || a.x + a.y === b.x + b.y) {
-    return squaresBetween(a, b, {
-      x: a.x < b.x ? 1 : -1,
-      y: a.y < b.y ? 1 : -1,
-    })
+    return a.pathTo(b, 'exclusive')
   } else {
     return undefined
   }
@@ -37,10 +34,7 @@ export function bishopMoves(board: Board, coord: Coord): Move[] {
       moves.push({ kind: 'normal', from: coord, to: xy })
       xy = xy.shift(delta)
     }
-    if (
-      board.isOccupied(xy) &&
-      pieceColor(board.at(xy)) !== pieceColor(piece)
-    ) {
+    if (board.isOccupied(xy) && pieceColor(board.at(xy)) !== pieceColor(piece)) {
       moves.push({ kind: 'normal', from: coord, to: xy })
     }
   }
@@ -51,11 +45,11 @@ export function bishopMoves(board: Board, coord: Coord): Move[] {
  * Is a bishop move valid? (Does not take checks into account.)
  */
 export function isBishopMoveValid(board: Board, move: Move): boolean {
+  if (move.kind !== 'normal') return false
   const path = bishopPath(move.from, move.to)
   return (
     path !== undefined &&
     path.every((coord) => board.isEmpty(coord)) &&
-    (board.isEmpty(move.to) ||
-      pieceColor(board.at(move.from)) !== pieceColor(board.at(move.to)))
+    (board.isEmpty(move.to) || pieceColor(board.at(move.from)) !== pieceColor(board.at(move.to)))
   )
 }

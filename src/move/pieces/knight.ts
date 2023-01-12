@@ -24,10 +24,7 @@ export function knightMoves(board: Board, coord: Coord): Move[] {
   ]
   for (let delta of deltas) {
     const target = coord.shift(delta)
-    if (
-      target.isValid() &&
-      pieceColor(board.at(target)) !== pieceColor(piece)
-    ) {
+    if (target.isValid() && pieceColor(board.at(target)) !== pieceColor(piece)) {
       moves.push({ kind: 'normal', from: coord, to: target })
     }
   }
@@ -38,5 +35,6 @@ export function knightMoves(board: Board, coord: Coord): Move[] {
  * Is a knight move valid? (Does not take checks into account.)
  */
 export function isKnightMoveValid(board: Board, move: Move) {
+  if (move.kind !== 'normal') return false
   return knightMoves(board, move.from).some((m) => _.isEqual(m, move))
 }

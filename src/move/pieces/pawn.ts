@@ -29,11 +29,7 @@ export function pawnMoves(board: Board, coord: Coord): Move[] {
     }
 
     // going up 2 if empty && we are on the second rank
-    if (
-      coord.y === 1 &&
-      board.isEmpty(coord.n()) &&
-      board.isEmpty(coord.n().n())
-    ) {
+    if (coord.y === 1 && board.isEmpty(coord.n()) && board.isEmpty(coord.n().n())) {
       moves.push({ kind: 'normal', from: coord, to: coord.n().n() })
     }
 
@@ -63,11 +59,7 @@ export function pawnMoves(board: Board, coord: Coord): Move[] {
     }
 
     // going down 2 if empty && we are on the seventh rank
-    if (
-      coord.y === 6 &&
-      board.isEmpty(coord.s()) &&
-      board.isEmpty(coord.s().s())
-    ) {
+    if (coord.y === 6 && board.isEmpty(coord.s()) && board.isEmpty(coord.s().s())) {
       moves.push({ kind: 'normal', from: coord, to: coord.s().s() })
     }
 
@@ -89,5 +81,6 @@ export function pawnMoves(board: Board, coord: Coord): Move[] {
  * Is a pawn move valid? (Does not take checks into account.)
  */
 export function isPawnMoveValid(board: Board, move: Move): boolean {
+  if (move.kind !== 'normal') return false
   return pawnMoves(board, move.from).some((m) => _.isEqual(m, move))
 }

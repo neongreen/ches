@@ -1,6 +1,8 @@
 import { Color, letterToPiece, Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Move } from './move'
+import { match, P } from 'ts-pattern'
+import _ from 'lodash'
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {
@@ -12,6 +14,14 @@ export class Board {
   side: Color
 
   /**
+   * Castling rights.
+   */
+  castlingRights: {
+    white: { kingside: boolean; queenside: boolean }
+    black: { kingside: boolean; queenside: boolean }
+  }
+
+  /**
    * Create a new board.
    *
    * By default, the board is set up in the standard chess starting position.
@@ -19,6 +29,10 @@ export class Board {
   constructor() {
     this.board = new Array(64).fill(Piece.Empty)
     this.side = Color.White
+    this.castlingRights = {
+      white: { kingside: true, queenside: true },
+      black: { kingside: true, queenside: true },
+    }
     this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
   }
 
@@ -29,6 +43,10 @@ export class Board {
     const clone = new Board()
     clone.board = this.board.slice()
     clone.side = this.side
+    clone.castlingRights = {
+      white: { ...this.castlingRights.white },
+      black: { ...this.castlingRights.black },
+    }
     return clone
   }
 
@@ -77,10 +95,13 @@ export class Board {
    * ```
    */
   setFen(fen: string) {
-    const [pieces, side, castling, enPassant, halfmove, fullmove] =
-      fen.split(' ')
+    const [pieces, side, castlingRights, enPassant, halfmove, fullmove] = fen.split(' ')
     this.side = side === 'w' ? Color.White : Color.Black
     this.board = new Array(64).fill(Piece.Empty)
+    this.castlingRights = {
+      white: { kingside: castlingRights.includes('K'), queenside: castlingRights.includes('Q') },
+      black: { kingside: castlingRights.includes('k'), queenside: castlingRights.includes('q') },
+    }
 
     let rows = pieces.split('/')
     rows.reverse()
@@ -101,8 +122,52 @@ export class Board {
    * Execute a move. Doesn't check if it's valid.
    */
   executeMove(move: Move) {
-    this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
-    this.setAt(move.from, Piece.Empty)
+    match(move)
+      .with({ kind: 'normal' }, (move) => {
+        const piece = this.at(move.from)
+        const target = this.at(move.to)
+
+        // If the king or the rook are moved, castling rights are lost
+        if (piece === Piece.WhiteKing)
+          this.castlingRights.white = { kingside: false, queenside: false }
+        else if (piece === Piece.WhiteRook) {
+          if (_.isEqual(move.from, new Coord(0, 0))) this.castlingRights.white.queenside = false
+          if (_.isEqual(move.from, new Coord(7, 0))) this.castlingRights.white.kingside = false
+        } else if (piece === Piece.BlackKing)
+          this.castlingRights.black = { kingside: false, queenside: false }
+        else if (piece === Piece.BlackRook) {
+          if (_.isEqual(move.from, new Coord(0, 7))) this.castlingRights.black.queenside = false
+          if (_.isEqual(move.from, new Coord(7, 7))) this.castlingRights.black.kingside = false
+        }
+
+        // If a rook is captured, castling rights are also lost
+        if (target === Piece.WhiteRook) {
+          if (_.isEqual(move.to, new Coord(0, 0))) this.castlingRights.white.queenside = false
+          if (_.isEqual(move.to, new Coord(7, 0))) this.castlingRights.white.kingside = false
+        } else if (target === Piece.BlackRook) {
+          if (_.isEqual(move.to, new Coord(0, 7))) this.castlingRights.black.queenside = false
+          if (_.isEqual(move.to, new Coord(7, 7))) this.castlingRights.black.kingside = false
+        }
+
+        this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
+        this.setAt(move.from, Piece.Empty)
+      })
+      .with({ kind: 'castling' }, (move) => {
+        if (this.side === Color.White) {
+          this.setAt(move.kingFrom, Piece.Empty)
+          this.setAt(move.kingTo, Piece.WhiteKing)
+          this.setAt(move.rookFrom, Piece.Empty)
+          this.setAt(move.rookTo, Piece.WhiteRook)
+          this.castlingRights.white = { kingside: false, queenside: false }
+        } else {
+          this.setAt(move.kingFrom, Piece.Empty)
+          this.setAt(move.kingTo, Piece.BlackKing)
+          this.setAt(move.rookFrom, Piece.Empty)
+          this.setAt(move.rookTo, Piece.BlackRook)
+          this.castlingRights.black = { kingside: false, queenside: false }
+        }
+      })
+      .exhaustive()
     this.side = this.side === Color.White ? Color.Black : Color.White
   }
 }

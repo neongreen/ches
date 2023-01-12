@@ -7,13 +7,23 @@ import {
   pieceType,
   PieceType,
   pieceTypeToLetter,
+  Color,
 } from '@/piece'
 import { Board } from '@/board'
 import { isLegalMove } from '@/move/legal'
 import { quasiLegalNormalMoves } from '@/move/quasiLegal'
-import { isAttacked } from '@/move/attacked'
+import { isAttackedByColor } from '@/move/attacked'
+import { match } from 'ts-pattern'
 
-export type Move = { kind: 'normal'; from: Coord; to: Coord; promotion?: Piece }
+export type Move =
+  | { kind: 'normal'; from: Coord; to: Coord; promotion?: Piece }
+  | {
+      kind: 'castling'
+      kingFrom: Coord
+      kingTo: Coord
+      rookFrom: Coord
+      rookTo: Coord
+    }
 
 export function generateMoves(
   board: Board,
@@ -31,9 +41,7 @@ export function generateMoves(
       }
     }
   }
-  moves = moves.filter((m) =>
-    isLegalMove(board, m, { ...options, assumeQuasiLegal: true })
-  )
+  moves = moves.filter((m) => isLegalMove(board, m, { ...options, assumeQuasiLegal: true }))
   return moves
 }
 
@@ -47,7 +55,11 @@ export function isInCheck(board: Board): boolean {
       const piece = board.at(coord)
       if (isKing(piece) && board.side === pieceColor(piece)) {
         // We found the king
-        return isAttacked(board, coord)
+        return isAttackedByColor(
+          board,
+          board.side === Color.White ? Color.Black : Color.White,
+          coord
+        )
       }
     }
   }
@@ -62,30 +74,34 @@ export function notateMove(board: Board, move: Move): string {
     return String.fromCharCode('a'.charCodeAt(0) + coord.x) + (coord.y + 1)
   }
 
-  const pieceFrom = board.at(move.from)
-  const pieceTo = board.at(move.to)
-
-  switch (pieceType(pieceFrom)) {
-    case PieceType.Empty: {
-      throw new Error('move.from is empty')
-    }
-    case PieceType.Pawn: {
-      let notation = ''
-      if (pieceTo !== Piece.Empty)
-        notation += algebraicCoord(move.from).charAt(0) + 'x'
-      notation += algebraicCoord(move.to)
-      if (move.promotion)
-        notation += '=' + pieceToLetter(move.promotion).toUpperCase()
-      return notation
-    }
-    default: {
-      return (
-        pieceTypeToLetter(pieceType(pieceFrom)) +
-        (pieceTo === Piece.Empty ? '' : 'x') +
-        algebraicCoord(move.to)
-      )
-    }
-  }
+  return match(move)
+    .with({ kind: 'normal' }, (move) => {
+      const pieceFrom = board.at(move.from)
+      const pieceTo = board.at(move.to)
+      switch (pieceType(pieceFrom)) {
+        case PieceType.Empty: {
+          throw new Error('move.from is empty')
+        }
+        case PieceType.Pawn: {
+          let notation = ''
+          if (pieceTo !== Piece.Empty) notation += algebraicCoord(move.from).charAt(0) + 'x'
+          notation += algebraicCoord(move.to)
+          if (move.promotion) notation += '=' + pieceToLetter(move.promotion).toUpperCase()
+          return notation
+        }
+        default: {
+          return (
+            pieceTypeToLetter(pieceType(pieceFrom)) +
+            (pieceTo === Piece.Empty ? '' : 'x') +
+            algebraicCoord(move.to)
+          )
+        }
+      }
+    })
+    .with({ kind: 'castling' }, (move) => {
+      return move.kingTo.x > move.kingFrom.x ? 'O-O' : 'O-O-O'
+    })
+    .exhaustive()
 }
 
 /**

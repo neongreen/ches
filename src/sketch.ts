@@ -1,4 +1,5 @@
 import { P5CanvasInstance } from 'react-p5-wrapper'
+import { match } from 'ts-pattern'
 import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
@@ -7,6 +8,7 @@ import { findBestMove, MAX_DEPTH } from './eval/eval'
 import { EvalNode } from './eval/node'
 import { Move } from './move'
 import { isLegalMove } from './move/legal'
+import { castlingMoves } from './move/pieces/king'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
 
@@ -70,7 +72,10 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   const drawBestMove = () => {
     if (currentEval?.bestMove) {
-      const { from, to } = currentEval.bestMove
+      const { from, to } = match(currentEval.bestMove)
+        .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
+        .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
+        .exhaustive()
       const fromCoord = squareCenter(from)
       const toCoord = squareCenter(to)
       p5.push()
@@ -96,19 +101,10 @@ export const sketch = (p5: P5CanvasInstance) => {
    */
   const isTouching = (square: Coord) => {
     const { x: squareX, y: squareY } = squareCenter(square)
-    const between = (left: number, right: number, x: number) =>
-      left <= x && x < right
+    const between = (left: number, right: number, x: number) => left <= x && x < right
     return (
-      between(
-        squareX - DrawConstants.CELL / 2,
-        squareX + DrawConstants.CELL / 2,
-        p5.mouseX
-      ) &&
-      between(
-        squareY - DrawConstants.CELL / 2,
-        squareY + DrawConstants.CELL / 2,
-        p5.mouseY
-      )
+      between(squareX - DrawConstants.CELL / 2, squareX + DrawConstants.CELL / 2, p5.mouseX) &&
+      between(squareY - DrawConstants.CELL / 2, squareY + DrawConstants.CELL / 2, p5.mouseY)
     )
   }
 
@@ -117,12 +113,10 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   p5.setup = () => {
-    const renderer = p5.createCanvas(
-      DrawConstants.CELL * 8,
-      DrawConstants.CELL * 8 + 20
-    )
+    const renderer = p5.createCanvas(DrawConstants.CELL * 8, DrawConstants.CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
     autoPlay = p5.createCheckbox('Black makes moves automatically', true)
+    p5.frameRate(3)
     // synth = new p5.PolySynth()
   }
 
@@ -175,10 +169,7 @@ export const sketch = (p5: P5CanvasInstance) => {
     dragged = null
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        if (
-          isTouching(new Coord(x, y)) &&
-          currentBoard.isOccupied(new Coord(x, y))
-        ) {
+        if (isTouching(new Coord(x, y)) && currentBoard.isOccupied(new Coord(x, y))) {
           dragged = new Coord(x, y)
           return
         }
@@ -188,23 +179,44 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   p5.mouseReleased = () => {
     if (dragged !== null) {
-      const piece = currentBoard.at(dragged)
+      const coord: Coord = dragged
+      const piece = currentBoard.at(coord)
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
           const dest = new Coord(x, y)
           if (isTouching(dest)) {
             // We found the square we are dropping the piece on
-            const move: Move = {
-              kind: 'normal',
-              from: dragged,
-              to: dest,
-              ...(piece === Piece.WhitePawn && y === 7
-                ? { promotion: Piece.WhiteQueen }
-                : {}),
-              ...(piece === Piece.BlackPawn && y === 0
-                ? { promotion: Piece.BlackQueen }
-                : {}),
-            }
+            const move: Move = match('')
+              .when(
+                () => piece === Piece.WhiteKing && Math.abs(dest.x - coord.x) > 1,
+                () => ({ kind: 'castling', ...castlingMoves.white.kingside } satisfies Move)
+              )
+              .when(
+                () => piece === Piece.WhiteKing && Math.abs(dest.x - coord.x) < -1,
+                () => ({ kind: 'castling', ...castlingMoves.white.queenside } satisfies Move)
+              )
+              .when(
+                () => piece === Piece.BlackKing && Math.abs(dest.x - coord.x) > 1,
+                () => ({ kind: 'castling', ...castlingMoves.black.kingside } satisfies Move)
+              )
+              .when(
+                () => piece === Piece.BlackKing && Math.abs(dest.x - coord.x) < -1,
+                () => ({ kind: 'castling', ...castlingMoves.black.queenside } satisfies Move)
+              )
+              .otherwise(
+                () =>
+                  ({
+                    kind: 'normal',
+                    from: coord,
+                    to: dest,
+                    ...(piece === Piece.WhitePawn && y === 7
+                      ? { promotion: Piece.WhiteQueen }
+                      : {}),
+                    ...(piece === Piece.BlackPawn && y === 0
+                      ? { promotion: Piece.BlackQueen }
+                      : {}),
+                  } satisfies Move)
+              )
             if (isLegalMove(currentBoard, move)) makeMove(move)
           }
         }

@@ -66,22 +66,23 @@ export class Coord {
   se() {
     return new Coord(this.x + 1, this.y - 1)
   }
-}
 
-/** All squares between two points (but not counting those points), when shifting by delta.
- *
- * Useful for sliding pieces (rook, bishop, queen).
- */
-export function squaresBetween(
-  from: Coord,
-  to: Coord,
-  delta: { x: number; y: number }
-): Coord[] {
-  let squares = []
-  let xy = from.shift(delta)
-  while (!(xy.x === to.x && xy.y === to.y)) {
-    squares.push(xy)
-    xy = xy.shift(delta)
+  /**
+   * All squares between two points.
+   *
+   * @param to The end point.
+   * @param mode Whether to include the start and end points.
+   */
+  pathTo(to: Coord, mode: 'inclusive' | 'exclusive'): Coord[] {
+    const delta = { x: Math.sign(to.x - this.x), y: Math.sign(to.y - this.y) }
+    let squares = []
+    let xy = this.shift(delta)
+    if (mode === 'inclusive') squares.push(this)
+    while (!(xy.x === to.x && xy.y === to.y)) {
+      squares.push(xy)
+      xy = xy.shift(delta)
+    }
+    if (mode === 'inclusive') squares.push(to)
+    return squares
   }
-  return squares
 }

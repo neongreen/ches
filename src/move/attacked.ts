@@ -1,20 +1,22 @@
 // TODO: en passant
-// TODO: maybe "square" and not "piece"?
 
 import { Board } from '@/board'
 import { pieceColor, Piece, PieceType, pieceType, Color } from '@/piece'
 import { Coord } from '@/utils/coord'
+import _ from 'lodash'
 
 /**
- * Determine if a piece is attacked by the opponent pieces.
+ * Determine if a square is attacked by pieces of a certain color.
+ *
+ * NB: A square is not considered to be attacked by a piece standing on that square.
  */
-export function isAttacked(board: Board, target: Coord) {
-  // For all pieces on the board, let's see if they can take the target
-  const targetPiece = board.at(target)
+export function isAttackedByColor(board: Board, color: Color, target: Coord) {
+  // For all pieces on the board, let's see if they can move to the target square.
   const isAttackedBy = (coord: Coord) => {
+    if (_.isEqual(coord, target)) return false
     const piece = board.at(coord)
     if (piece === Piece.Empty) return false
-    if (pieceColor(piece) === pieceColor(targetPiece)) return false
+    if (pieceColor(piece) !== color) return false
     switch (pieceType(piece)) {
       case PieceType.Pawn:
         return isAttackedByPawn(board, coord, target)
@@ -55,6 +57,7 @@ export function isAttackedByRook(board: Board, rook: Coord, target: Coord) {
 }
 
 function isAttackedByBishop(board: Board, bishop: Coord, target: Coord) {
+  // TODO: this fails if bishop === target
   if (bishop.x + bishop.y === target.x + target.y) {
     const delta = bishop.x < target.x ? 1 : -1
     let x = bishop.x + delta
@@ -81,10 +84,7 @@ function isAttackedByBishop(board: Board, bishop: Coord, target: Coord) {
 }
 
 function isAttackedByQueen(board: Board, queen: Coord, target: Coord) {
-  return (
-    isAttackedByRook(board, queen, target) ||
-    isAttackedByBishop(board, queen, target)
-  )
+  return isAttackedByRook(board, queen, target) || isAttackedByBishop(board, queen, target)
 }
 
 function isAttackedByKnight(board: Board, knight: Coord, target: Coord) {

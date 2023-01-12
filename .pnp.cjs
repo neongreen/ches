@@ -41,6 +41,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:18.2.0"],\
             ["react-p5-wrapper", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:3.4.0"],\
+            ["ts-pattern", "npm:4.1.3"],\
             ["typescript", "patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=ad5954"]\
           ],\
           "linkType": "SOFT"\
@@ -761,6 +762,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["react", "npm:18.2.0"],\
             ["react-dom", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:18.2.0"],\
             ["react-p5-wrapper", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:3.4.0"],\
+            ["ts-pattern", "npm:4.1.3"],\
             ["typescript", "patch:typescript@npm%3A4.9.4#~builtin<compat/typescript>::version=4.9.4&hash=ad5954"]\
           ],\
           "linkType": "SOFT"\
@@ -3116,6 +3118,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["to-regex-range", "npm:5.0.1"],\
             ["is-number", "npm:7.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["ts-pattern", [\
+        ["npm:4.1.3", {\
+          "packageLocation": "./.yarn/cache/ts-pattern-npm-4.1.3-c142d5703c-a9462aa0e5.zip/node_modules/ts-pattern/",\
+          "packageDependencies": [\
+            ["ts-pattern", "npm:4.1.3"]\
           ],\
           "linkType": "HARD"\
         }]\
