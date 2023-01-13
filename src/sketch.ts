@@ -14,11 +14,13 @@ import { Coord } from './utils/coord'
 
 function createWidgets(p5: P5CanvasInstance): {
   autoPlay: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
+  showBestMove: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   showLines: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   outputBox: ReturnType<typeof p5.createDiv>
 } {
   return {
     autoPlay: p5.createCheckbox('Black makes moves automatically', true) as any,
+    showBestMove: p5.createCheckbox('Show the most devious move', false) as any,
     showLines: p5.createCheckbox('Show lines', false) as any,
     outputBox: p5.createDiv().style('font-family', 'monospace'),
   }
@@ -84,7 +86,7 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   const drawBestMove = () => {
-    if (currentEval?.bestMove) {
+    if (widgets.showBestMove.checked() && currentEval?.bestMove) {
       const { from, to } = match(currentEval.bestMove)
         .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
         .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
