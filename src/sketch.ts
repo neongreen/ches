@@ -12,6 +12,18 @@ import { castlingMoves } from './move/pieces/king'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
 
+function createWidgets(p5: P5CanvasInstance): {
+  autoPlay: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
+  showLines: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
+  outputBox: ReturnType<typeof p5.createDiv>
+} {
+  return {
+    autoPlay: p5.createCheckbox('Black makes moves automatically', true) as any,
+    showLines: p5.createCheckbox('Show lines', false) as any,
+    outputBox: p5.createDiv().style('font-family', 'monospace'),
+  }
+}
+
 export const sketch = (p5: P5CanvasInstance) => {
   p5.disableFriendlyErrors = true
 
@@ -35,12 +47,10 @@ export const sketch = (p5: P5CanvasInstance) => {
    */
   let lastMoveTimestamp = 0
 
-  let autoPlay: ReturnType<typeof p5.createCheckbox>
-  let showLines: ReturnType<typeof p5.createCheckbox>
-  let outputBox: ReturnType<typeof p5.createDiv>
-
   /** Move delay for AI, in milliseconds */
   const AI_MOVE_DELAY = 400
+
+  let widgets: ReturnType<typeof createWidgets>
 
   /** Make the best move for the current side */
   const makeBestMove = () => {
@@ -122,9 +132,7 @@ export const sketch = (p5: P5CanvasInstance) => {
   p5.setup = () => {
     const renderer = p5.createCanvas(DrawConstants(p5).CELL * 8, DrawConstants(p5).CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
-    autoPlay = p5.createCheckbox('Black makes moves automatically', true)
-    showLines = p5.createCheckbox('Show lines', false)
-    outputBox = p5.createDiv().style('font-family', 'monospace')
+    widgets = createWidgets(p5)
     // synth = new p5.PolySynth()
   }
 
@@ -143,12 +151,7 @@ export const sketch = (p5: P5CanvasInstance) => {
       const newEval = findBestMove(new EvalNode(currentBoard), MAX_DEPTH)
       currentEval = { ...newEval, time: (performance.now() - startTime) / 1000 }
     }
-    if (
-      currentEval.bestMove &&
-      currentBoard.side === Color.Black &&
-      // @ts-ignore
-      autoPlay.checked()
-    ) {
+    if (currentEval.bestMove && currentBoard.side === Color.Black && widgets.autoPlay.checked()) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
     } else {
       drawBestMove()
@@ -161,13 +164,9 @@ export const sketch = (p5: P5CanvasInstance) => {
       )
     }
 
-    if (
-      // @ts-ignore
-      showLines.checked() &&
-      currentEval
-    ) {
+    if (widgets.showLines.checked() && currentEval) {
       if (currentEval?.lines !== undefined) {
-        outputBox.elt.innerText = currentEval.lines
+        widgets.outputBox.elt.innerText = currentEval.lines
           .map(
             (line) =>
               `${renderEval(line.eval).padStart(6, '\xa0')} - ` +
@@ -178,7 +177,7 @@ export const sketch = (p5: P5CanvasInstance) => {
         currentEval.lines = findBestMoves(new EvalNode(currentBoard), MAX_DEPTH, 5)
       }
     } else {
-      outputBox.elt.innerText = ''
+      widgets.outputBox.elt.innerText = ''
     }
 
     // if (audioStarted) {
