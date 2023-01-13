@@ -1,7 +1,11 @@
 import { Piece, PieceType, pieceType } from '@/piece'
 
 export function piecePoints(piece: Piece) {
-  switch (pieceType(piece)) {
+  return pieceTypePoints(pieceType(piece))
+}
+
+export function pieceTypePoints(pieceType: PieceType) {
+  switch (pieceType) {
     case PieceType.Empty:
       return 0
     case PieceType.Pawn:

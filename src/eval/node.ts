@@ -14,6 +14,8 @@ export class EvalNode {
 
   /**
    * The number of points each side has.
+   *
+   * The material is calculated with `piecePoints`.
    */
   material: { white: number; black: number }
 

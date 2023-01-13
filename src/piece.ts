@@ -8,6 +8,16 @@ export enum PieceType {
   King = 6,
 }
 
+export const allPieceTypes = [
+  PieceType.Empty,
+  PieceType.Pawn,
+  PieceType.Knight,
+  PieceType.Bishop,
+  PieceType.Rook,
+  PieceType.Queen,
+  PieceType.King,
+]
+
 export enum Color {
   White = 0x10,
   Black = 0x20,
@@ -42,18 +52,12 @@ export function pieceColor(piece: Piece): Color {
   return piece & 0xf0
 }
 
-export const isPawn = (piece: Piece) =>
-  piece === Piece.WhitePawn || piece === Piece.BlackPawn
-export const isKnight = (piece: Piece) =>
-  piece === Piece.WhiteKnight || piece === Piece.BlackKnight
-export const isBishop = (piece: Piece) =>
-  piece === Piece.WhiteBishop || piece === Piece.BlackBishop
-export const isRook = (piece: Piece) =>
-  piece === Piece.WhiteRook || piece === Piece.BlackRook
-export const isQueen = (piece: Piece) =>
-  piece === Piece.WhiteQueen || piece === Piece.BlackQueen
-export const isKing = (piece: Piece) =>
-  piece === Piece.WhiteKing || piece === Piece.BlackKing
+export const isPawn = (piece: Piece) => piece === Piece.WhitePawn || piece === Piece.BlackPawn
+export const isKnight = (piece: Piece) => piece === Piece.WhiteKnight || piece === Piece.BlackKnight
+export const isBishop = (piece: Piece) => piece === Piece.WhiteBishop || piece === Piece.BlackBishop
+export const isRook = (piece: Piece) => piece === Piece.WhiteRook || piece === Piece.BlackRook
+export const isQueen = (piece: Piece) => piece === Piece.WhiteQueen || piece === Piece.BlackQueen
+export const isKing = (piece: Piece) => piece === Piece.WhiteKing || piece === Piece.BlackKing
 
 export const isWhite = (piece: Piece) => pieceColor(piece) === Color.White
 export const isBlack = (piece: Piece) => pieceColor(piece) === Color.Black

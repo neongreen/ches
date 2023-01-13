@@ -1,9 +1,44 @@
 import { Board } from '@/board'
 import { generateMoves, isInCheck, Move } from '@/move'
-import { Color } from '@/piece'
+import { allPieceTypes, Color, Piece, pieceType, PieceType } from '@/piece'
+import { match } from 'ts-pattern'
+import { pieceTypePoints } from './material'
 import { EvalNode } from './node'
 
 export const MAX_DEPTH = 2
+
+// https://rustic-chess.org/search/ordering/mvv_lva.html
+const MVV_LVA: number[][] = []
+for (const victim of allPieceTypes) {
+  MVV_LVA[victim] = []
+  for (const attacker of allPieceTypes) {
+    MVV_LVA[victim][attacker] = pieceTypePoints(victim) * 1000 + 1000 - pieceTypePoints(attacker)
+  }
+}
+
+/**
+ * Move ordering. We want to search most promising moves first because then the search tree might get smaller due to alpha-beta pruning.
+ */
+function scoreMove(board: Board, move: Move): number {
+  return match(move)
+    .with({ kind: 'normal' }, (move) => {
+      // NB: We could just do "material difference" but this would give equal trades score 0, and we don't want that — we still want to look at captures before quiet moves.
+      const from = board.at(move.from)
+      const to = board.at(move.to)
+      if (to === Piece.Empty) return 0
+      return MVV_LVA[pieceType(to)][pieceType(from)]
+    })
+    .with({ kind: 'castling' }, () => 0)
+    .exhaustive()
+}
+
+/** Generate moves ordered by `scoreMove`. */
+function generateOrderedMoves(board: Board): Move[] {
+  return generateMoves(board)
+    .map((move) => ({ move, score: scoreMove(board, move) }))
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.move)
+}
 
 /**
  * Detect when the game is over.
@@ -77,7 +112,7 @@ export function findBestMove(
   alpha = -Infinity,
   beta = Infinity
 ): { bestMove: Move | null; eval: number; line: Move[] } {
-  const possibleMoves = generateMoves(node.board)
+  const possibleMoves = generateOrderedMoves(node.board)
 
   switch (isGameOver(node.board, possibleMoves)) {
     case 'whiteWon':
@@ -126,7 +161,7 @@ export function findBestMoves(
   depth: number,
   lines: number
 ): { move: Move | null; eval: number; line: Move[] }[] {
-  const possibleMoves = generateMoves(node.board)
+  const possibleMoves = generateOrderedMoves(node.board)
 
   switch (isGameOver(node.board, possibleMoves)) {
     case 'whiteWon':
