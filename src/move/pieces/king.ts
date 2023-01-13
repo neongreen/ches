@@ -69,20 +69,20 @@ export function kingMoves(board: Board, coord: Coord): Move[] {
   }
 
   if (pieceColor(piece) === Color.White) {
-    if (board.castlingRights.white.kingside) {
+    if (board.castling.white.kingside) {
       const move: Move = { kind: 'castling', ...castlingMoves.white.kingside }
       if (checkCastling(move)) moves.push(move)
     }
-    if (board.castlingRights.white.queenside) {
+    if (board.castling.white.queenside) {
       const move: Move = { kind: 'castling', ...castlingMoves.white.queenside }
       if (checkCastling(move)) moves.push(move)
     }
   } else {
-    if (board.castlingRights.black.kingside) {
+    if (board.castling.black.kingside) {
       const move: Move = { kind: 'castling', ...castlingMoves.black.kingside }
       if (checkCastling(move)) moves.push(move)
     }
-    if (board.castlingRights.black.queenside) {
+    if (board.castling.black.queenside) {
       const move: Move = { kind: 'castling', ...castlingMoves.black.queenside }
       if (checkCastling(move)) moves.push(move)
     }

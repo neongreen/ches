@@ -7,35 +7,54 @@ import { match } from 'ts-pattern'
 
 /** A node in the evaluation tree. Contains a board + extra info used for eval. */
 export class EvalNode {
-  /** The board.
+  /**
+   * The board.
    */
   board: Board
 
-  /** The number of points each side has.
+  /**
+   * The number of points each side has.
    */
   material: { white: number; black: number }
 
-  /** How many developed pieces each side has. A piece is developed if it's not
-   * on the first/last rank.
+  /**
+   * How many developed pieces each side has.
+   *
+   * A piece is developed if it's not on the first/last rank.
    */
   development: { white: number; black: number }
 
-  constructor(board: Board) {
-    this.board = board.clone()
-    this.material = { white: 0, black: 0 }
-    this.development = { white: 0, black: 0 }
-    for (let x = 0; x < 8; x++) {
-      for (let y = 0; y < 8; y++) {
-        const piece = board.at(new Coord(x, y))
-        if (piece === Piece.Empty) continue
-        this.material[colorName(piece)] += piecePoints(piece)
-        if (pieceColor(piece) === Color.White && !isPawn(piece) && y !== 0) this.development.white++
-        if (pieceColor(piece) === Color.Black && !isPawn(piece) && y !== 7) this.development.black++
+  constructor(node: EvalNode)
+  constructor(board: Board)
+  constructor(nodeOrBoard: EvalNode | Board) {
+    if (nodeOrBoard instanceof Board) {
+      // Create a new node from a board
+      const board = nodeOrBoard
+      this.board = board.clone()
+      this.material = { white: 0, black: 0 }
+      this.development = { white: 0, black: 0 }
+      for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+          const piece = board.at(new Coord(x, y))
+          if (piece === Piece.Empty) continue
+          this.material[colorName(piece)] += piecePoints(piece)
+          if (pieceColor(piece) === Color.White && !isPawn(piece) && y !== 0)
+            this.development.white++
+          if (pieceColor(piece) === Color.Black && !isPawn(piece) && y !== 7)
+            this.development.black++
+        }
       }
+    } else {
+      // Clone a node
+      const node = nodeOrBoard
+      this.board = node.board.clone()
+      this.material = { ...node.material }
+      this.development = { ...node.development }
     }
   }
 
-  /** Execute a move. Doesn't check if it's valid.
+  /**
+   * Execute a move. Doesn't check if it's valid.
    */
   executeMove(move: Move) {
     match(move)
@@ -79,12 +98,10 @@ export class EvalNode {
     this.board.executeMove(move)
   }
 
-  /** Return a copy of the node.
+  /**
+   * Return a copy of the node.
    */
   clone(): EvalNode {
-    const clone = new EvalNode(this.board.clone())
-    clone.material = { ...this.material }
-    clone.development = { ...this.development }
-    return clone
+    return new EvalNode(this)
   }
 }

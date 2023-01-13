@@ -1,10 +1,29 @@
-import { generateMoves, Move } from '@/move'
+import { Board } from '@/board'
+import { generateMoves, isInCheck, Move } from '@/move'
 import { Color } from '@/piece'
 import { EvalNode } from './node'
 
 export const MAX_DEPTH = 2
 
-/** Evaluate a node without recursion, based on heuristics.
+/**
+ * Detect when the game is over.
+ */
+function isGameOver(board: Board, possibleMoves: Move[]): 'whiteWon' | 'blackWon' | 'draw' | null {
+  if (board.isThreefoldRepetition()) return 'draw'
+  if (possibleMoves.length === 0) {
+    if (isInCheck(board)) {
+      // Checkmate
+      return board.side === Color.White ? 'blackWon' : 'whiteWon'
+    } else {
+      // Stalemate
+      return 'draw'
+    }
+  }
+  return null
+}
+
+/**
+ * Evaluate a node without recursion, based on heuristics.
  */
 export function leafEvalNode(node: EvalNode) {
   const whiteEval = node.material.white + node.development.white / 5
@@ -22,7 +41,7 @@ export function leafEvalNode(node: EvalNode) {
  * @param alpha The minimum eval white can force (white wants to maximize)
  * @param beta The maximum eval black can force (black wants to minimize)
  */
-export function evalMove(
+function evalMove(
   node: EvalNode,
   depth: number,
   move: Move,
@@ -31,6 +50,8 @@ export function evalMove(
 ): { eval: number; line: Move[] } {
   let newNode = node.clone()
   newNode.executeMove(move)
+
+  // For leaf nodes, we don't try to detect checkmate, because it's expensive and requires generating all possible moves. So we're fine with just ignoring checkmate/stalemate/threefold repetition here. `findBestMove` does check for this kind of thing, though, because it has to generate possible moves no matter what.
 
   if (depth === 0) {
     return {
@@ -47,7 +68,8 @@ export function evalMove(
   }
 }
 
-/** What is the best move for the current side?
+/**
+ * What is the best move for the current side?
  */
 export function findBestMove(
   node: EvalNode,
@@ -55,16 +77,17 @@ export function findBestMove(
   alpha = -Infinity,
   beta = Infinity
 ): { bestMove: Move | null; eval: number; line: Move[] } {
-  const moves = generateMoves(node.board)
-  if (moves.length === 0) {
-    // checkmate
-    // TODO: could also be stalemate
-    // TODO: use a better eval than 999
-    return {
-      bestMove: null,
-      eval: node.board.side === Color.White ? -999 : 999,
-      line: [],
-    }
+  const possibleMoves = generateMoves(node.board)
+
+  switch (isGameOver(node.board, possibleMoves)) {
+    case 'whiteWon':
+      return { bestMove: null, eval: 999, line: [] }
+    case 'blackWon':
+      return { bestMove: null, eval: -999, line: [] }
+    case 'draw':
+      return { bestMove: null, eval: 0, line: [] }
+    case null:
+      break
   }
 
   // https://en.wikipedia.org/wiki/Alpha–beta_pruning#Pseudocode
@@ -73,7 +96,7 @@ export function findBestMove(
     eval: node.board.side === Color.White ? -Infinity : Infinity,
     line: [] as Move[],
   }
-  for (const move of moves) {
+  for (const move of possibleMoves) {
     const currEval = {
       bestMove: move,
       ...evalMove(node, depth, move, alpha, beta),
@@ -95,25 +118,28 @@ export function findBestMove(
   return bestEval
 }
 
-/** Find up to N best moves for the current side, ranked.
+/**
+ * Find up to N best moves for the current side, ranked.
  */
 export function findBestMoves(
   node: EvalNode,
   depth: number,
   lines: number
 ): { move: Move | null; eval: number; line: Move[] }[] {
-  const moves = generateMoves(node.board)
-  if (moves.length === 0) {
-    // checkmate
-    return [
-      {
-        move: null,
-        eval: node.board.side === Color.White ? -999 : 999,
-        line: [],
-      },
-    ]
+  const possibleMoves = generateMoves(node.board)
+
+  switch (isGameOver(node.board, possibleMoves)) {
+    case 'whiteWon':
+      return [{ move: null, eval: 999, line: [] }]
+    case 'blackWon':
+      return [{ move: null, eval: -999, line: [] }]
+    case 'draw':
+      return [{ move: null, eval: 0, line: [] }]
+    case null:
+      break
   }
-  const results = moves.map((move) => ({
+
+  const results = possibleMoves.map((move) => ({
     move,
     ...evalMove(node, depth, move),
   }))

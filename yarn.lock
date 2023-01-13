@@ -237,6 +237,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/imurmurhash@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@types/imurmurhash@npm:0.1.1"
+  checksum: b33783919a30e79f52d605759c01e3ed3e413afa4bb7dadb07697cb0e05243ae958a1e32df5ef5c75a5b8a4ed90ff3fe6c1fa76add343b5fc38f308bfb08d6e3
+  languageName: node
+  linkType: hard
+
 "@types/json5@npm:^0.0.29":
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
@@ -574,6 +581,7 @@ __metadata:
   resolution: "ches@workspace:."
   dependencies:
     "@next/font": 13.1.1
+    "@types/imurmurhash": ^0.1.1
     "@types/lodash": ^4.14.191
     "@types/node": 18.11.18
     "@types/p5": ^1.4.3
@@ -581,6 +589,7 @@ __metadata:
     "@types/react-dom": 18.0.10
     eslint: 8.31.0
     eslint-config-next: 13.1.1
+    imurmurhash: ^0.1.4
     lodash: ^4.17.21
     next: 13.1.1
     react: 18.2.0

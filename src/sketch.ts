@@ -33,6 +33,10 @@ export const sketch = (p5: P5CanvasInstance) => {
   // let synth
 
   let currentBoard = new Board()
+
+  // @ts-ignore
+  window.currentBoard = currentBoard // For debug
+
   let currentEval: {
     bestMove: Move | null
     eval: number
@@ -175,6 +179,9 @@ export const sketch = (p5: P5CanvasInstance) => {
               `${notateLine(currentBoard, line.line).join(' ')}`
           )
           .join('\n')
+        if (currentBoard.isThreefoldRepetition()) {
+          widgets.outputBox.elt.innerText += '\n\nThreefold repetition detected'
+        }
       } else {
         currentEval.lines = findBestMoves(new EvalNode(currentBoard), MAX_DEPTH, 5)
       }
