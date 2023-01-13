@@ -55,9 +55,9 @@ export const sketch = (p5: P5CanvasInstance) => {
       for (let y = 0; y < 8; y++) {
         const light = (x + y) % 2 !== 0
         p5.fill(light ? 240 : 170)
-        const xy = squareCenter(new Coord(x, y))
+        const xy = squareCenter(p5, new Coord(x, y))
         p5.rectMode(p5.CENTER)
-        p5.square(xy.x, xy.y, DrawConstants.CELL)
+        p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
       }
     }
     p5.pop()
@@ -79,8 +79,8 @@ export const sketch = (p5: P5CanvasInstance) => {
         .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
         .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
         .exhaustive()
-      const fromCoord = squareCenter(from)
-      const toCoord = squareCenter(to)
+      const fromCoord = squareCenter(p5, from)
+      const toCoord = squareCenter(p5, to)
       p5.push()
       p5.stroke('rgba(255,0,0,0.5)')
       p5.strokeWeight(6)
@@ -88,7 +88,7 @@ export const sketch = (p5: P5CanvasInstance) => {
       p5.line(fromCoord.x, fromCoord.y, toCoord.x, toCoord.y)
       p5.noFill()
       p5.strokeWeight(3)
-      p5.circle(toCoord.x, toCoord.y, DrawConstants.CELL * 0.75)
+      p5.circle(toCoord.x, toCoord.y, DrawConstants(p5).CELL * 0.75)
       p5.pop()
     }
   }
@@ -103,11 +103,15 @@ export const sketch = (p5: P5CanvasInstance) => {
   /** Is the mouse hovering over a specific square?
    */
   const isTouching = (square: Coord) => {
-    const { x: squareX, y: squareY } = squareCenter(square)
+    const { x: squareX, y: squareY } = squareCenter(p5, square)
     const between = (left: number, right: number, x: number) => left <= x && x < right
     return (
-      between(squareX - DrawConstants.CELL / 2, squareX + DrawConstants.CELL / 2, p5.mouseX) &&
-      between(squareY - DrawConstants.CELL / 2, squareY + DrawConstants.CELL / 2, p5.mouseY)
+      between(
+        squareX - DrawConstants(p5).CELL / 2,
+        squareX + DrawConstants(p5).CELL / 2,
+        p5.mouseX
+      ) &&
+      between(squareY - DrawConstants(p5).CELL / 2, squareY + DrawConstants(p5).CELL / 2, p5.mouseY)
     )
   }
 
@@ -116,12 +120,16 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   p5.setup = () => {
-    const renderer = p5.createCanvas(DrawConstants.CELL * 8, DrawConstants.CELL * 8 + 20)
+    const renderer = p5.createCanvas(DrawConstants(p5).CELL * 8, DrawConstants(p5).CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
     autoPlay = p5.createCheckbox('Black makes moves automatically', true)
     showLines = p5.createCheckbox('Show lines', false)
     outputBox = p5.createDiv().style('font-family', 'monospace')
     // synth = new p5.PolySynth()
+  }
+
+  p5.windowResized = () => {
+    p5.resizeCanvas(DrawConstants(p5).CELL * 8, DrawConstants(p5).CELL * 8 + 20)
   }
 
   p5.draw = () => {
@@ -149,7 +157,7 @@ export const sketch = (p5: P5CanvasInstance) => {
       p5.text(
         `eval: ${renderEval(currentEval.eval)} (${evalTime}s)`,
         5,
-        DrawConstants.CELL * 8 + 14
+        DrawConstants(p5).CELL * 8 + 14
       )
     }
 

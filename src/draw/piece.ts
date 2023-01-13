@@ -51,15 +51,9 @@ export function preloadPieceImages(p5: P5CanvasInstance) {
 export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: Piece) {
   p5.push()
   p5.imageMode(p5.CENTER)
-  const { x: squareX, y: squareY } = squareCenter(coord)
+  const { x: squareX, y: squareY } = squareCenter(p5, coord)
   if (pieceImages[piece])
-    p5.image(
-      pieceImages[piece],
-      squareX,
-      squareY,
-      DrawConstants.PIECE,
-      DrawConstants.PIECE
-    )
+    p5.image(pieceImages[piece], squareX, squareY, DrawConstants(p5).PIECE, DrawConstants(p5).PIECE)
   p5.pop()
 }
 
@@ -72,8 +66,8 @@ export function drawDraggedPiece(p5: P5CanvasInstance, piece: Piece) {
     pieceImages[piece],
     p5.mouseX,
     p5.mouseY,
-    DrawConstants.PIECE * 1.3,
-    DrawConstants.PIECE * 1.3
+    DrawConstants(p5).PIECE * 1.3,
+    DrawConstants(p5).PIECE * 1.3
   )
   p5.pop()
 }
