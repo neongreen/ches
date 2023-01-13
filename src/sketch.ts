@@ -4,9 +4,9 @@ import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
-import { findBestMove, MAX_DEPTH } from './eval/eval'
+import { findBestMove, findBestMoves, MAX_DEPTH, renderEval } from './eval/eval'
 import { EvalNode } from './eval/node'
-import { Move } from './move'
+import { Move, notateLine } from './move'
 import { isLegalMove } from './move/legal'
 import { castlingMoves } from './move/pieces/king'
 import { Color, Piece } from './piece'
@@ -23,6 +23,7 @@ export const sketch = (p5: P5CanvasInstance) => {
     bestMove: Move | null
     eval: number
     time: number
+    lines?: { move: Move | null; eval: number; line: Move[] }[]
   } | null = null
 
   /** Which piece is currently being dragged */
@@ -35,6 +36,8 @@ export const sketch = (p5: P5CanvasInstance) => {
   let lastMoveTimestamp = 0
 
   let autoPlay: ReturnType<typeof p5.createCheckbox>
+  let showLines: ReturnType<typeof p5.createCheckbox>
+  let outputBox: ReturnType<typeof p5.createDiv>
 
   /** Move delay for AI, in milliseconds */
   const AI_MOVE_DELAY = 400
@@ -116,6 +119,8 @@ export const sketch = (p5: P5CanvasInstance) => {
     const renderer = p5.createCanvas(DrawConstants.CELL * 8, DrawConstants.CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
     autoPlay = p5.createCheckbox('Black makes moves automatically', true)
+    showLines = p5.createCheckbox('Show lines', false)
+    outputBox = p5.createDiv().style('font-family', 'monospace')
     // synth = new p5.PolySynth()
   }
 
@@ -140,14 +145,32 @@ export const sketch = (p5: P5CanvasInstance) => {
     } else {
       drawBestMove()
       p5.fill(0)
-      const evalEval = Math.round(currentEval.eval * 100) / 100
-      const evalSign = evalEval > 0 ? '+' : ''
       const evalTime = Math.round(currentEval.time * 100) / 100
       p5.text(
-        `eval: ${evalSign}${evalEval.toFixed(2)} (${evalTime}s)`,
+        `eval: ${renderEval(currentEval.eval)} (${evalTime}s)`,
         5,
         DrawConstants.CELL * 8 + 14
       )
+    }
+
+    if (
+      // @ts-ignore
+      showLines.checked() &&
+      currentEval
+    ) {
+      if (currentEval?.lines !== undefined) {
+        outputBox.elt.innerText = currentEval.lines
+          .map(
+            (line) =>
+              `${renderEval(line.eval).padStart(6, '\xa0')} - ` +
+              `${notateLine(currentBoard, line.line).join(' ')}`
+          )
+          .join('\n')
+      } else {
+        currentEval.lines = findBestMoves(new EvalNode(currentBoard), MAX_DEPTH, 5)
+      }
+    } else {
+      outputBox.elt.innerText = ''
     }
 
     // if (audioStarted) {

@@ -123,3 +123,9 @@ export function findBestMoves(
   })
   return results.slice(0, lines)
 }
+
+export function renderEval(eval_: number) {
+  const evalEval = Math.round(eval_ * 100) / 100
+  const evalSign = evalEval > 0 ? '+' : ''
+  return `${evalSign}${evalEval.toFixed(2)}`
+}
