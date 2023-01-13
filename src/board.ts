@@ -5,7 +5,7 @@ import { match, P } from 'ts-pattern'
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {
-  board: Piece[]
+  board: Uint8Array
 
   /**
    * Whose move it is now.
@@ -26,7 +26,7 @@ export class Board {
    * By default, the board is set up in the standard chess starting position.
    */
   constructor() {
-    this.board = new Array(64).fill(Piece.Empty)
+    this.board = new Uint8Array(64).fill(Piece.Empty)
     this.side = Color.White
     this.castlingRights = {
       white: { kingside: true, queenside: true },
@@ -40,7 +40,7 @@ export class Board {
    */
   clone() {
     const clone = new Board()
-    clone.board = this.board.slice()
+    clone.board = new Uint8Array(this.board)
     clone.side = this.side
     clone.castlingRights = {
       white: { ...this.castlingRights.white },
@@ -96,7 +96,7 @@ export class Board {
   setFen(fen: string) {
     const [pieces, side, castlingRights, enPassant, halfmove, fullmove] = fen.split(' ')
     this.side = side === 'w' ? Color.White : Color.Black
-    this.board = new Array(64).fill(Piece.Empty)
+    this.board = new Uint8Array(64).fill(Piece.Empty)
     this.castlingRights = {
       white: { kingside: castlingRights.includes('K'), queenside: castlingRights.includes('Q') },
       black: { kingside: castlingRights.includes('k'), queenside: castlingRights.includes('q') },
