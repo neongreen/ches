@@ -12,6 +12,7 @@ const MVV_LVA: number[][] = []
 for (const victim of allPieceTypes) {
   MVV_LVA[victim] = []
   for (const attacker of allPieceTypes) {
+    // The number 1000 doesn't matter, we just want to prioritize the victim choice over the attacker choice (i.e. QxQ should have priority over PxP)
     MVV_LVA[victim][attacker] = pieceTypePoints(victim) * 1000 + 1000 - pieceTypePoints(attacker)
   }
 }
@@ -61,8 +62,9 @@ function isGameOver(board: Board, possibleMoves: Move[]): 'whiteWon' | 'blackWon
  * Evaluate a node without recursion, based on heuristics.
  */
 export function leafEvalNode(node: EvalNode) {
-  const whiteEval = node.material.white + node.development.white / 5
-  const blackEval = node.material.black + node.development.black / 5
+  // NB: we don't want floating-point numbers anywhere
+  const whiteEval = node.material.white * 100 + node.development.white * 20
+  const blackEval = node.material.black * 100 + node.development.black * 20
   return whiteEval - blackEval
 }
 
@@ -116,9 +118,9 @@ export function findBestMove(
 
   switch (isGameOver(node.board, possibleMoves)) {
     case 'whiteWon':
-      return { bestMove: null, eval: 999, line: [] }
+      return { bestMove: null, eval: 99900, line: [] }
     case 'blackWon':
-      return { bestMove: null, eval: -999, line: [] }
+      return { bestMove: null, eval: -99900, line: [] }
     case 'draw':
       return { bestMove: null, eval: 0, line: [] }
     case null:
@@ -165,9 +167,9 @@ export function findBestMoves(
 
   switch (isGameOver(node.board, possibleMoves)) {
     case 'whiteWon':
-      return [{ move: null, eval: 999, line: [] }]
+      return [{ move: null, eval: 99900, line: [] }]
     case 'blackWon':
-      return [{ move: null, eval: -999, line: [] }]
+      return [{ move: null, eval: -99900, line: [] }]
     case 'draw':
       return [{ move: null, eval: 0, line: [] }]
     case null:
@@ -186,7 +188,7 @@ export function findBestMoves(
 }
 
 export function renderEval(eval_: number) {
-  const evalEval = Math.round(eval_ * 100) / 100
-  const evalSign = evalEval > 0 ? '+' : ''
-  return `${evalSign}${evalEval.toFixed(2)}`
+  const evalHuman = eval_ / 100
+  const evalSign = evalHuman > 0 ? '+' : ''
+  return `${evalSign}${evalHuman.toFixed(2)}`
 }
