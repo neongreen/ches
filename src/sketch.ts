@@ -210,19 +210,19 @@ export const sketch = (p5: P5CanvasInstance) => {
             // We found the square we are dropping the piece on
             const move: Move = match('')
               .when(
-                () => piece === Piece.WhiteKing && Math.abs(dest.x - coord.x) > 1,
+                () => piece === Piece.WhiteKing && dest.x - coord.x > 1,
                 () => ({ kind: 'castling', ...castlingMoves.white.kingside } satisfies Move)
               )
               .when(
-                () => piece === Piece.WhiteKing && Math.abs(dest.x - coord.x) < -1,
+                () => piece === Piece.WhiteKing && dest.x - coord.x < -1,
                 () => ({ kind: 'castling', ...castlingMoves.white.queenside } satisfies Move)
               )
               .when(
-                () => piece === Piece.BlackKing && Math.abs(dest.x - coord.x) > 1,
+                () => piece === Piece.BlackKing && dest.x - coord.x > 1,
                 () => ({ kind: 'castling', ...castlingMoves.black.kingside } satisfies Move)
               )
               .when(
-                () => piece === Piece.BlackKing && Math.abs(dest.x - coord.x) < -1,
+                () => piece === Piece.BlackKing && dest.x - coord.x < -1,
                 () => ({ kind: 'castling', ...castlingMoves.black.queenside } satisfies Move)
               )
               .otherwise(
