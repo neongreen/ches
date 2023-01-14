@@ -41,13 +41,18 @@ export class Board {
   previousPositions: Map<PositionHash, string[]> = new Map()
 
   /**
-   * The number of half-moves since the last irreversible move (pawn moves, captures, castling).
+   * THREEFOLD REPETITION: `irreversibleMoveClock` is the number of half-moves since the last irreversible move (pawn moves, captures, castling). If it's 0, the last move was irreversible.
    *
-   * If it's 0, the last move was irreversible.
-   *
-   * Invariant: this is the sum of the lengths of arrays in `#previousPositions`.
+   * Invariant: this is also the sum of the lengths of arrays in `#previousPositions`.
    */
   irreversibleMoveClock = 0
+
+  /**
+   * FIFTY-MOVE RULE: `halfmoveClock` is the number of half-moves since the last capture or pawn move. If it's 0, the last move was a capture or pawn move.
+   *
+   * See https://www.chessprogramming.org/Halfmove_Clock
+   */
+  halfmoveClock = 0
 
   /**
    * Create a new board, or clone an existing one.
@@ -65,6 +70,7 @@ export class Board {
         Array.from(board.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
       )
       this.irreversibleMoveClock = board.irreversibleMoveClock
+      this.halfmoveClock = board.halfmoveClock
     } else {
       // We don't actually care about anything because `setFen` will overwrite everything,
       // but things seem to be slower if we use {} etc.
@@ -189,6 +195,8 @@ export class Board {
       white: { kingside: castling.includes('K'), queenside: castling.includes('Q') },
       black: { kingside: castling.includes('k'), queenside: castling.includes('q') },
     }
+    this.halfmoveClock = parseInt(halfmove, 10)
+    this.previousPositions = new Map()
 
     let rows = pieces.split('/')
     rows.reverse()
@@ -238,7 +246,8 @@ export class Board {
         const piece = this.at(move.from)
         const target = this.at(move.to)
 
-        let irreversibleMove = false
+        let irreversibleMove = false // For the threefold repetition draw rule
+        let captureOrPawnMove = false // For the fifty-move rule
 
         // If the king is moved, castling rights are lost and the move is irreversible
         const anyWhiteCastling = this.castling.white.kingside || this.castling.white.queenside
@@ -288,11 +297,17 @@ export class Board {
           }
         }
 
-        // Captures and pawn moves are also irreversible
-        if (target !== Piece.Empty || isPawn(piece)) irreversibleMove = true
+        // Captures and pawn moves are irreversible *and* reset the halfmove clock
+        if (target !== Piece.Empty || isPawn(piece)) {
+          irreversibleMove = true
+          captureOrPawnMove = true
+        }
 
+        // Ok, now face the music
         if (irreversibleMove) onIrreversibleMove()
         else onReversibleMove()
+        if (captureOrPawnMove) this.halfmoveClock = 0
+        else this.halfmoveClock++
 
         // If the king is moved, update the king position
         if (piece === Piece.WhiteKing) this.kings.white = move.to
@@ -304,6 +319,7 @@ export class Board {
       })
       .with({ kind: 'castling' }, (move) => {
         onIrreversibleMove()
+        this.halfmoveClock++
         if (this.side === Color.White) {
           this.setAt(move.kingFrom, Piece.Empty)
           this.setAt(move.kingTo, Piece.WhiteKing)

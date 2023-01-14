@@ -69,6 +69,7 @@ export function findBestMove(
   alpha = -Infinity,
   beta = Infinity
 ): { move: Move | null; score: Score; line: Move[] } {
+  // Threefold repetition is a draw
   if (node.board.isThreefoldRepetition()) return { move: null, score: 0, line: [] }
 
   const quasiLegalMoves = quasiLegalOrderedMoves(node.board)
@@ -122,6 +123,10 @@ export function findBestMove(
       line: [],
     }
   }
+
+  // If we did find a move, it could be a fifty-move draw
+  // (NB: not 100% sure about edge cases here; does checkmate take priority over 50-move draw?)
+  if (node.board.halfmoveClock >= 100) return { move: null, score: 0, line: [] }
 
   best.line = [best.move!, ...best.line]
   if (isMate(best.score)) {
