@@ -6,6 +6,7 @@ import { allPieceTypes, Color, Piece, pieceType, PieceType } from '@/piece'
 import { match } from 'ts-pattern'
 import { pieceTypePoints } from './material'
 import { EvalNode } from './node'
+import { isMate, mateByBlack, mateByWhite, Score } from './score'
 
 // https://rustic-chess.org/search/ordering/mvv_lva.html
 const MVV_LVA: number[][] = []
@@ -20,7 +21,7 @@ for (const victim of allPieceTypes) {
 /**
  * Move ordering. We want to search most promising moves first because then the search tree might get smaller due to alpha-beta pruning.
  */
-function scoreMove(board: Board, move: Move): number {
+function moveOrder(board: Board, move: Move): number {
   return match(move)
     .with({ kind: 'normal' }, (move) => {
       // NB: We could just do "material difference" but this would give equal trades score 0, and we don't want that — we still want to look at captures before quiet moves.
@@ -36,15 +37,15 @@ function scoreMove(board: Board, move: Move): number {
 /** Generate moves ordered by `scoreMove`. */
 function quasiLegalOrderedMoves(board: Board): Move[] {
   return quasiLegalMoves(board)
-    .map((move) => ({ move, score: scoreMove(board, move) }))
-    .sort((a, b) => b.score - a.score)
+    .map((move) => ({ move, order: moveOrder(board, move) }))
+    .sort((a, b) => b.order - a.order)
     .map((x) => x.move)
 }
 
 /**
  * Evaluate a node without recursion, based on heuristics.
  */
-export function leafEvalNode(node: EvalNode) {
+export function leafEvalNode(node: EvalNode): Score {
   // NB: we don't want floating-point numbers anywhere
   const whiteEval = node.material.white * 100 + node.development.white * 20
   const blackEval = node.material.black * 100 + node.development.black * 20
@@ -65,15 +66,15 @@ export function findBestMove(
   depth: number,
   alpha = -Infinity,
   beta = Infinity
-): { move: Move | null; eval: number; line: Move[] } {
-  if (node.board.isThreefoldRepetition()) return { move: null, eval: 0, line: [] }
+): { move: Move | null; score: Score; line: Move[] } {
+  if (node.board.isThreefoldRepetition()) return { move: null, score: 0, line: [] }
 
   const quasiLegalMoves = quasiLegalOrderedMoves(node.board)
 
   // https://en.wikipedia.org/wiki/Alpha–beta_pruning#Pseudocode
   let best = {
     move: null as Move | null,
-    eval: node.board.side === Color.White ? -Infinity : Infinity,
+    score: node.board.side === Color.White ? -Infinity : Infinity,
     line: [] as Move[],
   }
 
@@ -90,20 +91,20 @@ export function findBestMove(
     newNode.executeMove(move, boardAfterMove)
     const current =
       depth === 1
-        ? { eval: leafEvalNode(newNode), line: [] }
+        ? { score: leafEvalNode(newNode), line: [] }
         : findBestMove(newNode, depth - 1, alpha, beta)
 
     if (node.board.side === Color.White) {
-      if (current.eval > best.eval) best = { ...current, move }
+      if (current.score > best.score) best = { ...current, move }
       // If black can force a worse eval (in previously considered variations) than the eval we just found, we can stop evaluating this branch. This is because black won't actually *let us* go into this branch — by definition of 'beta', they can force a worse one.
-      if (best.eval > beta) break
+      if (best.score > beta) break
       // Also, if we found a better eval than 'alpha', we can update the alpha.
-      if (best.eval > alpha) alpha = best.eval
+      if (best.score > alpha) alpha = best.score
     } else {
       // Correspondingly, black wants to minimize, and that's what 'beta' is for. Now 'best' refers to the *smallest* eval we can find.
-      if (current.eval < best.eval) best = { ...current, move }
-      if (best.eval < alpha) break
-      if (best.eval < beta) beta = best.eval
+      if (current.score < best.score) best = { ...current, move }
+      if (best.score < alpha) break
+      if (best.score < beta) beta = best.score
     }
   }
 
@@ -111,21 +112,19 @@ export function findBestMove(
   if (best.move === null) {
     return {
       move: null,
-      eval: isInCheck(node.board, node.board.side)
+      score: isInCheck(node.board, node.board.side)
         ? node.board.side === Color.White
-          ? -99900
-          : 99900
+          ? mateByBlack(0)
+          : mateByWhite(0)
         : 0,
       line: [],
     }
   }
 
   best.line = [best.move!, ...best.line]
+  if (isMate(best.score)) {
+    if (best.score > 0) best.score++
+    else best.score--
+  }
   return best
-}
-
-export function renderEval(eval_: number) {
-  const evalHuman = eval_ / 100
-  const evalSign = evalHuman > 0 ? '+' : ''
-  return `${evalSign}${evalHuman.toFixed(2)}`
 }

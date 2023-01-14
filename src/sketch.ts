@@ -4,8 +4,9 @@ import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
-import { findBestMove, renderEval } from './eval/eval'
+import { findBestMove } from './eval/eval'
 import { EvalNode } from './eval/node'
+import { renderScore, Score } from './eval/score'
 import { Move, notateLine } from './move'
 import { isLegalMove, isLegalMoveAndExecute } from './move/legal'
 import { castlingMoves } from './move/pieces/king'
@@ -40,7 +41,7 @@ class Chess {
   board: Board = new Board()
   bestMove: {
     move: Move | null
-    eval: number
+    score: Score // The score (eval) of the best move
     time: number // How much time was spent on the eval
     line: Move[]
   } | null = null
@@ -194,7 +195,7 @@ export const sketch = (p5: P5CanvasInstance) => {
       p5.fill(0)
       const evalTime = Math.round(chess.bestMove.time * 100) / 100
       p5.text(
-        `eval: ${renderEval(chess.bestMove.eval)} (${evalTime}s)`,
+        `eval: ${renderScore(chess.bestMove.score)} (${evalTime}s)`,
         5,
         DrawConstants(p5).CELL * 8 + 14
       )
