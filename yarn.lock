@@ -769,6 +769,7 @@ __metadata:
     imurmurhash: ^0.1.4
     lodash: ^4.17.21
     next: 13.1.1
+    node-releases: ^2.0.8
     react: 18.2.0
     react-dom: 18.2.0
     react-p5-wrapper: ^3.4.0
@@ -2232,7 +2233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-releases@npm:^2.0.6":
+"node-releases@npm:^2.0.6, node-releases@npm:^2.0.8":
   version: 2.0.8
   resolution: "node-releases@npm:2.0.8"
   checksum: b1ab02c0d5d8e081bf9537232777a7a787dc8fef07f70feabe70a344599b220fe16462f746ac30f3eed5a58549445ad69368964d12a1f8b3b764f6caab7ba34a
