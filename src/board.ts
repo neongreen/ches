@@ -1,7 +1,6 @@
 import { Color, isPawn, letterToPiece, Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
-import { match, P } from 'ts-pattern'
 import MurmurHash from 'imurmurhash'
 
 type PositionHash = number
@@ -241,102 +240,106 @@ export class Board {
       this.irreversibleMoveClock++
     }
 
-    match(move)
-      .with({ kind: 'normal' }, (move) => {
-        const piece = this.at(move.from)
-        const target = this.at(move.to)
+    switch (move.kind) {
+      case 'normal':
+        {
+          const piece = this.at(move.from)
+          const target = this.at(move.to)
 
-        let irreversibleMove = false // For the threefold repetition draw rule
-        let captureOrPawnMove = false // For the fifty-move rule
+          let irreversibleMove = false // For the threefold repetition draw rule
+          let captureOrPawnMove = false // For the fifty-move rule
 
-        // If the king is moved, castling rights are lost and the move is irreversible
-        const anyWhiteCastling = this.castling.white.kingside || this.castling.white.queenside
-        const anyBlackCastling = this.castling.black.kingside || this.castling.black.queenside
-        if (piece === Piece.WhiteKing && anyWhiteCastling) {
-          irreversibleMove = true
-          this.castling.white = { kingside: false, queenside: false }
-        } else if (piece === Piece.BlackKing && anyBlackCastling) {
-          irreversibleMove = true
-          this.castling.black = { kingside: false, queenside: false }
-        }
-        // If a rook is moved from its original position, castling rights are lost and the move is irreversible
-        else if (piece === Piece.WhiteRook) {
-          if (move.from.equals(new Coord(0, 0)) && this.castling.white.queenside) {
+          // If the king is moved, castling rights are lost and the move is irreversible
+          const anyWhiteCastling = this.castling.white.kingside || this.castling.white.queenside
+          const anyBlackCastling = this.castling.black.kingside || this.castling.black.queenside
+          if (piece === Piece.WhiteKing && anyWhiteCastling) {
             irreversibleMove = true
-            this.castling.white.queenside = false
-          } else if (move.from.equals(new Coord(7, 0)) && this.castling.white.kingside) {
+            this.castling.white = { kingside: false, queenside: false }
+          } else if (piece === Piece.BlackKing && anyBlackCastling) {
             irreversibleMove = true
-            this.castling.white.kingside = false
+            this.castling.black = { kingside: false, queenside: false }
           }
-        } else if (piece === Piece.BlackRook) {
-          if (move.from.equals(new Coord(0, 7)) && this.castling.black.queenside) {
+          // If a rook is moved from its original position, castling rights are lost and the move is irreversible
+          else if (piece === Piece.WhiteRook) {
+            if (move.from.equals(new Coord(0, 0)) && this.castling.white.queenside) {
+              irreversibleMove = true
+              this.castling.white.queenside = false
+            } else if (move.from.equals(new Coord(7, 0)) && this.castling.white.kingside) {
+              irreversibleMove = true
+              this.castling.white.kingside = false
+            }
+          } else if (piece === Piece.BlackRook) {
+            if (move.from.equals(new Coord(0, 7)) && this.castling.black.queenside) {
+              irreversibleMove = true
+              this.castling.black.queenside = false
+            } else if (move.from.equals(new Coord(7, 7)) && this.castling.black.kingside) {
+              irreversibleMove = true
+              this.castling.black.kingside = false
+            }
+          }
+
+          // If a rook is captured, castling rights are also lost and the move is irreversible
+          if (target === Piece.WhiteRook) {
+            if (move.to.equals(new Coord(0, 0)) && this.castling.white.queenside) {
+              irreversibleMove = true
+              this.castling.white.queenside = false
+            } else if (move.to.equals(new Coord(7, 0)) && this.castling.white.kingside) {
+              irreversibleMove = true
+              this.castling.white.kingside = false
+            }
+          } else if (target === Piece.BlackRook) {
+            if (move.to.equals(new Coord(0, 7)) && this.castling.black.queenside) {
+              irreversibleMove = true
+              this.castling.black.queenside = false
+            } else if (move.to.equals(new Coord(7, 7)) && this.castling.black.kingside) {
+              irreversibleMove = true
+              this.castling.black.kingside = false
+            }
+          }
+
+          // Captures and pawn moves are irreversible *and* reset the halfmove clock
+          if (target !== Piece.Empty || isPawn(piece)) {
             irreversibleMove = true
-            this.castling.black.queenside = false
-          } else if (move.from.equals(new Coord(7, 7)) && this.castling.black.kingside) {
-            irreversibleMove = true
-            this.castling.black.kingside = false
+            captureOrPawnMove = true
+          }
+
+          // Ok, now face the music
+          if (irreversibleMove) onIrreversibleMove()
+          else onReversibleMove()
+          if (captureOrPawnMove) this.halfmoveClock = 0
+          else this.halfmoveClock++
+
+          // If the king is moved, update the king position
+          if (piece === Piece.WhiteKing) this.kings.white = move.to
+          else if (piece === Piece.BlackKing) this.kings.black = move.to
+
+          // Finally, update the board
+          this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
+          this.setAt(move.from, Piece.Empty)
+        }
+        break
+      case 'castling':
+        {
+          onIrreversibleMove()
+          this.halfmoveClock++
+          if (this.side === Color.White) {
+            this.setAt(move.kingFrom, Piece.Empty)
+            this.setAt(move.kingTo, Piece.WhiteKing)
+            this.setAt(move.rookFrom, Piece.Empty)
+            this.setAt(move.rookTo, Piece.WhiteRook)
+            this.castling.white = { kingside: false, queenside: false }
+            this.kings.white = move.kingTo
+          } else {
+            this.setAt(move.kingFrom, Piece.Empty)
+            this.setAt(move.kingTo, Piece.BlackKing)
+            this.setAt(move.rookFrom, Piece.Empty)
+            this.setAt(move.rookTo, Piece.BlackRook)
+            this.castling.black = { kingside: false, queenside: false }
+            this.kings.black = move.kingTo
           }
         }
-
-        // If a rook is captured, castling rights are also lost and the move is irreversible
-        if (target === Piece.WhiteRook) {
-          if (move.to.equals(new Coord(0, 0)) && this.castling.white.queenside) {
-            irreversibleMove = true
-            this.castling.white.queenside = false
-          } else if (move.to.equals(new Coord(7, 0)) && this.castling.white.kingside) {
-            irreversibleMove = true
-            this.castling.white.kingside = false
-          }
-        } else if (target === Piece.BlackRook) {
-          if (move.to.equals(new Coord(0, 7)) && this.castling.black.queenside) {
-            irreversibleMove = true
-            this.castling.black.queenside = false
-          } else if (move.to.equals(new Coord(7, 7)) && this.castling.black.kingside) {
-            irreversibleMove = true
-            this.castling.black.kingside = false
-          }
-        }
-
-        // Captures and pawn moves are irreversible *and* reset the halfmove clock
-        if (target !== Piece.Empty || isPawn(piece)) {
-          irreversibleMove = true
-          captureOrPawnMove = true
-        }
-
-        // Ok, now face the music
-        if (irreversibleMove) onIrreversibleMove()
-        else onReversibleMove()
-        if (captureOrPawnMove) this.halfmoveClock = 0
-        else this.halfmoveClock++
-
-        // If the king is moved, update the king position
-        if (piece === Piece.WhiteKing) this.kings.white = move.to
-        else if (piece === Piece.BlackKing) this.kings.black = move.to
-
-        // Finally, update the board
-        this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
-        this.setAt(move.from, Piece.Empty)
-      })
-      .with({ kind: 'castling' }, (move) => {
-        onIrreversibleMove()
-        this.halfmoveClock++
-        if (this.side === Color.White) {
-          this.setAt(move.kingFrom, Piece.Empty)
-          this.setAt(move.kingTo, Piece.WhiteKing)
-          this.setAt(move.rookFrom, Piece.Empty)
-          this.setAt(move.rookTo, Piece.WhiteRook)
-          this.castling.white = { kingside: false, queenside: false }
-          this.kings.white = move.kingTo
-        } else {
-          this.setAt(move.kingFrom, Piece.Empty)
-          this.setAt(move.kingTo, Piece.BlackKing)
-          this.setAt(move.rookFrom, Piece.Empty)
-          this.setAt(move.rookTo, Piece.BlackRook)
-          this.castling.black = { kingside: false, queenside: false }
-          this.kings.black = move.kingTo
-        }
-      })
-      .exhaustive()
+        break
+    }
     this.side = this.side === Color.White ? Color.Black : Color.White
   }
 }

@@ -2,7 +2,6 @@ import { Coord } from '@/utils/coord'
 import { Piece, pieceToLetter, pieceType, PieceType, pieceTypeToLetter, Color } from '@/piece'
 import { Board } from '@/board'
 import { isAttackedByColor } from '@/move/attacked'
-import { match } from 'ts-pattern'
 
 export type Move =
   | { kind: 'normal'; from: Coord; to: Coord; promotion?: Piece }
@@ -33,8 +32,8 @@ export function notateMove(board: Board, move: Move): string {
     return String.fromCharCode('a'.charCodeAt(0) + coord.x) + (coord.y + 1)
   }
 
-  return match(move)
-    .with({ kind: 'normal' }, (move) => {
+  switch (move.kind) {
+    case 'normal': {
       const pieceFrom = board.at(move.from)
       const pieceTo = board.at(move.to)
       switch (pieceType(pieceFrom)) {
@@ -56,11 +55,11 @@ export function notateMove(board: Board, move: Move): string {
           )
         }
       }
-    })
-    .with({ kind: 'castling' }, (move) => {
+    }
+    case 'castling': {
       return move.kingTo.x > move.kingFrom.x ? 'O-O' : 'O-O-O'
-    })
-    .exhaustive()
+    }
+  }
 }
 
 /**

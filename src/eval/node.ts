@@ -3,7 +3,6 @@ import { Move } from '@/move'
 import { Color, colorName, isPawn, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { piecePoints } from './material'
-import { match } from 'ts-pattern'
 
 /** A node in the evaluation tree. Contains a board + extra info used for eval. */
 export class EvalNode {
@@ -79,54 +78,58 @@ export class EvalNode {
    * @param newBoard The result of `Board.executeMove()`, if already calculated.
    */
   executeMove(move: Move, newBoard?: Board) {
-    match(move)
-      .with({ kind: 'normal' }, (move) => {
-        const piece = this.board.at(move.from)
-        const dest = this.board.at(move.to)
+    switch (move.kind) {
+      case 'normal':
+        {
+          const piece = this.board.at(move.from)
+          const dest = this.board.at(move.to)
 
-        // If we have captured a piece, update the material score and development
-        if (dest !== Piece.Empty) {
-          this.material[colorName(dest)] -= piecePoints(dest)
-          if (isPawn(dest)) {
-            if (pieceColor(dest) === Color.White) this.pawnAdvancement.white -= move.to.y - 1
-            if (pieceColor(dest) === Color.Black) this.pawnAdvancement.black -= 6 - move.to.y
-          } else {
-            if (pieceColor(dest) === Color.White && move.to.y !== 0) this.development.white--
-            if (pieceColor(dest) === Color.Black && move.to.y !== 7) this.development.black--
-          }
-        }
-
-        // If the moved piece (not a pawn) was undeveloped and became developed, or vice-versa:
-        if (!isPawn(piece)) {
-          if (pieceColor(piece) === Color.White) {
-            if (move.from.y !== 0) this.development.white--
-            if (move.to.y !== 0) this.development.white++
-          }
-          if (pieceColor(piece) === Color.Black) {
-            if (move.from.y !== 7) this.development.black--
-            if (move.to.y !== 7) this.development.black++
-          }
-        }
-
-        // If the moved piece was a pawn:
-        if (isPawn(piece)) {
-          if (move.promotion) {
-            this.material[colorName(piece)] += piecePoints(move.promotion) - 1
-            this.development[colorName(piece)]++
-            this.pawnAdvancement[colorName(piece)] -= 5 // T R U S T
-          } else {
-            if (pieceColor(piece) === Color.White) {
-              this.pawnAdvancement.white += move.to.y - move.from.y
+          // If we have captured a piece, update the material score and development
+          if (dest !== Piece.Empty) {
+            this.material[colorName(dest)] -= piecePoints(dest)
+            if (isPawn(dest)) {
+              if (pieceColor(dest) === Color.White) this.pawnAdvancement.white -= move.to.y - 1
+              if (pieceColor(dest) === Color.Black) this.pawnAdvancement.black -= 6 - move.to.y
             } else {
-              this.pawnAdvancement.black += move.from.y - move.to.y
+              if (pieceColor(dest) === Color.White && move.to.y !== 0) this.development.white--
+              if (pieceColor(dest) === Color.Black && move.to.y !== 7) this.development.black--
+            }
+          }
+
+          // If the moved piece (not a pawn) was undeveloped and became developed, or vice-versa:
+          if (!isPawn(piece)) {
+            if (pieceColor(piece) === Color.White) {
+              if (move.from.y !== 0) this.development.white--
+              if (move.to.y !== 0) this.development.white++
+            }
+            if (pieceColor(piece) === Color.Black) {
+              if (move.from.y !== 7) this.development.black--
+              if (move.to.y !== 7) this.development.black++
+            }
+          }
+
+          // If the moved piece was a pawn:
+          if (isPawn(piece)) {
+            if (move.promotion) {
+              this.material[colorName(piece)] += piecePoints(move.promotion) - 1
+              this.development[colorName(piece)]++
+              this.pawnAdvancement[colorName(piece)] -= 5 // T R U S T
+            } else {
+              if (pieceColor(piece) === Color.White) {
+                this.pawnAdvancement.white += move.to.y - move.from.y
+              } else {
+                this.pawnAdvancement.black += move.from.y - move.to.y
+              }
             }
           }
         }
-      })
-      .with({ kind: 'castling' }, (move) => {
-        // Neither development nor material changes
-      })
-      .exhaustive()
+        break
+      case 'castling':
+        {
+          // Neither development nor material changes
+        }
+        break
+    }
 
     if (newBoard) this.board = newBoard
     else this.board.executeMove(move)

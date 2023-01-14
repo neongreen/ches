@@ -2,8 +2,7 @@ import { Board } from '@/board'
 import { isInCheck, Move } from '@/move'
 import { isLegalMove } from '@/move/legal'
 import { quasiLegalMoves } from '@/move/quasiLegal'
-import { allPieceTypes, Color, Piece, pieceType, PieceType } from '@/piece'
-import { match } from 'ts-pattern'
+import { allPieceTypes, Color, Piece, pieceType } from '@/piece'
 import { pieceTypePoints } from './material'
 import { EvalNode } from './node'
 import { isMate, mateByBlack, mateByWhite, Score } from './score'
@@ -22,16 +21,18 @@ for (const victim of allPieceTypes) {
  * Move ordering. We want to search most promising moves first because then the search tree might get smaller due to alpha-beta pruning.
  */
 function moveOrder(board: Board, move: Move): number {
-  return match(move)
-    .with({ kind: 'normal' }, (move) => {
+  switch (move.kind) {
+    case 'normal': {
       // NB: We could just do "material difference" but this would give equal trades score 0, and we don't want that — we still want to look at captures before quiet moves.
       const from = board.at(move.from)
       const to = board.at(move.to)
       if (to === Piece.Empty) return 0
       return MVV_LVA[pieceType(to)][pieceType(from)]
-    })
-    .with({ kind: 'castling' }, () => 0)
-    .exhaustive()
+    }
+    case 'castling': {
+      return 0
+    }
+  }
 }
 
 /** Generate moves ordered by `scoreMove`. */

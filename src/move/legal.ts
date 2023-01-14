@@ -2,7 +2,6 @@ import { Board } from '@/board'
 import { isInCheck, Move } from '@/move'
 import { pieceColor, isKing, Color, Piece, pieceType, PieceType } from '@/piece'
 import _ from 'lodash'
-import { match } from 'ts-pattern'
 import { isBishopMoveValid } from './pieces/bishop'
 import { isKingMoveValid } from './pieces/king'
 import { isKnightMoveValid } from './pieces/knight'
@@ -40,14 +39,17 @@ export function isLegalMove(
   // a move that a human player wants to make), we have to be more thorough:
   if (!optAssumeQuasiLegal) {
     // It has to be the right side making the move
-    const moveColor = match(move)
-      .with({ kind: 'normal' }, (move) => pieceColor(boardBeforeMove.at(move.from)))
-      .with({ kind: 'castling' }, (move) => pieceColor(boardBeforeMove.at(move.kingFrom)))
-      .exhaustive()
-    if (moveColor !== boardBeforeMove.side) return false
+    switch (move.kind) {
+      case 'normal':
+        if (pieceColor(boardBeforeMove.at(move.from)) !== boardBeforeMove.side) return false
+        break
+      case 'castling':
+        if (pieceColor(boardBeforeMove.at(move.kingFrom)) !== boardBeforeMove.side) return false
+        break
+    }
 
-    const result: boolean = match(move)
-      .with({ kind: 'normal' }, (move) => {
+    switch (move.kind) {
+      case 'normal': {
         const from = boardBeforeMove.at(move.from)
         const to = boardBeforeMove.at(move.to)
         // No moving outside the board boundaries
@@ -60,35 +62,26 @@ export function isLegalMove(
         if (pieceColor(from) === pieceColor(to)) return false
         // Piece movement rules
         switch (pieceType(from)) {
-          // NB: can't use ts-pattern here because https://github.com/gvergnaud/ts-pattern/issues/58
           case PieceType.Empty:
             return false
           case PieceType.Pawn:
-            if (!isPawnMoveValid(boardBeforeMove, move)) return false
-            break
+            return isPawnMoveValid(boardBeforeMove, move)
           case PieceType.Knight:
-            if (!isKnightMoveValid(boardBeforeMove, move)) return false
-            break
+            return isKnightMoveValid(boardBeforeMove, move)
           case PieceType.Bishop:
-            if (!isBishopMoveValid(boardBeforeMove, move)) return false
-            break
+            return isBishopMoveValid(boardBeforeMove, move)
           case PieceType.Rook:
-            if (!isRookMoveValid(boardBeforeMove, move)) return false
-            break
+            return isRookMoveValid(boardBeforeMove, move)
           case PieceType.Queen:
-            if (!isQueenMoveValid(boardBeforeMove, move)) return false
-            break
+            return isQueenMoveValid(boardBeforeMove, move)
           case PieceType.King:
-            if (!isKingMoveValid(boardBeforeMove, move)) return false
-            break
+            return isKingMoveValid(boardBeforeMove, move)
         }
-        return true
-      })
-      .with({ kind: 'castling' }, (move) => {
+      }
+      case 'castling': {
         return isKingMoveValid(boardBeforeMove, move)
-      })
-      .exhaustive()
-    if (!result) return false
+      }
+    }
   }
 
   return true
