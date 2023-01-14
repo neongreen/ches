@@ -141,6 +141,14 @@ export class Board {
     return this.board[coord.y * 8 + coord.x]
   }
 
+  /** Return the piece at coordinates (x, y).
+   *
+   * Doesn't check if the coordinates are off the board.
+   */
+  unsafeAt(coord: Coord): Piece {
+    return this.board[coord.y * 8 + coord.x]
+  }
+
   /**
    * Set the piece at coordinates (x, y).
    */

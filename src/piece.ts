@@ -51,6 +51,9 @@ export function pieceType(piece: Piece): PieceType {
 export function pieceColor(piece: Piece): Color {
   return piece & 0xf0
 }
+export function makePiece(color: Color, type: PieceType): Piece {
+  return type | color
+}
 
 export const isPawn = (piece: Piece) => piece === Piece.WhitePawn || piece === Piece.BlackPawn
 export const isKnight = (piece: Piece) => piece === Piece.WhiteKnight || piece === Piece.BlackKnight

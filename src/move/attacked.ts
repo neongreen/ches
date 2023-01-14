@@ -1,7 +1,7 @@
 // TODO: en passant
 
 import { Board } from '@/board'
-import { pieceColor, Piece, PieceType, pieceType, Color } from '@/piece'
+import { Piece, PieceType, Color, makePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
@@ -9,99 +9,95 @@ import { Coord } from '@/utils/coord'
  *
  * NB: A square is not considered to be attacked by a piece standing on that square.
  */
-export function isAttackedByColor(board: Board, color: Color, target: Coord) {
-  // For all pieces on the board, let's see if they can move to the target square.
-  const isAttackedBy = (coord: Coord) => {
-    if (coord.equals(target)) return false
-    const piece = board.at(coord)
-    if (piece === Piece.Empty) return false
-    if (pieceColor(piece) !== color) return false
-    switch (pieceType(piece)) {
-      case PieceType.Pawn:
-        return isAttackedByPawn(board, coord, target)
-      case PieceType.Knight:
-        return isAttackedByKnight(board, coord, target)
-      case PieceType.Bishop:
-        return isAttackedByBishop(board, coord, target)
-      case PieceType.Rook:
-        return isAttackedByRook(board, coord, target)
-      case PieceType.Queen:
-        return isAttackedByQueen(board, coord, target)
-      case PieceType.King:
-        return isAttackedByKing(board, coord, target)
-    }
+export function isAttackedByColor(board: Board, enemy: Color, target: Coord) {
+  // We could do a check for all pieces of the opposite color, and we actually did it, and it was slow. Instead we'll go in 8 directions + 8 knight moves, and check if we stumble upon a piece of the opposite color.
+
+  const enemyKnight = makePiece(enemy, PieceType.Knight)
+  const enemyBishop = makePiece(enemy, PieceType.Bishop)
+  const enemyRook = makePiece(enemy, PieceType.Rook)
+  const enemyQueen = makePiece(enemy, PieceType.Queen)
+  const enemyKing = makePiece(enemy, PieceType.King)
+
+  // Step 1: check if there's a pawn that can attack the target square.
+  if (enemy === Color.Black) {
+    if (board.at(target.nw()) === Piece.BlackPawn) return true
+    if (board.at(target.ne()) === Piece.BlackPawn) return true
+  } else {
+    if (board.at(target.sw()) === Piece.WhitePawn) return true
+    if (board.at(target.se()) === Piece.WhitePawn) return true
   }
-  for (let pieceX = 0; pieceX < 8; pieceX++)
-    for (let pieceY = 0; pieceY < 8; pieceY++)
-      if (isAttackedBy(new Coord(pieceX, pieceY))) return true
+
+  // Step 2: check if there's a knight that can attack the target square.
+  for (const shift of [
+    { x: 1, y: 2 },
+    { x: 2, y: 1 },
+    { x: -1, y: 2 },
+    { x: -2, y: 1 },
+    { x: 1, y: -2 },
+    { x: 2, y: -1 },
+    { x: -1, y: -2 },
+    { x: -2, y: -1 },
+  ]) {
+    if (board.at(target.shift(shift)) === enemyKnight) return true
+  }
+
+  // Step 3: check if there's a rook or queen that can attack the target square.
+  for (let xy = target.n(); xy.isValid(); xy = xy.n()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyRook || piece === enemyQueen) return true
+    if (piece !== Piece.Empty) break
+  }
+  for (let xy = target.s(); xy.isValid(); xy = xy.s()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyRook || piece === enemyQueen) return true
+    if (piece !== Piece.Empty) break
+  }
+  for (let xy = target.e(); xy.isValid(); xy = xy.e()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyRook || piece === enemyQueen) return true
+    if (piece !== Piece.Empty) break
+  }
+  for (let xy = target.w(); xy.isValid(); xy = xy.w()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyRook || piece === enemyQueen) return true
+    if (piece !== Piece.Empty) break
+  }
+
+  // Step 4: check if there's a bishop or queen that can attack the target square.
+  for (let xy = target.ne(); xy.isValid(); xy = xy.ne()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyQueen || piece === enemyBishop) return true
+    if (piece !== Piece.Empty) break
+  }
+  for (let xy = target.nw(); xy.isValid(); xy = xy.nw()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyQueen || piece === enemyBishop) return true
+    if (piece !== Piece.Empty) break
+  }
+  for (let xy = target.se(); xy.isValid(); xy = xy.se()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyQueen || piece === enemyBishop) return true
+    if (piece !== Piece.Empty) break
+  }
+  for (let xy = target.sw(); xy.isValid(); xy = xy.sw()) {
+    const piece = board.unsafeAt(xy)
+    if (piece === enemyQueen || piece === enemyBishop) return true
+    if (piece !== Piece.Empty) break
+  }
+
+  // Step 5: check if there's a king that can attack the target square.
+  for (const dest of [
+    target.n(),
+    target.e(),
+    target.s(),
+    target.w(),
+    target.ne(),
+    target.se(),
+    target.sw(),
+    target.nw(),
+  ]) {
+    if (board.at(dest) === enemyKing) return true
+  }
+
   return false
-}
-
-export function isAttackedByRook(board: Board, rook: Coord, target: Coord) {
-  if (rook.x === target.x) {
-    const [min, max] = [Math.min(rook.y, target.y), Math.max(rook.y, target.y)]
-    for (let y = min + 1; y < max; y++) {
-      if (board.isOccupied(new Coord(target.x, y))) return false
-    }
-    return true
-  } else if (rook.y === target.y) {
-    const [min, max] = [Math.min(rook.x, target.x), Math.max(rook.x, target.x)]
-    for (let x = min + 1; x < max; x++) {
-      if (board.isOccupied(new Coord(x, target.y))) return false
-    }
-    return true
-  } else {
-    return false
-  }
-}
-
-function isAttackedByBishop(board: Board, bishop: Coord, target: Coord) {
-  // TODO: this fails if bishop === target
-  if (bishop.x + bishop.y === target.x + target.y) {
-    const delta = bishop.x < target.x ? 1 : -1
-    let x = bishop.x + delta
-    let y = bishop.y - delta
-    while (x !== target.x) {
-      if (board.isOccupied(new Coord(x, y))) return false
-      x += delta
-      y -= delta
-    }
-    return true
-  } else if (bishop.x - bishop.y === target.x - target.y) {
-    const delta = bishop.x < target.x ? 1 : -1
-    let x = bishop.x + delta
-    let y = bishop.y + delta
-    while (x !== target.x) {
-      if (board.isOccupied(new Coord(x, y))) return false
-      x += delta
-      y += delta
-    }
-    return true
-  } else {
-    return false
-  }
-}
-
-function isAttackedByQueen(board: Board, queen: Coord, target: Coord) {
-  return isAttackedByRook(board, queen, target) || isAttackedByBishop(board, queen, target)
-}
-
-function isAttackedByKnight(board: Board, knight: Coord, target: Coord) {
-  const xd = Math.abs(knight.x - target.x)
-  const yd = Math.abs(knight.y - target.y)
-  return (xd === 1 && yd === 2) || (xd === 2 && yd === 1)
-}
-
-function isAttackedByKing(board: Board, king: Coord, target: Coord) {
-  const xd = Math.abs(king.x - target.x)
-  const yd = Math.abs(king.y - target.y)
-  return xd <= 1 && yd <= 1
-}
-
-function isAttackedByPawn(board: Board, pawn: Coord, target: Coord) {
-  if (pieceColor(board.at(pawn)) === Color.White) {
-    return target.y === pawn.y + 1 && Math.abs(target.x - pawn.x) === 1
-  } else {
-    return target.y === pawn.y - 1 && Math.abs(target.x - pawn.x) === 1
-  }
 }
