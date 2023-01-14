@@ -50,42 +50,40 @@ export class Board {
   irreversibleMoveClock = 0
 
   /**
-   * Create a new board.
+   * Create a new board, or clone an existing one.
    *
    * By default, the board is set up in the standard chess starting position.
    */
-  constructor() {
-    // We don't actually care about anything because `setFen` will overwrite everything,
-    // but things seem to be slower if we use {} etc.
-    this.board = new Uint8Array(64)
-    this.side = Color.White
-    this.castling = {
-      white: { kingside: true, queenside: true },
-      black: { kingside: true, queenside: true },
+  constructor(board?: Board) {
+    if (board) {
+      // Clone
+      this.board = new Uint8Array(board.board)
+      this.side = board.side
+      this.kings = { ...board.kings }
+      this.castling = { white: { ...board.castling.white }, black: { ...board.castling.black } }
+      this.previousPositions = new Map(
+        Array.from(this.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
+      )
+      this.irreversibleMoveClock = this.irreversibleMoveClock
+    } else {
+      // We don't actually care about anything because `setFen` will overwrite everything,
+      // but things seem to be slower if we use {} etc.
+      this.board = new Uint8Array(64)
+      this.side = Color.White
+      this.castling = {
+        white: { kingside: true, queenside: true },
+        black: { kingside: true, queenside: true },
+      }
+      this.kings = { white: new Coord(4, 0), black: new Coord(4, 7) }
+      this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     }
-    this.kings = { white: new Coord(4, 0), black: new Coord(4, 7) }
-    this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
   }
 
   /**
    * Return a copy of the board.
-   *
-   * FIXME: can be faster because we don't need to set up the standard chess starting position
    */
   clone() {
-    const clone = new Board()
-    clone.board = new Uint8Array(this.board)
-    clone.side = this.side
-    clone.kings = { ...this.kings }
-    clone.castling = {
-      white: { ...this.castling.white },
-      black: { ...this.castling.black },
-    }
-    clone.previousPositions = new Map(
-      Array.from(this.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
-    )
-    clone.irreversibleMoveClock = this.irreversibleMoveClock
-    return clone
+    return new Board(this)
   }
 
   /**
