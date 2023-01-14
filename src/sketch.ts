@@ -4,7 +4,7 @@ import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
-import { findBestMove, findBestMoves, MAX_DEPTH, renderEval } from './eval/eval'
+import { findBestMove, findBestMoves, renderEval } from './eval/eval'
 import { EvalNode } from './eval/node'
 import { Move, notateLine } from './move'
 import { isLegalMove } from './move/legal'
@@ -13,12 +13,21 @@ import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
 
 function createWidgets(p5: P5CanvasInstance): {
+  depth: ReturnType<typeof p5.createSlider>
   autoPlay: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   showBestMove: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   showLines: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   outputBox: ReturnType<typeof p5.createDiv>
 } {
+  const depthContainer = p5.createDiv().style('display: flex')
+  const depthLabel = p5.createSpan('Depth: ').parent(depthContainer)
+  const depth = p5
+    .createSlider(/* min */ 1, /*max*/ 6, /* default */ 2, /* step */ 1)
+    .parent(depthContainer)
+  const depthValue = p5.createSpan(depth.value().toString()).parent(depthContainer)
+  depth.elt.oninput = () => depthValue.html(depth.value().toString())
   return {
+    depth,
     autoPlay: p5.createCheckbox('Black makes moves automatically', true) as any,
     showBestMove: p5.createCheckbox('Show the most devious move', false) as any,
     showLines: p5.createCheckbox('Show lines', false) as any,
@@ -154,7 +163,7 @@ export const sketch = (p5: P5CanvasInstance) => {
 
     if (currentEval === null) {
       const startTime = performance.now()
-      const newEval = findBestMove(new EvalNode(currentBoard), MAX_DEPTH)
+      const newEval = findBestMove(new EvalNode(currentBoard), Number(widgets.depth.value()))
       currentEval = { ...newEval, time: (performance.now() - startTime) / 1000 }
     }
     if (currentEval.bestMove && currentBoard.side === Color.Black && widgets.autoPlay.checked()) {
@@ -183,7 +192,11 @@ export const sketch = (p5: P5CanvasInstance) => {
           widgets.outputBox.elt.innerText += '\n\nThreefold repetition detected'
         }
       } else {
-        currentEval.lines = findBestMoves(new EvalNode(currentBoard), MAX_DEPTH, 5)
+        currentEval.lines = findBestMoves(
+          new EvalNode(currentBoard),
+          Number(widgets.depth.value()),
+          5
+        )
       }
     } else {
       widgets.outputBox.elt.innerText = ''
