@@ -5,8 +5,6 @@ import { match } from 'ts-pattern'
 import { pieceTypePoints } from './material'
 import { EvalNode } from './node'
 
-export const MAX_DEPTH = 2
-
 // https://rustic-chess.org/search/ordering/mvv_lva.html
 const MVV_LVA: number[][] = []
 for (const victim of allPieceTypes) {
