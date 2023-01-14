@@ -8,12 +8,20 @@ type PositionHash = number
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {
+  /**
+   * The board as a 8x8 array.
+   */
   board: Uint8Array
 
   /**
    * Whose move it is now.
    */
   side: Color
+
+  /**
+   * King locations, for faster check detection.
+   */
+  kings: { white: Coord; black: Coord }
 
   /**
    * Castling rights.
@@ -47,22 +55,28 @@ export class Board {
    * By default, the board is set up in the standard chess starting position.
    */
   constructor() {
-    this.board = new Uint8Array(64).fill(Piece.Empty)
+    // We don't actually care about anything because `setFen` will overwrite everything,
+    // but things seem to be slower if we use {} etc.
+    this.board = new Uint8Array(64)
     this.side = Color.White
     this.castling = {
       white: { kingside: true, queenside: true },
       black: { kingside: true, queenside: true },
     }
+    this.kings = { white: new Coord(4, 0), black: new Coord(4, 7) }
     this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
   }
 
   /**
    * Return a copy of the board.
+   *
+   * FIXME: can be faster because we don't need to set up the standard chess starting position
    */
   clone() {
     const clone = new Board()
     clone.board = new Uint8Array(this.board)
     clone.side = this.side
+    clone.kings = { ...this.kings }
     clone.castling = {
       white: { ...this.castling.white },
       black: { ...this.castling.black },
@@ -178,11 +192,18 @@ export class Board {
         if (char >= '1' && char <= '8') {
           x += parseInt(char)
         } else {
-          this.setAt(new Coord(x, y), letterToPiece(char))
+          const piece = letterToPiece(char)
+          const coord = new Coord(x, y)
+          this.setAt(coord, piece)
+          if (piece === Piece.WhiteKing) this.kings.white = coord
+          if (piece === Piece.BlackKing) this.kings.black = coord
           x++
         }
       }
     }
+
+    if (this.kings.white === undefined) throw new Error('White king not found')
+    if (this.kings.black === undefined) throw new Error('Black king not found')
   }
 
   /**
@@ -267,6 +288,10 @@ export class Board {
         if (irreversibleMove) onIrreversibleMove()
         else onReversibleMove()
 
+        // If the king is moved, update the king position
+        if (piece === Piece.WhiteKing) this.kings.white = move.to
+        else if (piece === Piece.BlackKing) this.kings.black = move.to
+
         // Finally, update the board
         this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
         this.setAt(move.from, Piece.Empty)
@@ -279,12 +304,14 @@ export class Board {
           this.setAt(move.rookFrom, Piece.Empty)
           this.setAt(move.rookTo, Piece.WhiteRook)
           this.castling.white = { kingside: false, queenside: false }
+          this.kings.white = move.kingTo
         } else {
           this.setAt(move.kingFrom, Piece.Empty)
           this.setAt(move.kingTo, Piece.BlackKing)
           this.setAt(move.rookFrom, Piece.Empty)
           this.setAt(move.rookTo, Piece.BlackRook)
           this.castling.black = { kingside: false, queenside: false }
+          this.kings.black = move.kingTo
         }
       })
       .exhaustive()

@@ -49,21 +49,9 @@ export function generateMoves(
  * Determines if the side to move is in check.
  */
 export function isInCheck(board: Board): boolean {
-  for (let x = 0; x < 8; x++) {
-    for (let y = 0; y < 8; y++) {
-      const coord = new Coord(x, y)
-      const piece = board.at(coord)
-      if (isKing(piece) && board.side === pieceColor(piece)) {
-        // We found the king
-        return isAttackedByColor(
-          board,
-          board.side === Color.White ? Color.Black : Color.White,
-          coord
-        )
-      }
-    }
-  }
-  return false
+  const us = board.side
+  const them = us === Color.White ? Color.Black : Color.White
+  return isAttackedByColor(board, them, us === Color.White ? board.kings.white : board.kings.black)
 }
 
 /**
