@@ -699,7 +699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.16.8":
+"browserslist@npm:^4.16.8, browserslist@npm:^4.21.4":
   version: 4.21.4
   resolution: "browserslist@npm:4.21.4"
   dependencies:
@@ -730,17 +730,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001304, caniuse-lite@npm:^1.0.30001400":
+"caniuse-lite@npm:^1.0.30001304, caniuse-lite@npm:^1.0.30001400, caniuse-lite@npm:^1.0.30001406, caniuse-lite@npm:^1.0.30001444":
   version: 1.0.30001444
   resolution: "caniuse-lite@npm:1.0.30001444"
   checksum: 3d6436e2eea8ee77fdca906f481fd5513eec836d3c5ef395da96872f8e67e0db4b898430a588745752e43fabf0503dc351ff1ab710717c33451bdc8f09a7b5cf
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001406":
-  version: 1.0.30001442
-  resolution: "caniuse-lite@npm:1.0.30001442"
-  checksum: c1bff65bd4f53da2d288e7f55be40706ee0119b983eae5a9dcc884046990476891630aef72d708f7989f8f1964200c44e4c37ea40deecaa2fb4a480df23e6317
   languageName: node
   linkType: hard
 
@@ -767,6 +760,8 @@ __metadata:
     "@types/react-dom": 18.0.10
     "@typescript-eslint/eslint-plugin": ^5.48.1
     "@typescript-eslint/parser": ^5.48.1
+    browserslist: ^4.21.4
+    caniuse-lite: ^1.0.30001444
     eslint: 8.31.0
     eslint-config-next: 13.1.1
     eslint-plugin-compat: ^4.0.2

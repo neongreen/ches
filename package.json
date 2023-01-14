@@ -30,6 +30,8 @@
     "@types/p5": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
+    "browserslist": "^4.21.4",
+    "caniuse-lite": "^1.0.30001444",
     "eslint-plugin-compat": "^4.0.2",
     "eslint-plugin-react": "^7.32.0"
   },
@@ -40,6 +42,6 @@
     "current node"
   ],
   "volta": {
-    "node": "18.13.0"
+    "node": "18.12.1"
   }
 }

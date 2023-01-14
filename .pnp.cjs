@@ -37,6 +37,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:18.0.10"],\
             ["@typescript-eslint/eslint-plugin", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
             ["@typescript-eslint/parser", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
+            ["browserslist", "npm:4.21.4"],\
+            ["caniuse-lite", "npm:1.0.30001444"],\
             ["eslint", "npm:8.31.0"],\
             ["eslint-config-next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
             ["eslint-plugin-compat", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:4.0.2"],\
@@ -996,13 +998,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["caniuse-lite", [\
-        ["npm:1.0.30001442", {\
-          "packageLocation": "./.yarn/cache/caniuse-lite-npm-1.0.30001442-4206643829-c1bff65bd4.zip/node_modules/caniuse-lite/",\
-          "packageDependencies": [\
-            ["caniuse-lite", "npm:1.0.30001442"]\
-          ],\
-          "linkType": "HARD"\
-        }],\
         ["npm:1.0.30001444", {\
           "packageLocation": "./.yarn/cache/caniuse-lite-npm-1.0.30001444-90ae1528dc-3d6436e2ee.zip/node_modules/caniuse-lite/",\
           "packageDependencies": [\
@@ -1036,6 +1031,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:18.0.10"],\
             ["@typescript-eslint/eslint-plugin", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
             ["@typescript-eslint/parser", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
+            ["browserslist", "npm:4.21.4"],\
+            ["caniuse-lite", "npm:1.0.30001444"],\
             ["eslint", "npm:8.31.0"],\
             ["eslint-config-next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
             ["eslint-plugin-compat", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:4.0.2"],\
@@ -2806,7 +2803,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react", "npm:18.0.26"],\
             ["@types/react-dom", "npm:18.0.10"],\
             ["@types/sass", null],\
-            ["caniuse-lite", "npm:1.0.30001442"],\
+            ["caniuse-lite", "npm:1.0.30001444"],\
             ["fibers", null],\
             ["node-sass", null],\
             ["postcss", "npm:8.4.14"],\
