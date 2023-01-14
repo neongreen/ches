@@ -4,11 +4,12 @@ import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
-import { findBestMove, findBestMoves, renderEval } from './eval/eval'
+import { findBestMove, renderEval } from './eval/eval'
 import { EvalNode } from './eval/node'
 import { Move, notateLine } from './move'
-import { isLegalMove } from './move/legal'
+import { isLegalMove, isLegalMoveAndExecute } from './move/legal'
 import { castlingMoves } from './move/pieces/king'
+import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
 
@@ -16,13 +17,13 @@ function createWidgets(p5: P5CanvasInstance): {
   depth: ReturnType<typeof p5.createSlider>
   autoPlay: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   showBestMove: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
-  showLines: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
+  showLine: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   outputBox: ReturnType<typeof p5.createDiv>
 } {
   const depthContainer = p5.createDiv().style('display: flex')
   const depthLabel = p5.createSpan('Depth: ').parent(depthContainer)
   const depth = p5
-    .createSlider(/* min */ 1, /*max*/ 6, /* default */ 2, /* step */ 1)
+    .createSlider(/* min */ 1, /*max*/ 7, /* default */ 3, /* step */ 1)
     .parent(depthContainer)
   const depthValue = p5.createSpan(depth.value().toString()).parent(depthContainer)
   depth.elt.oninput = () => depthValue.html(depth.value().toString())
@@ -30,26 +31,24 @@ function createWidgets(p5: P5CanvasInstance): {
     depth,
     autoPlay: p5.createCheckbox('Black makes moves automatically', true) as any,
     showBestMove: p5.createCheckbox('Show the most devious move', false) as any,
-    showLines: p5.createCheckbox('Show lines', false) as any,
+    showLine: p5.createCheckbox('Show the line', false) as any,
     outputBox: p5.createDiv().style('font-family', 'monospace'),
   }
 }
 
 class Chess {
   board: Board = new Board()
-  eval: {
-    bestMove: Move | null
+  bestMove: {
+    move: Move | null
     eval: number
     time: number // How much time was spent on the eval
-    lines?: { move: Move | null; eval: number; line: Move[] }[]
+    line: Move[]
   } | null = null
-
-  constructor() {}
 
   /** Make a move (assuming it's already been checked for legality) */
   makeMove(move: Move) {
     this.board.executeMove(move)
-    this.eval = null
+    this.bestMove = null
   }
 }
 
@@ -60,8 +59,22 @@ export const sketch = (p5: P5CanvasInstance) => {
   // let synth
 
   const chess = new Chess()
+
+  // For debug
   // @ts-ignore
-  window.chess = chess // For debug
+  window.Coord = Coord
+  // @ts-ignore
+  window.EvalNode = EvalNode
+  // @ts-ignore
+  window.chess = chess
+  // @ts-ignore
+  window.chess.isLegalMove = isLegalMoveAndExecute
+  // @ts-ignore
+  window.chess.quasiLegalMoves = quasiLegalMoves
+  // @ts-ignore
+  window.chess.quasiLegalMovesFrom = quasiLegalMovesFrom
+  // @ts-ignore
+  window.chess.findBestMove = findBestMove
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -84,7 +97,7 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   /** Make the best move for the current side */
   const makeBestMove = () => {
-    if (chess.eval?.bestMove) makeMove(chess.eval.bestMove)
+    if (chess.bestMove?.move) makeMove(chess.bestMove.move)
   }
 
   // Checkered board
@@ -114,8 +127,8 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   const drawBestMove = () => {
-    if (widgets.showBestMove.checked() && chess.eval?.bestMove) {
-      const { from, to } = match(chess.eval.bestMove)
+    if (widgets.showBestMove.checked() && chess.bestMove?.move) {
+      const { from, to } = match(chess.bestMove.move)
         .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
         .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
         .exhaustive()
@@ -169,43 +182,29 @@ export const sketch = (p5: P5CanvasInstance) => {
     drawPieces()
     if (dragged !== null) drawDraggedPiece(p5, chess.board.at(dragged))
 
-    if (chess.eval === null) {
+    if (chess.bestMove === null) {
       const startTime = performance.now()
-      const newEval = findBestMove(new EvalNode(chess.board), Number(widgets.depth.value()))
-      chess.eval = { ...newEval, time: (performance.now() - startTime) / 1000 }
+      const bestMove = findBestMove(new EvalNode(chess.board), Number(widgets.depth.value()))
+      chess.bestMove = { ...bestMove, time: (performance.now() - startTime) / 1000 }
     }
-    if (chess.eval.bestMove && chess.board.side === Color.Black && widgets.autoPlay.checked()) {
+    if (chess.bestMove.move && chess.board.side === Color.Black && widgets.autoPlay.checked()) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
     } else {
       drawBestMove()
       p5.fill(0)
-      const evalTime = Math.round(chess.eval.time * 100) / 100
+      const evalTime = Math.round(chess.bestMove.time * 100) / 100
       p5.text(
-        `eval: ${renderEval(chess.eval.eval)} (${evalTime}s)`,
+        `eval: ${renderEval(chess.bestMove.eval)} (${evalTime}s)`,
         5,
         DrawConstants(p5).CELL * 8 + 14
       )
     }
 
-    if (widgets.showLines.checked() && chess.eval) {
-      if (chess.eval?.lines !== undefined) {
-        widgets.outputBox.elt.innerText = chess.eval.lines
-          .map(
-            (line) =>
-              `${renderEval(line.eval).padStart(6, '\xa0')} - ` +
-              `${notateLine(chess.board, line.line).join(' ')}`
-          )
-          .join('\n')
-        if (chess.board.isThreefoldRepetition()) {
-          widgets.outputBox.elt.innerText += '\n\nThreefold repetition detected'
-        }
-      } else {
-        chess.eval.lines = findBestMoves(
-          new EvalNode(chess.board),
-          Number(widgets.depth.value()),
-          5
-        )
-      }
+    if (widgets.showLine.checked() && chess.bestMove) {
+      const line = chess.bestMove.line
+      widgets.outputBox.elt.innerText =
+        notateLine(chess.board, line).join(' ') +
+        (chess.board.isThreefoldRepetition() ? '\n\nThreefold repetition detected' : '')
     } else {
       widgets.outputBox.elt.innerText = ''
     }
@@ -276,7 +275,9 @@ export const sketch = (p5: P5CanvasInstance) => {
                       : {}),
                   } satisfies Move)
               )
-            if (isLegalMove(chess.board, move)) makeMove(move)
+            let boardAfterMove = chess.board.clone()
+            boardAfterMove.executeMove(move)
+            if (isLegalMove(chess.board, boardAfterMove, move)) makeMove(move)
           }
         }
       }
@@ -294,21 +295,21 @@ function stopTouchScrolling(canvas: Element) {
   document.body.addEventListener(
     'touchstart',
     function (e) {
-      if (e.target == canvas) e.preventDefault()
+      if (e.target === canvas) e.preventDefault()
     },
     { passive: false }
   )
   document.body.addEventListener(
     'touchend',
     function (e) {
-      if (e.target == canvas) e.preventDefault()
+      if (e.target === canvas) e.preventDefault()
     },
     { passive: false }
   )
   document.body.addEventListener(
     'touchmove',
     function (e) {
-      if (e.target == canvas) e.preventDefault()
+      if (e.target === canvas) e.preventDefault()
     },
     { passive: false }
   )

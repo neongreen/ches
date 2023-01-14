@@ -1,4 +1,6 @@
-const scenario = {
+// @ts-nocheck
+
+export const scenario = {
   START: {
     steps: [{ text: 'Hi.' }],
     goto: 'INTRO_1',
@@ -21,7 +23,7 @@ const scenario = {
   },
   CHESS: {
     scene: chessScene({
-      depth: 2, // TODO: I'd like it to say 3
+      depth: 3,
       eval: ['material'],
     }),
   },

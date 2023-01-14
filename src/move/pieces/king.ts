@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, pieceColor } from '@/piece'
+import { Color, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { isAttackedByColor } from '../attacked'
@@ -42,16 +42,15 @@ export const castlingMoves = {
 /**
  * All possible king moves on the board, including captures.
  */
-export function kingMoves(board: Board, coord: Coord): Move[] {
+export function kingMoves(board: Board, color: Color, coord: Coord): Move[] {
   let moves: Move[] = []
-  const piece = board.at(coord)
 
   // Normal moves
   for (let x = -1; x <= 1; x++) {
     for (let y = -1; y <= 1; y++) {
       if (x === 0 && y === 0) continue
       const target = coord.shift({ x, y })
-      if (target.isValid() && pieceColor(board.at(target)) !== pieceColor(piece)) {
+      if (target.isValid() && pieceColor(board.at(target)) !== color) {
         moves.push({ kind: 'normal', from: coord, to: target })
       }
     }
@@ -59,7 +58,7 @@ export function kingMoves(board: Board, coord: Coord): Move[] {
 
   // Castling
   const checkCastling = (move: Extract<Move, { kind: 'castling' }>) => {
-    const opposite = pieceColor(piece) === Color.White ? Color.Black : Color.White
+    const opposite = color === Color.White ? Color.Black : Color.White
     return (
       move.kingFrom.pathTo(move.rookFrom, 'exclusive').every((c) => board.isEmpty(c)) &&
       move.kingFrom
@@ -68,7 +67,7 @@ export function kingMoves(board: Board, coord: Coord): Move[] {
     )
   }
 
-  if (pieceColor(piece) === Color.White) {
+  if (color === Color.White) {
     if (board.castling.white.kingside) {
       const move: Move = { kind: 'castling', ...castlingMoves.white.kingside }
       if (checkCastling(move)) moves.push(move)
@@ -95,9 +94,13 @@ export function kingMoves(board: Board, coord: Coord): Move[] {
  */
 export function isKingMoveValid(board: Board, move: Move) {
   return match(move)
-    .with({ kind: 'normal' }, (move) => kingMoves(board, move.from).some((m) => _.isEqual(m, move)))
+    .with({ kind: 'normal' }, (move) =>
+      kingMoves(board, pieceColor(board.at(move.from)), move.from).some((m) => _.isEqual(m, move))
+    )
     .with({ kind: 'castling' }, (move) =>
-      kingMoves(board, move.kingFrom).some((m) => _.isEqual(m, move))
+      kingMoves(board, pieceColor(board.at(move.kingFrom)), move.kingFrom).some((m) =>
+        _.isEqual(m, move)
+      )
     )
     .exhaustive()
 }

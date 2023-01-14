@@ -1,17 +1,6 @@
 import { Coord } from '@/utils/coord'
-import {
-  pieceColor,
-  isKing,
-  Piece,
-  pieceToLetter,
-  pieceType,
-  PieceType,
-  pieceTypeToLetter,
-  Color,
-} from '@/piece'
+import { Piece, pieceToLetter, pieceType, PieceType, pieceTypeToLetter, Color } from '@/piece'
 import { Board } from '@/board'
-import { isLegalMove } from '@/move/legal'
-import { quasiLegalNormalMoves } from '@/move/quasiLegal'
 import { isAttackedByColor } from '@/move/attacked'
 import { match } from 'ts-pattern'
 
@@ -25,33 +14,15 @@ export type Move =
       rookTo: Coord
     }
 
-export function generateMoves(
-  board: Board,
-  options?: {
-    // Allow all normal moves even if the side to move is in check
-    ignoreCheck?: boolean
-  }
-): Move[] {
-  let moves = []
-  for (let x = 0; x < 8; x++) {
-    for (let y = 0; y < 8; y++) {
-      const coord = new Coord(x, y)
-      if (pieceColor(board.at(coord)) === board.side) {
-        moves.push(...quasiLegalNormalMoves(board, coord))
-      }
-    }
-  }
-  moves = moves.filter((m) => isLegalMove(board, m, { ...options, assumeQuasiLegal: true }))
-  return moves
-}
-
 /**
- * Determines if the side to move is in check.
+ * Determines if a certain side is in check.
  */
-export function isInCheck(board: Board): boolean {
-  const us = board.side
-  const them = us === Color.White ? Color.Black : Color.White
-  return isAttackedByColor(board, them, us === Color.White ? board.kings.white : board.kings.black)
+export function isInCheck(board: Board, color: Color): boolean {
+  if (color === Color.White) {
+    return isAttackedByColor(board, Color.Black, board.kings.white)
+  } else {
+    return isAttackedByColor(board, Color.White, board.kings.black)
+  }
 }
 
 /**

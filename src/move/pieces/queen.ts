@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { pieceColor } from '@/piece'
+import { Color, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { bishopMoves, bishopPath } from './bishop'
 import { rookMoves, rookPath } from './rook'
@@ -23,8 +23,8 @@ export function queenPath(a: Coord, b: Coord): Coord[] | undefined {
 /**
  * All possible queen moves on the board, including captures.
  */
-export function queenMoves(board: Board, coord: Coord): Move[] {
-  return [...rookMoves(board, coord), ...bishopMoves(board, coord)]
+export function queenMoves(board: Board, color: Color, coord: Coord): Move[] {
+  return [...rookMoves(board, color, coord), ...bishopMoves(board, color, coord)]
 }
 
 /**

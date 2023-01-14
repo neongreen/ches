@@ -1,6 +1,8 @@
+// @ts-nocheck
+
 let femaleSprite
 
-const roomScene = {
+export const roomScene = {
   preload: () => {
     femaleSprite = loadImage('assets/female_sprite_by_sutemo.png')
   },

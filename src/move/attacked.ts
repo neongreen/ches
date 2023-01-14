@@ -19,6 +19,8 @@ export function isAttackedByColor(board: Board, enemy: Color, target: Coord) {
   const enemyKing = makePiece(enemy, PieceType.King)
 
   // Step 1: check if there's a pawn that can attack the target square.
+  //
+  // TODO: we don't need en passant for the king, but we do need it for pawns if we're ever going to use 'isAttackedByColor' for pawns.
   if (enemy === Color.Black) {
     if (board.at(target.nw()) === Piece.BlackPawn) return true
     if (board.at(target.ne()) === Piece.BlackPawn) return true

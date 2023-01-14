@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { pieceColor } from '@/piece'
+import { Color, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
@@ -16,9 +16,8 @@ export function rookPath(a: Coord, b: Coord): Coord[] | undefined {
 /**
  * All possible rook moves on the board, including captures.
  */
-export function rookMoves(board: Board, coord: Coord): Move[] {
+export function rookMoves(board: Board, color: Color, coord: Coord): Move[] {
   let moves: Move[] = []
-  const piece = board.at(coord)
   const deltas = [
     { x: 1, y: 0 },
     { x: -1, y: 0 },
@@ -31,7 +30,7 @@ export function rookMoves(board: Board, coord: Coord): Move[] {
       moves.push({ kind: 'normal', from: coord, to: xy })
       xy = xy.shift(delta)
     }
-    if (board.isOccupied(xy) && pieceColor(board.at(xy)) !== pieceColor(piece)) {
+    if (board.isOccupied(xy) && pieceColor(board.at(xy)) !== color) {
       moves.push({ kind: 'normal', from: coord, to: xy })
     }
   }

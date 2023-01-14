@@ -1,5 +1,7 @@
 import { Board } from '@/board'
-import { generateMoves, isInCheck, Move } from '@/move'
+import { isInCheck, Move } from '@/move'
+import { isLegalMove } from '@/move/legal'
+import { quasiLegalMoves } from '@/move/quasiLegal'
 import { allPieceTypes, Color, Piece, pieceType, PieceType } from '@/piece'
 import { match } from 'ts-pattern'
 import { pieceTypePoints } from './material'
@@ -32,28 +34,11 @@ function scoreMove(board: Board, move: Move): number {
 }
 
 /** Generate moves ordered by `scoreMove`. */
-function generateOrderedMoves(board: Board): Move[] {
-  return generateMoves(board)
+function quasiLegalOrderedMoves(board: Board): Move[] {
+  return quasiLegalMoves(board)
     .map((move) => ({ move, score: scoreMove(board, move) }))
     .sort((a, b) => b.score - a.score)
     .map((x) => x.move)
-}
-
-/**
- * Detect when the game is over.
- */
-function isGameOver(board: Board, possibleMoves: Move[]): 'whiteWon' | 'blackWon' | 'draw' | null {
-  if (board.isThreefoldRepetition()) return 'draw'
-  if (possibleMoves.length === 0) {
-    if (isInCheck(board)) {
-      // Checkmate
-      return board.side === Color.White ? 'blackWon' : 'whiteWon'
-    } else {
-      // Stalemate
-      return 'draw'
-    }
-  }
-  return null
 }
 
 /**
@@ -67,122 +52,76 @@ export function leafEvalNode(node: EvalNode) {
 }
 
 /**
- * How good would a move be?
+ * What is the best move for the current side?
  *
  * This function uses *alpha-beta pruning* to avoid evaluating moves that are already worse than the best move found so far. For example, if we already found a move X that gives us an eval of 10 (`alpha`), and now we are evaluating a move Y and the opponent has a response that results in eval 9, we can stop evaluating Y.
  *
- * @param depth How many moves to look ahead; if 0 then just eval the position
- * @param move The move to consider
+ * @param depth How many moves to look ahead; if 1 then just eval all the moves
  * @param alpha The minimum eval white can force (white wants to maximize)
  * @param beta The maximum eval black can force (black wants to minimize)
- */
-function evalMove(
-  node: EvalNode,
-  depth: number,
-  move: Move,
-  alpha = -Infinity,
-  beta = Infinity
-): { eval: number; line: Move[] } {
-  let newNode = node.clone()
-  newNode.executeMove(move)
-
-  // For leaf nodes, we don't try to detect checkmate, because it's expensive and requires generating all possible moves. So we're fine with just ignoring checkmate/stalemate/threefold repetition here. `findBestMove` does check for this kind of thing, though, because it has to generate possible moves no matter what.
-
-  if (depth === 0) {
-    return {
-      eval: leafEvalNode(newNode),
-      line: [move],
-    }
-  }
-
-  // Find the best move for the opponent from this position
-  const continuation = findBestMove(newNode, depth - 1, alpha, beta)
-  return {
-    eval: continuation.eval,
-    line: [move, ...continuation.line],
-  }
-}
-
-/**
- * What is the best move for the current side?
  */
 export function findBestMove(
   node: EvalNode,
   depth: number,
   alpha = -Infinity,
   beta = Infinity
-): { bestMove: Move | null; eval: number; line: Move[] } {
-  const possibleMoves = generateOrderedMoves(node.board)
+): { move: Move | null; eval: number; line: Move[] } {
+  if (node.board.isThreefoldRepetition()) return { move: null, eval: 0, line: [] }
 
-  switch (isGameOver(node.board, possibleMoves)) {
-    case 'whiteWon':
-      return { bestMove: null, eval: 99900, line: [] }
-    case 'blackWon':
-      return { bestMove: null, eval: -99900, line: [] }
-    case 'draw':
-      return { bestMove: null, eval: 0, line: [] }
-    case null:
-      break
-  }
+  const quasiLegalMoves = quasiLegalOrderedMoves(node.board)
 
   // https://en.wikipedia.org/wiki/Alpha–beta_pruning#Pseudocode
-  let bestEval = {
-    bestMove: null as Move | null,
+  let best = {
+    move: null as Move | null,
     eval: node.board.side === Color.White ? -Infinity : Infinity,
     line: [] as Move[],
   }
-  for (const move of possibleMoves) {
-    const currEval = {
-      bestMove: move,
-      ...evalMove(node, depth, move, alpha, beta),
-    }
+
+  for (const move of quasiLegalMoves) {
+    // First, execute the move and check it for legality.
+    //
+    // We don't want to evaluate `isLegalMove` for the whole list at once, because alpha/beta-cutoff might let us abort the search early. So we only generate quasi-legal moves, and then check if the move is legal before evaluating it.
+    let boardAfterMove = node.board.clone()
+    boardAfterMove.executeMove(move)
+    if (!isLegalMove(node.board, boardAfterMove, move, { assumeQuasiLegal: true })) continue
+
+    // Evaluate the move
+    const newNode = node.clone()
+    newNode.executeMove(move, boardAfterMove)
+    const current =
+      depth === 1
+        ? { eval: leafEvalNode(newNode), line: [] }
+        : findBestMove(newNode, depth - 1, alpha, beta)
+
     if (node.board.side === Color.White) {
-      if (currEval.eval > bestEval.eval) bestEval = currEval
-      // If black can force a worse eval (in previously considered variations) than the eval we just found, we can stop evaluating this branch altogether. This is because black won't actually *let us* go into this branch — by definition of 'beta', they can force a worse one.
-      if (bestEval.eval > beta) break
+      if (current.eval > best.eval) best = { ...current, move }
+      // If black can force a worse eval (in previously considered variations) than the eval we just found, we can stop evaluating this branch. This is because black won't actually *let us* go into this branch — by definition of 'beta', they can force a worse one.
+      if (best.eval > beta) break
       // Also, if we found a better eval than 'alpha', we can update the alpha.
-      if (bestEval.eval > alpha) alpha = bestEval.eval
+      if (best.eval > alpha) alpha = best.eval
     } else {
-      // Correspondingly, black wants to minimize, and that's what 'beta' is for. Now 'bestEval' refers to the *smallest* eval we can find.
-      if (currEval.eval < bestEval.eval) bestEval = currEval
-      if (bestEval.eval < alpha) break
-      if (bestEval.eval < beta) beta = bestEval.eval
+      // Correspondingly, black wants to minimize, and that's what 'beta' is for. Now 'best' refers to the *smallest* eval we can find.
+      if (current.eval < best.eval) best = { ...current, move }
+      if (best.eval < alpha) break
+      if (best.eval < beta) beta = best.eval
     }
   }
 
-  return bestEval
-}
-
-/**
- * Find up to N best moves for the current side, ranked.
- */
-export function findBestMoves(
-  node: EvalNode,
-  depth: number,
-  lines: number
-): { move: Move | null; eval: number; line: Move[] }[] {
-  const possibleMoves = generateOrderedMoves(node.board)
-
-  switch (isGameOver(node.board, possibleMoves)) {
-    case 'whiteWon':
-      return [{ move: null, eval: 99900, line: [] }]
-    case 'blackWon':
-      return [{ move: null, eval: -99900, line: [] }]
-    case 'draw':
-      return [{ move: null, eval: 0, line: [] }]
-    case null:
-      break
+  // If we didn't find any moves, it's either checkmate or stalemate.
+  if (best.move === null) {
+    return {
+      move: null,
+      eval: isInCheck(node.board, node.board.side)
+        ? node.board.side === Color.White
+          ? -99900
+          : 99900
+        : 0,
+      line: [],
+    }
   }
 
-  const results = possibleMoves.map((move) => ({
-    move,
-    ...evalMove(node, depth, move),
-  }))
-  results.sort((a, b) => {
-    if (node.board.side === Color.White) return b.eval - a.eval
-    else return a.eval - b.eval
-  })
-  return results.slice(0, lines)
+  best.line = [best.move!, ...best.line]
+  return best
 }
 
 export function renderEval(eval_: number) {

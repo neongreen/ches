@@ -11,11 +11,10 @@ import _ from 'lodash'
  *
  * TODO: en passant, promotion to pieces other than queen
  */
-export function pawnMoves(board: Board, coord: Coord): Move[] {
-  const piece = board.at(coord)
+export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
   let moves: Move[] = []
 
-  if (piece === Piece.WhitePawn) {
+  if (color === Color.White) {
     // going up 1 if empty
     {
       const dest = coord.n()
@@ -43,9 +42,7 @@ export function pawnMoves(board: Board, coord: Coord): Move[] {
           ...(dest.y === 7 ? { promotion: Piece.WhiteQueen } : {}),
         })
     }
-  }
-
-  if (piece === Piece.BlackPawn) {
+  } else {
     // going down 1 if empty
     {
       const dest = coord.s()
@@ -82,5 +79,7 @@ export function pawnMoves(board: Board, coord: Coord): Move[] {
  */
 export function isPawnMoveValid(board: Board, move: Move): boolean {
   if (move.kind !== 'normal') return false
-  return pawnMoves(board, move.from).some((m) => _.isEqual(m, move))
+  return pawnMoves(board, pieceColor(board.at(move.from)), move.from).some((m) =>
+    _.isEqual(m, move)
+  )
 }

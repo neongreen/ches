@@ -62,9 +62,9 @@ export class Board {
       this.kings = { ...board.kings }
       this.castling = { white: { ...board.castling.white }, black: { ...board.castling.black } }
       this.previousPositions = new Map(
-        Array.from(this.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
+        Array.from(board.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
       )
-      this.irreversibleMoveClock = this.irreversibleMoveClock
+      this.irreversibleMoveClock = board.irreversibleMoveClock
     } else {
       // We don't actually care about anything because `setFen` will overwrite everything,
       // but things seem to be slower if we use {} etc.

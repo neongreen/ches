@@ -57,8 +57,10 @@ export class EvalNode {
 
   /**
    * Execute a move. Doesn't check if it's valid.
+   *
+   * @param newBoard The result of `Board.executeMove()`, if already calculated.
    */
-  executeMove(move: Move) {
+  executeMove(move: Move, newBoard?: Board) {
     match(move)
       .with({ kind: 'normal' }, (move) => {
         const piece = this.board.at(move.from)
@@ -97,7 +99,8 @@ export class EvalNode {
       })
       .exhaustive()
 
-    this.board.executeMove(move)
+    if (newBoard) this.board = newBoard
+    else this.board.executeMove(move)
   }
 
   /**
