@@ -6,14 +6,6 @@ import { Color, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
- * Squares that a rook passes between points A and B (not including either of those).
- */
-export function rookPath(a: Coord, b: Coord): Coord[] | undefined {
-  if (a.x === b.x || a.y === b.y) return a.pathTo(b, 'exclusive')
-  else return undefined
-}
-
-/**
  * All possible rook moves on the board, including captures.
  */
 export function rookMoves(board: Board, color: Color, coord: Coord): Move[] {
@@ -35,17 +27,4 @@ export function rookMoves(board: Board, color: Color, coord: Coord): Move[] {
     }
   }
   return moves
-}
-
-/**
- * Is a rook move valid? (Does not take checks into account.)
- */
-export function isRookMoveValid(board: Board, move: Move): boolean {
-  if (move.kind !== 'normal') return false
-  const path = rookPath(move.from, move.to)
-  return (
-    path !== undefined &&
-    path.every((coord) => board.isEmpty(coord)) &&
-    (board.isEmpty(move.to) || pieceColor(board.at(move.from)) !== pieceColor(board.at(move.to)))
-  )
 }

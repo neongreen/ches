@@ -6,17 +6,6 @@ import { Color, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
- * Squares that a bishop passes between points A and B (not including either of those).
- */
-export function bishopPath(a: Coord, b: Coord): Coord[] | undefined {
-  if (a.x - a.y === b.x - b.y || a.x + a.y === b.x + b.y) {
-    return a.pathTo(b, 'exclusive')
-  } else {
-    return undefined
-  }
-}
-
-/**
  * All possible bishop moves on the board, including captures.
  */
 export function bishopMoves(board: Board, color: Color, coord: Coord): Move[] {
@@ -38,17 +27,4 @@ export function bishopMoves(board: Board, color: Color, coord: Coord): Move[] {
     }
   }
   return moves
-}
-
-/**
- * Is a bishop move valid? (Does not take checks into account.)
- */
-export function isBishopMoveValid(board: Board, move: Move): boolean {
-  if (move.kind !== 'normal') return false
-  const path = bishopPath(move.from, move.to)
-  return (
-    path !== undefined &&
-    path.every((coord) => board.isEmpty(coord)) &&
-    (board.isEmpty(move.to) || pieceColor(board.at(move.from)) !== pieceColor(board.at(move.to)))
-  )
 }

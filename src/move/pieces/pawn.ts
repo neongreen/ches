@@ -73,13 +73,3 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
   }
   return moves
 }
-
-/**
- * Is a pawn move valid? (Does not take checks into account.)
- */
-export function isPawnMoveValid(board: Board, move: Move): boolean {
-  if (move.kind !== 'normal') return false
-  return pawnMoves(board, pieceColor(board.at(move.from)), move.from).some((m) =>
-    _.isEqual(m, move)
-  )
-}

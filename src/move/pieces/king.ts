@@ -6,7 +6,6 @@ import { Color, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { isAttackedByColor } from '../attacked'
-import { match, P } from 'ts-pattern'
 
 export const castlingMoves = {
   white: {
@@ -87,20 +86,4 @@ export function kingMoves(board: Board, color: Color, coord: Coord): Move[] {
     }
   }
   return moves
-}
-
-/**
- * Is a king move valid? (Does not take checks into account, except for castling.)
- */
-export function isKingMoveValid(board: Board, move: Move) {
-  return match(move)
-    .with({ kind: 'normal' }, (move) =>
-      kingMoves(board, pieceColor(board.at(move.from)), move.from).some((m) => _.isEqual(m, move))
-    )
-    .with({ kind: 'castling' }, (move) =>
-      kingMoves(board, pieceColor(board.at(move.kingFrom)), move.kingFrom).some((m) =>
-        _.isEqual(m, move)
-      )
-    )
-    .exhaustive()
 }

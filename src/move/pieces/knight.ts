@@ -29,13 +29,3 @@ export function knightMoves(board: Board, color: Color, coord: Coord): Move[] {
   }
   return moves
 }
-
-/**
- * Is a knight move valid? (Does not take checks into account.)
- */
-export function isKnightMoveValid(board: Board, move: Move) {
-  if (move.kind !== 'normal') return false
-  return knightMoves(board, pieceColor(board.at(move.from)), move.from).some((m) =>
-    _.isEqual(m, move)
-  )
-}
