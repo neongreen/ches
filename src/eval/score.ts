@@ -20,7 +20,7 @@ export function isMate(score: Score): boolean {
 
 export function renderScore(score: Score): string {
   if (isMate(score)) {
-    const ply = Math.abs(score - 32000)
+    const ply = 32000 - Math.abs(score)
     return score > 0 ? `#${ply}` : `#-${ply}`
   } else {
     const trunc = score / 100

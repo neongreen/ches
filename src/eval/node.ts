@@ -26,6 +26,14 @@ export class EvalNode {
    */
   development: { white: number; black: number }
 
+  /**
+   * How far each side's pawns have advanced from their starting rank.
+   *
+   * For example, if white's e-pawn and the d-pawn have both advanced 2 squares, this would be
+   * `{ white: 4, black: 0 }`.
+   */
+  pawnAdvancement: { white: number; black: number }
+
   constructor(node: EvalNode)
   constructor(board: Board)
   constructor(nodeOrBoard: EvalNode | Board) {
@@ -35,15 +43,24 @@ export class EvalNode {
       this.board = board.clone()
       this.material = { white: 0, black: 0 }
       this.development = { white: 0, black: 0 }
+      this.pawnAdvancement = { white: 0, black: 0 }
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-          const piece = board.at(new Coord(x, y))
+          const piece = board.unsafeAt(new Coord(x, y))
           if (piece === Piece.Empty) continue
           this.material[colorName(piece)] += piecePoints(piece)
-          if (pieceColor(piece) === Color.White && !isPawn(piece) && y !== 0)
-            this.development.white++
-          if (pieceColor(piece) === Color.Black && !isPawn(piece) && y !== 7)
-            this.development.black++
+          if (isPawn(piece)) {
+            // For pawns we count 'pawnAdvancement'
+            if (pieceColor(piece) === Color.White) this.pawnAdvancement.white += y - 1
+            else this.pawnAdvancement.black += 6 - y
+          } else {
+            // For pieces we count 'development'
+            if (pieceColor(piece) === Color.White && y !== 0) {
+              this.development.white++
+            } else if (pieceColor(piece) === Color.Black && y !== 7) {
+              this.development.black++
+            }
+          }
         }
       }
     } else {
@@ -52,6 +69,7 @@ export class EvalNode {
       this.board = node.board.clone()
       this.material = { ...node.material }
       this.development = { ...node.development }
+      this.pawnAdvancement = { ...node.pawnAdvancement }
     }
   }
 
@@ -69,7 +87,10 @@ export class EvalNode {
         // If we have captured a piece, update the material score and development
         if (dest !== Piece.Empty) {
           this.material[colorName(dest)] -= piecePoints(dest)
-          if (!isPawn(dest)) {
+          if (isPawn(dest)) {
+            if (pieceColor(dest) === Color.White) this.pawnAdvancement.white -= move.to.y - 1
+            if (pieceColor(dest) === Color.Black) this.pawnAdvancement.black -= 6 - move.to.y
+          } else {
             if (pieceColor(dest) === Color.White && move.to.y !== 0) this.development.white--
             if (pieceColor(dest) === Color.Black && move.to.y !== 7) this.development.black--
           }
@@ -87,11 +108,19 @@ export class EvalNode {
           }
         }
 
-        // If the moved piece *was* a pawn but became promoted:
-        if (isPawn(piece) && move.promotion) {
-          this.material[colorName(piece)] -= 1
-          this.material[colorName(piece)] += piecePoints(move.promotion)
-          this.development[colorName(piece)]++
+        // If the moved piece was a pawn:
+        if (isPawn(piece)) {
+          if (move.promotion) {
+            this.material[colorName(piece)] += piecePoints(move.promotion) - 1
+            this.development[colorName(piece)]++
+            this.pawnAdvancement[colorName(piece)] -= 5 // T R U S T
+          } else {
+            if (pieceColor(piece) === Color.White) {
+              this.pawnAdvancement.white += move.to.y - move.from.y
+            } else {
+              this.pawnAdvancement.black += move.from.y - move.to.y
+            }
+          }
         }
       })
       .with({ kind: 'castling' }, (move) => {

@@ -47,8 +47,10 @@ function quasiLegalOrderedMoves(board: Board): Move[] {
  */
 export function leafEvalNode(node: EvalNode): Score {
   // NB: we don't want floating-point numbers anywhere
-  const whiteEval = node.material.white * 100 + node.development.white * 20
-  const blackEval = node.material.black * 100 + node.development.black * 20
+  const whiteEval =
+    node.material.white * 100 + node.development.white * 20 + node.pawnAdvancement.white
+  const blackEval =
+    node.material.black * 100 + node.development.black * 20 + node.pawnAdvancement.black
   return whiteEval - blackEval
 }
 
@@ -123,8 +125,8 @@ export function findBestMove(
 
   best.line = [best.move!, ...best.line]
   if (isMate(best.score)) {
-    if (best.score > 0) best.score++
-    else best.score--
+    if (best.score > 0) best.score--
+    else best.score++
   }
   return best
 }
