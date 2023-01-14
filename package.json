@@ -30,17 +30,13 @@
     "@types/p5": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
-    "browserslist": "^4.21.4",
-    "caniuse-lite": "^1.0.30001444",
     "eslint-plugin-compat": "^4.0.2",
-    "eslint-plugin-react": "^7.32.0",
-    "node-releases": "^2.0.8"
+    "eslint-plugin-react": "^7.32.0"
   },
   "browserslist": [
     "defaults",
     "not IE 11",
-    "not op_mini all",
-    "current node"
+    "not op_mini all"
   ],
   "volta": {
     "node": "18.12.1"

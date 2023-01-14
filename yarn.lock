@@ -699,7 +699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.16.8, browserslist@npm:^4.21.4":
+"browserslist@npm:^4.16.8":
   version: 4.21.4
   resolution: "browserslist@npm:4.21.4"
   dependencies:
@@ -730,7 +730,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001304, caniuse-lite@npm:^1.0.30001400, caniuse-lite@npm:^1.0.30001406, caniuse-lite@npm:^1.0.30001444":
+"caniuse-lite@npm:^1.0.30001304, caniuse-lite@npm:^1.0.30001400, caniuse-lite@npm:^1.0.30001406":
   version: 1.0.30001444
   resolution: "caniuse-lite@npm:1.0.30001444"
   checksum: 3d6436e2eea8ee77fdca906f481fd5513eec836d3c5ef395da96872f8e67e0db4b898430a588745752e43fabf0503dc351ff1ab710717c33451bdc8f09a7b5cf
@@ -760,8 +760,6 @@ __metadata:
     "@types/react-dom": 18.0.10
     "@typescript-eslint/eslint-plugin": ^5.48.1
     "@typescript-eslint/parser": ^5.48.1
-    browserslist: ^4.21.4
-    caniuse-lite: ^1.0.30001444
     eslint: 8.31.0
     eslint-config-next: 13.1.1
     eslint-plugin-compat: ^4.0.2
@@ -769,7 +767,6 @@ __metadata:
     imurmurhash: ^0.1.4
     lodash: ^4.17.21
     next: 13.1.1
-    node-releases: ^2.0.8
     react: 18.2.0
     react-dom: 18.2.0
     react-p5-wrapper: ^3.4.0
@@ -2233,7 +2230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-releases@npm:^2.0.6, node-releases@npm:^2.0.8":
+"node-releases@npm:^2.0.6":
   version: 2.0.8
   resolution: "node-releases@npm:2.0.8"
   checksum: b1ab02c0d5d8e081bf9537232777a7a787dc8fef07f70feabe70a344599b220fe16462f746ac30f3eed5a58549445ad69368964d12a1f8b3b764f6caab7ba34a
