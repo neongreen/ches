@@ -21,7 +21,8 @@ export function isMate(score: Score): boolean {
 export function renderScore(score: Score): string {
   if (isMate(score)) {
     const ply = 32000 - Math.abs(score)
-    return score > 0 ? `#${ply}` : `#-${ply}`
+    const moves = Math.ceil(ply / 2)
+    return score > 0 ? `#${moves}` : `#-${moves}`
   } else {
     const trunc = score / 100
     const sign = trunc > 0 ? '+' : ''
