@@ -35,23 +35,33 @@ function createWidgets(p5: P5CanvasInstance): {
   }
 }
 
+class Chess {
+  board: Board = new Board()
+  eval: {
+    bestMove: Move | null
+    eval: number
+    time: number // How much time was spent on the eval
+    lines?: { move: Move | null; eval: number; line: Move[] }[]
+  } | null = null
+
+  constructor() {}
+
+  /** Make a move (assuming it's already been checked for legality) */
+  makeMove(move: Move) {
+    this.board.executeMove(move)
+    this.eval = null
+  }
+}
+
 export const sketch = (p5: P5CanvasInstance) => {
   p5.disableFriendlyErrors = true
 
   // TODO: reenable sound
   // let synth
 
-  let currentBoard = new Board()
-
+  const chess = new Chess()
   // @ts-ignore
-  window.currentBoard = currentBoard // For debug
-
-  let currentEval: {
-    bestMove: Move | null
-    eval: number
-    time: number
-    lines?: { move: Move | null; eval: number; line: Move[] }[]
-  } | null = null
+  window.chess = chess // For debug
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -67,9 +77,14 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   let widgets: ReturnType<typeof createWidgets>
 
+  const makeMove = (move: Move) => {
+    chess.makeMove(move)
+    lastMoveTimestamp = performance.now()
+  }
+
   /** Make the best move for the current side */
   const makeBestMove = () => {
-    if (currentEval?.bestMove) makeMove(currentEval.bestMove)
+    if (chess.eval?.bestMove) makeMove(chess.eval.bestMove)
   }
 
   // Checkered board
@@ -93,14 +108,14 @@ export const sketch = (p5: P5CanvasInstance) => {
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
         if (dragged === null || !(dragged.x === x && dragged.y === y))
-          drawPiece(p5, new Coord(x, y), currentBoard.at(new Coord(x, y)))
+          drawPiece(p5, new Coord(x, y), chess.board.at(new Coord(x, y)))
       }
     }
   }
 
   const drawBestMove = () => {
-    if (widgets.showBestMove.checked() && currentEval?.bestMove) {
-      const { from, to } = match(currentEval.bestMove)
+    if (widgets.showBestMove.checked() && chess.eval?.bestMove) {
+      const { from, to } = match(chess.eval.bestMove)
         .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
         .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
         .exhaustive()
@@ -116,13 +131,6 @@ export const sketch = (p5: P5CanvasInstance) => {
       p5.circle(toCoord.x, toCoord.y, DrawConstants(p5).CELL * 0.75)
       p5.pop()
     }
-  }
-
-  /** Make a move (assuming it's already been checked for legality) */
-  const makeMove = (move: Move) => {
-    currentBoard.executeMove(move)
-    currentEval = null
-    lastMoveTimestamp = performance.now()
   }
 
   /** Is the mouse hovering over a specific square?
@@ -159,41 +167,41 @@ export const sketch = (p5: P5CanvasInstance) => {
     p5.background(220)
     drawBoard()
     drawPieces()
-    if (dragged !== null) drawDraggedPiece(p5, currentBoard.at(dragged))
+    if (dragged !== null) drawDraggedPiece(p5, chess.board.at(dragged))
 
-    if (currentEval === null) {
+    if (chess.eval === null) {
       const startTime = performance.now()
-      const newEval = findBestMove(new EvalNode(currentBoard), Number(widgets.depth.value()))
-      currentEval = { ...newEval, time: (performance.now() - startTime) / 1000 }
+      const newEval = findBestMove(new EvalNode(chess.board), Number(widgets.depth.value()))
+      chess.eval = { ...newEval, time: (performance.now() - startTime) / 1000 }
     }
-    if (currentEval.bestMove && currentBoard.side === Color.Black && widgets.autoPlay.checked()) {
+    if (chess.eval.bestMove && chess.board.side === Color.Black && widgets.autoPlay.checked()) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
     } else {
       drawBestMove()
       p5.fill(0)
-      const evalTime = Math.round(currentEval.time * 100) / 100
+      const evalTime = Math.round(chess.eval.time * 100) / 100
       p5.text(
-        `eval: ${renderEval(currentEval.eval)} (${evalTime}s)`,
+        `eval: ${renderEval(chess.eval.eval)} (${evalTime}s)`,
         5,
         DrawConstants(p5).CELL * 8 + 14
       )
     }
 
-    if (widgets.showLines.checked() && currentEval) {
-      if (currentEval?.lines !== undefined) {
-        widgets.outputBox.elt.innerText = currentEval.lines
+    if (widgets.showLines.checked() && chess.eval) {
+      if (chess.eval?.lines !== undefined) {
+        widgets.outputBox.elt.innerText = chess.eval.lines
           .map(
             (line) =>
               `${renderEval(line.eval).padStart(6, '\xa0')} - ` +
-              `${notateLine(currentBoard, line.line).join(' ')}`
+              `${notateLine(chess.board, line.line).join(' ')}`
           )
           .join('\n')
-        if (currentBoard.isThreefoldRepetition()) {
+        if (chess.board.isThreefoldRepetition()) {
           widgets.outputBox.elt.innerText += '\n\nThreefold repetition detected'
         }
       } else {
-        currentEval.lines = findBestMoves(
-          new EvalNode(currentBoard),
+        chess.eval.lines = findBestMoves(
+          new EvalNode(chess.board),
           Number(widgets.depth.value()),
           5
         )
@@ -220,7 +228,7 @@ export const sketch = (p5: P5CanvasInstance) => {
     dragged = null
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        if (isTouching(new Coord(x, y)) && currentBoard.isOccupied(new Coord(x, y))) {
+        if (isTouching(new Coord(x, y)) && chess.board.isOccupied(new Coord(x, y))) {
           dragged = new Coord(x, y)
           return
         }
@@ -231,7 +239,7 @@ export const sketch = (p5: P5CanvasInstance) => {
   p5.mouseReleased = () => {
     if (dragged !== null) {
       const coord: Coord = dragged
-      const piece = currentBoard.at(coord)
+      const piece = chess.board.at(coord)
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
           const dest = new Coord(x, y)
@@ -268,7 +276,7 @@ export const sketch = (p5: P5CanvasInstance) => {
                       : {}),
                   } satisfies Move)
               )
-            if (isLegalMove(currentBoard, move)) makeMove(move)
+            if (isLegalMove(chess.board, move)) makeMove(move)
           }
         }
       }
