@@ -49,18 +49,21 @@ export class Board {
   }
 
   /**
-   * Previous positions, indexed by their `hash`. Used to detect three-fold repetition.
+   * Previous positions' `state()`s. Used to detect three-fold repetition.
    *
-   * This map is cleared after each irreversible move (pawn moves, captures, castling).
-   *
-   * Since collisions are possible, map values are arrays of `state()`s.
+   * This array is cleared after each irreversible move (pawn moves, captures, castling).
    */
-  previousPositions: Map<Zobrist, string[]> = new Map()
+  private previousPositions: string[] = []
+
+  /**
+   * Previous positions' hashes. This is kept in sync with `previousPositions`.
+   */
+  private previousPositionHashes: Zobrist[] = []
 
   /**
    * THREEFOLD REPETITION: `irreversibleMoveClock` is the number of half-moves since the last irreversible move (pawn moves, captures, castling). If it's 0, the last move was irreversible.
    *
-   * Invariant: this is also the sum of the lengths of arrays in `#previousPositions`.
+   * Invariant: this is also the length of `previousPositions`.
    */
   irreversibleMoveClock = 0
 
@@ -83,9 +86,8 @@ export class Board {
       this.side = board.side
       this.kings = { ...board.kings }
       this.castlingRights = board.castlingRights
-      this.previousPositions = new Map(
-        Array.from(board.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
-      )
+      this.previousPositions = board.previousPositions.slice()
+      this.previousPositionHashes = board.previousPositionHashes.slice()
       this.hash = board.hash
       this.irreversibleMoveClock = board.irreversibleMoveClock
       this.halfmoveClock = board.halfmoveClock
@@ -132,13 +134,22 @@ export class Board {
   isThreefoldRepetition(): boolean {
     // For a three-fold repetition, the position must have been repeated at least twice:
     //     A X A Y [A] <- current position
-    // So there must be at least four positions in the map. (If there are three positions,
+    // So there must be at least four positions in the array. (If there are three positions,
     // only one of them will be from the same side to move as the current side.)
     if (this.irreversibleMoveClock < 4) return false
-    const previousStates = this.previousPositions.get(this.hash)
-    if (!previousStates) return false
-    const positionState = this.state()
-    return previousStates.filter((x) => x === positionState).length >= 2
+
+    // We start searching from the end, because it's more likely that the repetition is recent.
+    let count = 0
+    const currentState = this.state()
+    for (let i = this.previousPositionHashes.length - 1; i >= 0; i--) {
+      if (
+        this.previousPositionHashes[i] === this.hash &&
+        this.previousPositions[i] === currentState
+      )
+        count++
+      if (count >= 2) return true
+    }
+    return false
   }
 
   /**
@@ -217,7 +228,9 @@ export class Board {
     this.hash ^= zobristCastling(this.castlingRights)
 
     this.halfmoveClock = parseInt(halfmove, 10)
-    this.previousPositions = new Map()
+    this.irreversibleMoveClock = 0
+    this.previousPositions = []
+    this.previousPositionHashes = []
 
     this.board = new Uint8Array(64).fill(Piece.Empty)
     let rows = pieces.split('/')
@@ -332,15 +345,12 @@ export class Board {
 
     // If the move was irreversible, reset the irreversible move clock; otherwise remember the position so that later we can check for threefold repetition
     if (captureOrPawnMove || oldCastlingRights !== this.castlingRights) {
+      this.previousPositions = []
+      this.previousPositionHashes = []
       this.irreversibleMoveClock = 0
-      this.previousPositions.clear()
     } else {
-      const previousStates = this.previousPositions.get(oldHash)
-      if (previousStates === undefined) {
-        this.previousPositions.set(oldHash, [oldState])
-      } else {
-        previousStates.push(oldState)
-      }
+      this.previousPositions.push(oldState)
+      this.previousPositionHashes.push(oldHash)
       this.irreversibleMoveClock++
     }
 
