@@ -19,14 +19,14 @@ function zobristRandom(): Zobrist {
   return random.randRange(0, 2 ** 30 - 1)
 }
 
-// We generate a random number for each piece*square combination.
+// We generate a random number for each piece*square combination, except for the empty square, which is always 0.
 const ZOBRIST_PIECES: Zobrist[] = []
 assert(pieceEnumRange.low === 0)
 for (let piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece++) {
-  for (let i = 0; i < 64; i++) ZOBRIST_PIECES.push(zobristRandom())
+  for (let i = 0; i < 64; i++) ZOBRIST_PIECES.push(piece === Piece.Empty ? 0 : zobristRandom())
 }
 
-/** Get the Zobrist hash for a piece on a square. */
+/** Get the Zobrist hash for a piece on a square. Will return 0 for `Piece.Empty`. */
 export function zobristPiece(piece: Piece, coord: Coord): Zobrist {
   return ZOBRIST_PIECES[piece * 64 + (coord.y * 8 + coord.x)]
 }

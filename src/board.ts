@@ -163,9 +163,17 @@ export class Board {
 
   /**
    * Set the piece at coordinates (x, y).
+   *
+   * Updates the hash and the kings position, but not the castling rights.
+   *
+   * @param pieceOld The piece that was previously at the given coordinates
+   * @param pieceNew The piece to replace it with
    */
-  setAt(coord: Coord, piece: Piece) {
-    this.board[coord.y * 8 + coord.x] = piece
+  private replace(coord: Coord, pieceOld: Piece, pieceNew: Piece) {
+    this.hash ^= zobristPiece(pieceOld, coord) ^ zobristPiece(pieceNew, coord)
+    this.board[coord.y * 8 + coord.x] = pieceNew
+    if (pieceNew === Piece.WhiteKing) this.kings.white = coord
+    if (pieceNew === Piece.BlackKing) this.kings.black = coord
   }
 
   /**
@@ -173,7 +181,7 @@ export class Board {
    */
   isEmpty(coord: Coord): boolean | undefined {
     if (!coord.isValid()) return undefined
-    return this.at(coord) === Piece.Empty
+    return this.unsafeAt(coord) === Piece.Empty
   }
 
   /**
@@ -181,7 +189,7 @@ export class Board {
    */
   isOccupied(coord: Coord): boolean | undefined {
     if (!coord.isValid()) return undefined
-    return this.at(coord) !== Piece.Empty
+    return this.unsafeAt(coord) !== Piece.Empty
   }
 
   /**
@@ -222,10 +230,7 @@ export class Board {
         } else {
           const piece = letterToPiece(char)
           const coord = new Coord(x, y)
-          this.setAt(coord, piece)
-          if (piece === Piece.WhiteKing) this.kings.white = coord
-          if (piece === Piece.BlackKing) this.kings.black = coord
-          this.hash ^= zobristPiece(piece, coord)
+          this.replace(coord, Piece.Empty, piece)
           x++
         }
       }
@@ -293,52 +298,25 @@ export class Board {
           // Captures and pawn moves are irreversible and reset the halfmove clock
           if (target !== Piece.Empty || isPawn(piece)) captureOrPawnMove = true
 
-          // If the king is moved, update the king position
-          if (piece === Piece.WhiteKing) this.kings.white = move.to
-          else if (piece === Piece.BlackKing) this.kings.black = move.to
-
-          // Update the hash regarding moved pieces
-          this.hash ^= zobristPiece(piece, move.from)
-          if (target !== Piece.Empty) this.hash ^= zobristPiece(target, move.to)
-          this.hash ^= zobristPiece(move.promotion ? move.promotion : piece, move.to)
-
           // Update the board
-          this.setAt(move.to, move.promotion ? move.promotion : piece)
-          this.setAt(move.from, Piece.Empty)
+          this.replace(move.to, target, move.promotion ? move.promotion : piece)
+          this.replace(move.from, piece, Piece.Empty)
         }
         break
       case 'castling':
         {
           if (this.side === Color.White) {
-            // Move the pieces
-            this.setAt(move.kingFrom, Piece.Empty)
-            this.setAt(move.kingTo, Piece.WhiteKing)
-            this.setAt(move.rookFrom, Piece.Empty)
-            this.setAt(move.rookTo, Piece.WhiteRook)
-            this.hash ^=
-              zobristPiece(Piece.WhiteKing, move.kingFrom) ^
-              zobristPiece(Piece.WhiteKing, move.kingTo) ^
-              zobristPiece(Piece.WhiteRook, move.rookFrom) ^
-              zobristPiece(Piece.WhiteRook, move.rookTo)
-            // Update castling rights
+            this.replace(move.kingFrom, Piece.WhiteKing, Piece.Empty)
+            this.replace(move.kingTo, Piece.Empty, Piece.WhiteKing)
+            this.replace(move.rookFrom, Piece.WhiteRook, Piece.Empty)
+            this.replace(move.rookTo, Piece.Empty, Piece.WhiteRook)
             this.castlingRights &= ~Castling.WhiteAny
-            // Update the king position
-            this.kings.white = move.kingTo
           } else {
-            // Move the pieces
-            this.setAt(move.kingFrom, Piece.Empty)
-            this.setAt(move.kingTo, Piece.BlackKing)
-            this.setAt(move.rookFrom, Piece.Empty)
-            this.setAt(move.rookTo, Piece.BlackRook)
-            this.hash ^=
-              zobristPiece(Piece.BlackKing, move.kingFrom) ^
-              zobristPiece(Piece.BlackKing, move.kingTo) ^
-              zobristPiece(Piece.BlackRook, move.rookFrom) ^
-              zobristPiece(Piece.BlackRook, move.rookTo)
-            // Update castling rights
+            this.replace(move.kingFrom, Piece.BlackKing, Piece.Empty)
+            this.replace(move.kingTo, Piece.Empty, Piece.BlackKing)
+            this.replace(move.rookFrom, Piece.BlackRook, Piece.Empty)
+            this.replace(move.rookTo, Piece.Empty, Piece.BlackRook)
             this.castlingRights &= ~Castling.BlackAny
-            // Update the king position
-            this.kings.black = move.kingTo
           }
         }
         break
