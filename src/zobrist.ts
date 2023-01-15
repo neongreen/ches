@@ -8,6 +8,7 @@ import { Piece, pieceEnumRange } from './piece'
 import { Coord } from './utils/coord'
 import { XORShift64 } from 'random-seedable'
 import assert from 'assert'
+import { Castling, CastlingBitmask } from './board'
 
 export type Zobrist = number
 
@@ -18,17 +19,16 @@ function zobristRandom(): Zobrist {
   return random.randRange(0, 2 ** 30 - 1)
 }
 
-const ZOBRIST: Zobrist[] = []
-
 // We generate a random number for each piece*square combination.
+const ZOBRIST_PIECES: Zobrist[] = []
 assert(pieceEnumRange.low === 0)
 for (let piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece++) {
-  for (let i = 0; i < 64; i++) ZOBRIST.push(zobristRandom())
+  for (let i = 0; i < 64; i++) ZOBRIST_PIECES.push(zobristRandom())
 }
 
 /** Get the Zobrist hash for a piece on a square. */
 export function zobristPiece(piece: Piece, coord: Coord): Zobrist {
-  return ZOBRIST[piece * 64 + (coord.y * 8 + coord.x)]
+  return ZOBRIST_PIECES[piece * 64 + (coord.y * 8 + coord.x)]
 }
 
 /** Get the Zobrist hash for the side to move.
@@ -37,14 +37,10 @@ export function zobristPiece(piece: Piece, coord: Coord): Zobrist {
  */
 export const zobristWhiteToMove = zobristRandom()
 
-/** Get the Zobrist hash for a castling right. */
-export const zobristCastling = {
-  white: {
-    kingside: zobristRandom(),
-    queenside: zobristRandom(),
-  },
-  black: {
-    kingside: zobristRandom(),
-    queenside: zobristRandom(),
-  },
+assert(Castling.None === 0)
+const ZOBRIST_CASTLING = new Array(Castling.Any + 1).map((_) => zobristRandom())
+
+/** Get the Zobrist hash for a castling rights bitmask. */
+export function zobristCastling(castling: CastlingBitmask): Zobrist {
+  return ZOBRIST_CASTLING[castling]
 }

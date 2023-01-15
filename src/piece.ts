@@ -1,4 +1,4 @@
-export enum PieceType {
+export const enum PieceType {
   Empty = 0,
   Pawn = 1,
   Knight = 2,
@@ -18,7 +18,7 @@ export const allPieceTypes = [
   PieceType.King,
 ]
 
-export enum Color {
+export const enum Color {
   // NB: apparently somewhere we depend on this not being 0x00 and 0x10, maybe because `pieceColor` can return 0x00 for empty squares and we check it for falsiness somewhere?
   White = 0x10,
   Black = 0x20,
@@ -28,7 +28,7 @@ export enum Color {
  *
  * Can also be `Empty` because Stockfish does this and maybe they have a good reason for it.
  */
-export enum Piece {
+export const enum Piece {
   Empty = 0,
 
   WhitePawn = PieceType.Pawn | Color.White,

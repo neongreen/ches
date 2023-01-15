@@ -3,6 +3,24 @@ import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
 import { Zobrist, zobristCastling, zobristPiece, zobristWhiteToMove } from './zobrist'
 
+/**
+ * Castling rights as a bitmask of `CastlingRight`s.
+ */
+export type CastlingBitmask = number
+
+export const enum Castling {
+  None = 0,
+
+  WhiteKingside = 1,
+  WhiteQueenside = 2,
+  BlackKingside = 4,
+  BlackQueenside = 8,
+
+  WhiteAny = Castling.WhiteKingside | Castling.WhiteQueenside,
+  BlackAny = Castling.BlackKingside | Castling.BlackQueenside,
+  Any = Castling.WhiteAny | Castling.BlackAny,
+}
+
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {
   /**
@@ -23,9 +41,11 @@ export class Board {
   /**
    * Castling rights.
    */
-  castling: {
-    white: { kingside: boolean; queenside: boolean }
-    black: { kingside: boolean; queenside: boolean }
+  private castlingRights: CastlingBitmask
+
+  /** Is there a castling right for X? */
+  hasCastling(x: Castling): boolean {
+    return Boolean(this.castlingRights & x)
   }
 
   /**
@@ -62,7 +82,7 @@ export class Board {
       this.board = new Uint8Array(board.board)
       this.side = board.side
       this.kings = { ...board.kings }
-      this.castling = { white: { ...board.castling.white }, black: { ...board.castling.black } }
+      this.castlingRights = board.castlingRights
       this.previousPositions = new Map(
         Array.from(board.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
       )
@@ -74,10 +94,7 @@ export class Board {
       // but things seem to be slower if we use {} etc.
       this.board = new Uint8Array(64)
       this.side = Color.White
-      this.castling = {
-        white: { kingside: true, queenside: true },
-        black: { kingside: true, queenside: true },
-      }
+      this.castlingRights = Castling.None
       this.kings = { white: new Coord(4, 0), black: new Coord(4, 7) }
       this.hash = 0
       this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
@@ -97,14 +114,7 @@ export class Board {
    * If two strings are the same, the positions are the same with respect to the three-fold repetition rule.
    */
   state(): string {
-    return String.fromCharCode(
-      ...this.board,
-      this.side,
-      Number(this.castling.white.kingside),
-      Number(this.castling.white.queenside),
-      Number(this.castling.black.kingside),
-      Number(this.castling.black.queenside)
-    )
+    return String.fromCharCode(...this.board, this.side, this.castlingRights)
   }
 
   /**
@@ -191,14 +201,12 @@ export class Board {
     this.side = side === 'w' ? Color.White : Color.Black
     if (this.side === Color.White) this.hash ^= zobristWhiteToMove
 
-    this.castling = {
-      white: { kingside: castling.includes('K'), queenside: castling.includes('Q') },
-      black: { kingside: castling.includes('k'), queenside: castling.includes('q') },
-    }
-    if (this.castling.white.kingside) this.hash ^= zobristCastling.white.kingside
-    if (this.castling.white.queenside) this.hash ^= zobristCastling.white.queenside
-    if (this.castling.black.kingside) this.hash ^= zobristCastling.black.kingside
-    if (this.castling.black.queenside) this.hash ^= zobristCastling.black.queenside
+    this.castlingRights =
+      (castling.includes('K') ? Castling.WhiteKingside : Castling.None) |
+      (castling.includes('Q') ? Castling.WhiteQueenside : Castling.None) |
+      (castling.includes('k') ? Castling.BlackKingside : Castling.None) |
+      (castling.includes('q') ? Castling.BlackQueenside : Castling.None)
+    this.hash ^= zobristCastling(this.castlingRights)
 
     this.halfmoveClock = parseInt(halfmove, 10)
     this.previousPositions = new Map()
@@ -231,20 +239,14 @@ export class Board {
    * Execute a move. Doesn't check if it's valid.
    */
   executeMove(move: Move) {
-    const onIrreversibleMove = () => {
-      this.irreversibleMoveClock = 0
-      this.previousPositions.clear()
-    }
+    const oldHash = this.hash
+    const oldState = this.state()
 
-    const onReversibleMove = () => {
-      const previousStates = this.previousPositions.get(this.hash)
-      if (previousStates === undefined) {
-        this.previousPositions.set(this.hash, [this.state()])
-      } else {
-        previousStates.push(this.state())
-      }
-      this.irreversibleMoveClock++
-    }
+    // We remember old castling rights so that later we can see if they have changed
+    const oldCastlingRights = this.castlingRights
+
+    // For the fifty-move rule
+    let captureOrPawnMove = false
 
     switch (move.kind) {
       case 'normal':
@@ -252,80 +254,44 @@ export class Board {
           const piece = this.at(move.from)
           const target = this.at(move.to)
 
-          let irreversibleMove = false // For the threefold repetition draw rule
-          let captureOrPawnMove = false // For the fifty-move rule
-
-          // If the king is moved, castling rights are lost and the move is irreversible
-          const anyWhiteCastling = this.castling.white.kingside || this.castling.white.queenside
-          const anyBlackCastling = this.castling.black.kingside || this.castling.black.queenside
-          if (piece === Piece.WhiteKing && anyWhiteCastling) {
-            irreversibleMove = true
-            if (this.castling.white.kingside) this.hash ^= zobristCastling.white.kingside
-            if (this.castling.white.queenside) this.hash ^= zobristCastling.white.queenside
-            this.castling.white = { kingside: false, queenside: false }
-          } else if (piece === Piece.BlackKing && anyBlackCastling) {
-            irreversibleMove = true
-            if (this.castling.black.kingside) this.hash ^= zobristCastling.black.kingside
-            if (this.castling.black.queenside) this.hash ^= zobristCastling.black.queenside
-            this.castling.black = { kingside: false, queenside: false }
+          // If the king is moved, castling rights are lost
+          if (piece === Piece.WhiteKing) {
+            this.castlingRights &= ~Castling.WhiteAny
+          } else if (piece === Piece.BlackKing) {
+            this.castlingRights &= ~Castling.BlackAny
           }
-          // If a rook is moved from its original position, castling rights are lost and the move is irreversible
+          // Or if a rook is moved from its original position, castling rights are lost
           else if (piece === Piece.WhiteRook) {
-            if (move.from.equals(new Coord(0, 0)) && this.castling.white.queenside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.white.queenside
-              this.castling.white.queenside = false
-            } else if (move.from.equals(new Coord(7, 0)) && this.castling.white.kingside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.white.kingside
-              this.castling.white.kingside = false
+            if (move.from.equals(new Coord(0, 0))) {
+              this.castlingRights &= ~Castling.WhiteQueenside
+            } else if (move.from.equals(new Coord(7, 0))) {
+              this.castlingRights &= ~Castling.WhiteKingside
             }
           } else if (piece === Piece.BlackRook) {
-            if (move.from.equals(new Coord(0, 7)) && this.castling.black.queenside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.black.queenside
-              this.castling.black.queenside = false
-            } else if (move.from.equals(new Coord(7, 7)) && this.castling.black.kingside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.black.kingside
-              this.castling.black.kingside = false
+            if (move.from.equals(new Coord(0, 7))) {
+              this.castlingRights &= ~Castling.BlackQueenside
+            } else if (move.from.equals(new Coord(7, 7))) {
+              this.castlingRights &= ~Castling.BlackKingside
             }
           }
 
-          // If a rook is captured, castling rights are also lost and the move is irreversible
+          // If a rook is captured, castling rights are also lost
           if (target === Piece.WhiteRook) {
-            if (move.to.equals(new Coord(0, 0)) && this.castling.white.queenside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.white.queenside
-              this.castling.white.queenside = false
-            } else if (move.to.equals(new Coord(7, 0)) && this.castling.white.kingside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.white.kingside
-              this.castling.white.kingside = false
+            if (move.to.equals(new Coord(0, 0))) {
+              this.castlingRights &= ~Castling.WhiteQueenside
+            } else if (move.to.equals(new Coord(7, 0))) {
+              this.castlingRights &= ~Castling.WhiteKingside
             }
           } else if (target === Piece.BlackRook) {
-            if (move.to.equals(new Coord(0, 7)) && this.castling.black.queenside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.black.queenside
-              this.castling.black.queenside = false
-            } else if (move.to.equals(new Coord(7, 7)) && this.castling.black.kingside) {
-              irreversibleMove = true
-              this.hash ^= zobristCastling.black.kingside
-              this.castling.black.kingside = false
+            if (move.to.equals(new Coord(0, 7))) {
+              this.castlingRights &= ~Castling.BlackQueenside
+            } else if (move.to.equals(new Coord(7, 7))) {
+              this.castlingRights &= ~Castling.BlackKingside
             }
           }
 
-          // Captures and pawn moves are irreversible *and* reset the halfmove clock
-          if (target !== Piece.Empty || isPawn(piece)) {
-            irreversibleMove = true
-            captureOrPawnMove = true
-          }
-
-          // Ok, now face the music
-          if (irreversibleMove) onIrreversibleMove()
-          else onReversibleMove()
-          if (captureOrPawnMove) this.halfmoveClock = 0
-          else this.halfmoveClock++
+          // Captures and pawn moves are irreversible and reset the halfmove clock
+          if (target !== Piece.Empty || isPawn(piece)) captureOrPawnMove = true
 
           // If the king is moved, update the king position
           if (piece === Piece.WhiteKing) this.kings.white = move.to
@@ -343,8 +309,6 @@ export class Board {
         break
       case 'castling':
         {
-          onIrreversibleMove()
-          this.halfmoveClock++
           if (this.side === Color.White) {
             // Move the pieces
             this.setAt(move.kingFrom, Piece.Empty)
@@ -357,9 +321,7 @@ export class Board {
               zobristPiece(Piece.WhiteRook, move.rookFrom) ^
               zobristPiece(Piece.WhiteRook, move.rookTo)
             // Update castling rights
-            if (this.castling.white.kingside) this.hash ^= zobristCastling.white.kingside
-            if (this.castling.white.queenside) this.hash ^= zobristCastling.white.queenside
-            this.castling.white = { kingside: false, queenside: false }
+            this.castlingRights &= ~Castling.WhiteAny
             // Update the king position
             this.kings.white = move.kingTo
           } else {
@@ -374,20 +336,38 @@ export class Board {
               zobristPiece(Piece.BlackRook, move.rookFrom) ^
               zobristPiece(Piece.BlackRook, move.rookTo)
             // Update castling rights
-            if (this.castling.black.kingside) this.hash ^= zobristCastling.black.kingside
-            if (this.castling.black.queenside) this.hash ^= zobristCastling.black.queenside
-            this.castling.black = { kingside: false, queenside: false }
+            this.castlingRights &= ~Castling.BlackAny
             // Update the king position
             this.kings.black = move.kingTo
           }
         }
         break
     }
-    if (this.side === Color.White) {
-      this.side = Color.Black
+
+    // If the castling rights have changed, update the hash
+    if (oldCastlingRights !== this.castlingRights)
+      this.hash ^= zobristCastling(oldCastlingRights) ^ zobristCastling(this.castlingRights)
+
+    // If the move was a capture or a pawn move, reset the halfmove clock
+    if (captureOrPawnMove) this.halfmoveClock = 0
+    else this.halfmoveClock++
+
+    // If the move was irreversible, reset the irreversible move clock; otherwise remember the position so that later we can check for threefold repetition
+    if (captureOrPawnMove || oldCastlingRights !== this.castlingRights) {
+      this.irreversibleMoveClock = 0
+      this.previousPositions.clear()
     } else {
-      this.side = Color.White
+      const previousStates = this.previousPositions.get(oldHash)
+      if (previousStates === undefined) {
+        this.previousPositions.set(oldHash, [oldState])
+      } else {
+        previousStates.push(oldState)
+      }
+      this.irreversibleMoveClock++
     }
+
+    // Update the side to move
+    this.side = this.side === Color.White ? Color.Black : Color.White
     this.hash ^= zobristWhiteToMove
   }
 }

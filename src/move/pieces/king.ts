@@ -1,6 +1,6 @@
 /** Everything related to how the king moves. */
 
-import { Board } from '@/board'
+import { Board, Castling } from '@/board'
 import { Move } from '@/move'
 import { Color, Piece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
@@ -67,20 +67,20 @@ export function kingMoves(board: Board, color: Color, coord: Coord): Move[] {
   }
 
   if (color === Color.White) {
-    if (board.castling.white.kingside) {
+    if (board.hasCastling(Castling.WhiteKingside)) {
       const move: Move = { kind: 'castling', ...castlingMoves.white.kingside }
       if (checkCastling(move)) moves.push(move)
     }
-    if (board.castling.white.queenside) {
+    if (board.hasCastling(Castling.WhiteQueenside)) {
       const move: Move = { kind: 'castling', ...castlingMoves.white.queenside }
       if (checkCastling(move)) moves.push(move)
     }
   } else {
-    if (board.castling.black.kingside) {
+    if (board.hasCastling(Castling.BlackKingside)) {
       const move: Move = { kind: 'castling', ...castlingMoves.black.kingside }
       if (checkCastling(move)) moves.push(move)
     }
-    if (board.castling.black.queenside) {
+    if (board.hasCastling(Castling.BlackQueenside)) {
       const move: Move = { kind: 'castling', ...castlingMoves.black.queenside }
       if (checkCastling(move)) moves.push(move)
     }
