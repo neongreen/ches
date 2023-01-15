@@ -15,9 +15,9 @@
     "@types/react-dom": "18.0.10",
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
-    "imurmurhash": "^0.1.4",
     "lodash": "^4.17.21",
     "next": "13.1.1",
+    "random-seedable": "^1.0.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-p5-wrapper": "^3.4.0",
@@ -25,7 +25,6 @@
     "typescript": "4.9.4"
   },
   "devDependencies": {
-    "@types/imurmurhash": "^0.1.1",
     "@types/lodash": "^4.14.191",
     "@types/p5": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^5.48.1",

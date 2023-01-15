@@ -1,9 +1,7 @@
 import { Color, isPawn, letterToPiece, Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
-import MurmurHash from 'imurmurhash'
-
-type PositionHash = number
+import { Zobrist, zobristCastling, zobristPiece, zobristWhiteToMove } from './zobrist'
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {
@@ -31,13 +29,13 @@ export class Board {
   }
 
   /**
-   * Previous positions, indexed by their `hash()`. Used to detect three-fold repetition.
+   * Previous positions, indexed by their `hash`. Used to detect three-fold repetition.
    *
    * This map is cleared after each irreversible move (pawn moves, captures, castling).
    *
    * Since collisions are possible, map values are arrays of `state()`s.
    */
-  previousPositions: Map<PositionHash, string[]> = new Map()
+  previousPositions: Map<Zobrist, string[]> = new Map()
 
   /**
    * THREEFOLD REPETITION: `irreversibleMoveClock` is the number of half-moves since the last irreversible move (pawn moves, captures, castling). If it's 0, the last move was irreversible.
@@ -68,6 +66,7 @@ export class Board {
       this.previousPositions = new Map(
         Array.from(board.previousPositions.entries()).map(([hash, states]) => [hash, [...states]])
       )
+      this.hash = board.hash
       this.irreversibleMoveClock = board.irreversibleMoveClock
       this.halfmoveClock = board.halfmoveClock
     } else {
@@ -80,6 +79,7 @@ export class Board {
         black: { kingside: true, queenside: true },
       }
       this.kings = { white: new Coord(4, 0), black: new Coord(4, 7) }
+      this.hash = 0
       this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     }
   }
@@ -108,13 +108,11 @@ export class Board {
   }
 
   /**
-   * Return a hash of the position.
+   * Stores a hash of the position.
    *
    * If two hashes are different, the positions are different with respect to the three-fold repetition rule. However, collisions are possible.
    */
-  hash(state?: string): PositionHash {
-    return new MurmurHash(state || this.state()).result()
-  }
+  hash: Zobrist
 
   /**
    * Is the current position a three-fold repetition?
@@ -127,8 +125,7 @@ export class Board {
     // So there must be at least four positions in the map. (If there are three positions,
     // only one of them will be from the same side to move as the current side.)
     if (this.irreversibleMoveClock < 4) return false
-    const positionHash = this.hash()
-    const previousStates = this.previousPositions.get(positionHash)
+    const previousStates = this.previousPositions.get(this.hash)
     if (!previousStates) return false
     const positionState = this.state()
     return previousStates.filter((x) => x === positionState).length >= 2
@@ -188,15 +185,25 @@ export class Board {
    */
   setFen(fen: string) {
     const [pieces, side, castling, enPassant, halfmove, fullmove] = fen.split(' ')
+
+    this.hash = 0
+
     this.side = side === 'w' ? Color.White : Color.Black
-    this.board = new Uint8Array(64).fill(Piece.Empty)
+    if (this.side === Color.White) this.hash += zobristWhiteToMove
+
     this.castling = {
       white: { kingside: castling.includes('K'), queenside: castling.includes('Q') },
       black: { kingside: castling.includes('k'), queenside: castling.includes('q') },
     }
+    if (this.castling.white.kingside) this.hash += zobristCastling.white.kingside
+    if (this.castling.white.queenside) this.hash += zobristCastling.white.queenside
+    if (this.castling.black.kingside) this.hash += zobristCastling.black.kingside
+    if (this.castling.black.queenside) this.hash += zobristCastling.black.queenside
+
     this.halfmoveClock = parseInt(halfmove, 10)
     this.previousPositions = new Map()
 
+    this.board = new Uint8Array(64).fill(Piece.Empty)
     let rows = pieces.split('/')
     rows.reverse()
     for (let y = 0; y < 8; y++) {
@@ -210,6 +217,7 @@ export class Board {
           this.setAt(coord, piece)
           if (piece === Piece.WhiteKing) this.kings.white = coord
           if (piece === Piece.BlackKing) this.kings.black = coord
+          this.hash += zobristPiece(piece, coord)
           x++
         }
       }
@@ -229,13 +237,11 @@ export class Board {
     }
 
     const onReversibleMove = () => {
-      const currentState = this.state()
-      const currentHash = this.hash(currentState)
-      const previousStates = this.previousPositions.get(currentHash)
+      const previousStates = this.previousPositions.get(this.hash)
       if (previousStates === undefined) {
-        this.previousPositions.set(currentHash, [currentState])
+        this.previousPositions.set(this.hash, [this.state()])
       } else {
-        previousStates.push(currentState)
+        previousStates.push(this.state())
       }
       this.irreversibleMoveClock++
     }
@@ -254,26 +260,34 @@ export class Board {
           const anyBlackCastling = this.castling.black.kingside || this.castling.black.queenside
           if (piece === Piece.WhiteKing && anyWhiteCastling) {
             irreversibleMove = true
+            if (this.castling.white.kingside) this.hash -= zobristCastling.white.kingside
+            if (this.castling.white.queenside) this.hash -= zobristCastling.white.queenside
             this.castling.white = { kingside: false, queenside: false }
           } else if (piece === Piece.BlackKing && anyBlackCastling) {
             irreversibleMove = true
+            if (this.castling.black.kingside) this.hash -= zobristCastling.black.kingside
+            if (this.castling.black.queenside) this.hash -= zobristCastling.black.queenside
             this.castling.black = { kingside: false, queenside: false }
           }
           // If a rook is moved from its original position, castling rights are lost and the move is irreversible
           else if (piece === Piece.WhiteRook) {
             if (move.from.equals(new Coord(0, 0)) && this.castling.white.queenside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.white.queenside
               this.castling.white.queenside = false
             } else if (move.from.equals(new Coord(7, 0)) && this.castling.white.kingside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.white.kingside
               this.castling.white.kingside = false
             }
           } else if (piece === Piece.BlackRook) {
             if (move.from.equals(new Coord(0, 7)) && this.castling.black.queenside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.black.queenside
               this.castling.black.queenside = false
             } else if (move.from.equals(new Coord(7, 7)) && this.castling.black.kingside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.black.kingside
               this.castling.black.kingside = false
             }
           }
@@ -282,17 +296,21 @@ export class Board {
           if (target === Piece.WhiteRook) {
             if (move.to.equals(new Coord(0, 0)) && this.castling.white.queenside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.white.queenside
               this.castling.white.queenside = false
             } else if (move.to.equals(new Coord(7, 0)) && this.castling.white.kingside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.white.kingside
               this.castling.white.kingside = false
             }
           } else if (target === Piece.BlackRook) {
             if (move.to.equals(new Coord(0, 7)) && this.castling.black.queenside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.black.queenside
               this.castling.black.queenside = false
             } else if (move.to.equals(new Coord(7, 7)) && this.castling.black.kingside) {
               irreversibleMove = true
+              this.hash -= zobristCastling.black.kingside
               this.castling.black.kingside = false
             }
           }
@@ -313,8 +331,13 @@ export class Board {
           if (piece === Piece.WhiteKing) this.kings.white = move.to
           else if (piece === Piece.BlackKing) this.kings.black = move.to
 
-          // Finally, update the board
-          this.setAt(move.to, move.promotion ? move.promotion : this.at(move.from))
+          // Update the hash regarding moved pieces
+          this.hash -= zobristPiece(piece, move.from)
+          if (target !== Piece.Empty) this.hash -= zobristPiece(target, move.to)
+          this.hash += zobristPiece(move.promotion ? move.promotion : piece, move.to)
+
+          // Update the board
+          this.setAt(move.to, move.promotion ? move.promotion : piece)
           this.setAt(move.from, Piece.Empty)
         }
         break
@@ -323,23 +346,51 @@ export class Board {
           onIrreversibleMove()
           this.halfmoveClock++
           if (this.side === Color.White) {
+            // Move the pieces
             this.setAt(move.kingFrom, Piece.Empty)
             this.setAt(move.kingTo, Piece.WhiteKing)
             this.setAt(move.rookFrom, Piece.Empty)
             this.setAt(move.rookTo, Piece.WhiteRook)
+            this.hash =
+              this.hash -
+              zobristPiece(Piece.WhiteKing, move.kingFrom) +
+              zobristPiece(Piece.WhiteKing, move.kingTo) -
+              zobristPiece(Piece.WhiteRook, move.rookFrom) +
+              zobristPiece(Piece.WhiteRook, move.rookTo)
+            // Update castling rights
+            if (this.castling.white.kingside) this.hash -= zobristCastling.white.kingside
+            if (this.castling.white.queenside) this.hash -= zobristCastling.white.queenside
             this.castling.white = { kingside: false, queenside: false }
+            // Update the king position
             this.kings.white = move.kingTo
           } else {
+            // Move the pieces
             this.setAt(move.kingFrom, Piece.Empty)
             this.setAt(move.kingTo, Piece.BlackKing)
             this.setAt(move.rookFrom, Piece.Empty)
             this.setAt(move.rookTo, Piece.BlackRook)
+            this.hash =
+              this.hash -
+              zobristPiece(Piece.BlackKing, move.kingFrom) +
+              zobristPiece(Piece.BlackKing, move.kingTo) -
+              zobristPiece(Piece.BlackRook, move.rookFrom) +
+              zobristPiece(Piece.BlackRook, move.rookTo)
+            // Update castling rights
+            if (this.castling.black.kingside) this.hash -= zobristCastling.black.kingside
+            if (this.castling.black.queenside) this.hash -= zobristCastling.black.queenside
             this.castling.black = { kingside: false, queenside: false }
+            // Update the king position
             this.kings.black = move.kingTo
           }
         }
         break
     }
-    this.side = this.side === Color.White ? Color.Black : Color.White
+    if (this.side === Color.White) {
+      this.side = Color.Black
+      this.hash -= zobristWhiteToMove
+    } else {
+      this.side = Color.White
+      this.hash += zobristWhiteToMove
+    }
   }
 }

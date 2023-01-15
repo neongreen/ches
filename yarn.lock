@@ -251,13 +251,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/imurmurhash@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@types/imurmurhash@npm:0.1.1"
-  checksum: b33783919a30e79f52d605759c01e3ed3e413afa4bb7dadb07697cb0e05243ae958a1e32df5ef5c75a5b8a4ed90ff3fe6c1fa76add343b5fc38f308bfb08d6e3
-  languageName: node
-  linkType: hard
-
 "@types/json-schema@npm:^7.0.9":
   version: 7.0.11
   resolution: "@types/json-schema@npm:7.0.11"
@@ -752,7 +745,6 @@ __metadata:
   resolution: "ches@workspace:."
   dependencies:
     "@next/font": 13.1.1
-    "@types/imurmurhash": ^0.1.1
     "@types/lodash": ^4.14.191
     "@types/node": 18.11.18
     "@types/p5": ^1.4.3
@@ -764,9 +756,9 @@ __metadata:
     eslint-config-next: 13.1.1
     eslint-plugin-compat: ^4.0.2
     eslint-plugin-react: ^7.32.0
-    imurmurhash: ^0.1.4
     lodash: ^4.17.21
     next: 13.1.1
+    random-seedable: ^1.0.8
     react: 18.2.0
     react-dom: 18.2.0
     react-p5-wrapper: ^3.4.0
@@ -2470,6 +2462,13 @@ __metadata:
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
   checksum: b676f8c040cdc5b12723ad2f91414d267605b26419d5c821ff03befa817ddd10e238d22b25d604920340fd73efd8ba795465a0377c4adf45a4a41e4234e42dc4
+  languageName: node
+  linkType: hard
+
+"random-seedable@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "random-seedable@npm:1.0.8"
+  checksum: b0df3c52f1cc2a2740f5de371748c14cfd91358f7e6462f466b15bd37c96266d605ac2f91577494da8957e644370889bf3bd0cc9867bd1f84b3247b90e50bbce
   languageName: node
   linkType: hard
 

@@ -19,6 +19,7 @@ export const allPieceTypes = [
 ]
 
 export enum Color {
+  // NB: apparently somewhere we depend on this not being 0x00 and 0x10, maybe because `pieceColor` can return 0x00 for empty squares and we check it for falsiness somewhere?
   White = 0x10,
   Black = 0x20,
 }
@@ -44,6 +45,8 @@ export enum Piece {
   BlackQueen = PieceType.Queen | Color.Black,
   BlackKing = PieceType.King | Color.Black,
 }
+
+export const pieceEnumRange = { low: Piece.Empty, high: Piece.BlackKing }
 
 export function pieceType(piece: Piece): PieceType {
   return piece & 0x0f
