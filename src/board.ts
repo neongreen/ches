@@ -334,7 +334,7 @@ export class Board {
           // Update the hash regarding moved pieces
           this.hash ^= zobristPiece(piece, move.from)
           if (target !== Piece.Empty) this.hash ^= zobristPiece(target, move.to)
-          this.hash += zobristPiece(move.promotion ? move.promotion : piece, move.to)
+          this.hash ^= zobristPiece(move.promotion ? move.promotion : piece, move.to)
 
           // Update the board
           this.setAt(move.to, move.promotion ? move.promotion : piece)
