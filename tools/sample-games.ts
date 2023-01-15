@@ -11,7 +11,7 @@ import { notateMove } from '@/move'
 import { writeFileSync } from 'fs'
 import path from 'path'
 
-for (let depth = 1; depth <= 4; depth++) {
+for (let depth = 1; depth <= 5; depth++) {
   const filename = path.resolve(__dirname, `sample-games/depth-${depth}.txt`)
   const board = new Board()
   const game = []
