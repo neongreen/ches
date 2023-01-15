@@ -11,13 +11,15 @@ import { XORShift64 } from 'random-seedable'
 export type Zobrist = number
 
 const random = new XORShift64(1337)
+
 function zobristRandom(): Zobrist {
-  return random.randRange(0, 2 ** 47 - 1)
+  // We use 25 bits instead of 47 because apparently in V8 only integers up to 2^31-1 are represented as "small integer"
+  return random.randRange(0, 2 ** 25 - 1)
 }
 
 const ZOBRIST: Zobrist[] = []
 
-// We generate a random 47-bit number for each piece*square combination.
+// We generate a random number for each piece*square combination.
 // Instead of XOR, we will be using addition and subtraction.
 //
 // https://www.chessprogramming.org/Zobrist_Hashing#Lack_a_True_Integer_Type
