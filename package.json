@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sample-games": "rm sample-games/*.txt; esbuild tools/sample-games.ts --bundle --platform=node | node"
   },
   "dependencies": {
     "@next/font": "13.1.1",
@@ -29,6 +30,7 @@
     "@types/p5": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
+    "esbuild": "^0.17.0",
     "eslint-plugin-compat": "^4.0.2",
     "eslint-plugin-react": "^7.32.0"
   },

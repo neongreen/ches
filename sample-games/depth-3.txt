@@ -1,0 +1,1 @@
+Nc3 Nc6 Nd5 Nd4 c3 Nb5 Qb3 c6 Ne3 Qb6 Nc4 Qc5 d4 Qd5 Bf4 Nf6 Nd6 exd6 c4 Nxd4 Qe3 Qe4 Bxd6 Nc2 Kd2 Nxe3 Bxf8 Nxc4 Kc3 Kxf8 Rd1 d5 Nf3 h6 Rd4 Qb1 b4 Qa1 Kb3 Qb2 Ka4 Qxa2 0-1

@@ -26,6 +26,8 @@ export function isInCheck(board: Board, color: Color): boolean {
 
 /**
  * Render a move in algebraic notation.
+ *
+ * @param board The board before the move.
  */
 export function notateMove(board: Board, move: Move): string {
   const algebraicCoord = (coord: Coord) => {
