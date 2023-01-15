@@ -101,16 +101,16 @@ export class Search {
 
     // Check if we have seen this position before
     const transpositionTableEntry = this.probeTranspositionTable(hash, state)
-    // if (transpositionTableEntry && transpositionTableEntry.depth >= depth) {
-    //   return {
-    //     move: transpositionTableEntry.goodMove,
-    //     score: transpositionTableEntry.score,
-    //     line: transpositionTableEntry.line,
-    //   }
-    // }
+    if (transpositionTableEntry && transpositionTableEntry.depth >= depth) {
+      return {
+        move: transpositionTableEntry.goodMove,
+        score: transpositionTableEntry.score,
+        line: transpositionTableEntry.line,
+      }
+    }
 
     // If we have seen the position before, but the depth is not deep enough, we can still use the good move from the transposition table to order the moves. Specifically, we'll try that move first.
-    const goodMove = undefined // transpositionTableEntry?.goodMove
+    const goodMove = transpositionTableEntry?.goodMove
 
     const quasiLegalMoves = quasiLegalOrderedMoves(node.board, goodMove || undefined)
 
