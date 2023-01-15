@@ -8,7 +8,7 @@ import { Piece, pieceEnumRange } from './piece'
 import { Coord } from './utils/coord'
 import { XORShift64 } from 'random-seedable'
 import assert from 'assert'
-import { Castling, CastlingBitmask } from './board'
+import { Castling, CastlingBitmask } from './utils/castling'
 
 export type Zobrist = number
 

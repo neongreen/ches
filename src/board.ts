@@ -2,24 +2,7 @@ import { Color, isPawn, letterToPiece, Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
 import { Zobrist, zobristCastling, zobristPiece, zobristWhiteToMove } from './zobrist'
-
-/**
- * Castling rights as a bitmask of `CastlingRight`s.
- */
-export type CastlingBitmask = number
-
-export const enum Castling {
-  None = 0,
-
-  WhiteKingside = 1,
-  WhiteQueenside = 2,
-  BlackKingside = 4,
-  BlackQueenside = 8,
-
-  WhiteAny = Castling.WhiteKingside | Castling.WhiteQueenside,
-  BlackAny = Castling.BlackKingside | Castling.BlackQueenside,
-  Any = Castling.WhiteAny | Castling.BlackAny,
-}
+import { Castling, CastlingBitmask } from './utils/castling'
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {

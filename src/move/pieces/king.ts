@@ -1,8 +1,9 @@
 /** Everything related to how the king moves. */
 
-import { Board, Castling } from '@/board'
+import { Board } from '@/board'
 import { Move } from '@/move'
 import { Color, Piece, pieceColor } from '@/piece'
+import { Castling } from '@/utils/castling'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { isAttackedByColor } from '../attacked'

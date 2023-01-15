@@ -13,6 +13,26 @@ export type Move =
       rookTo: Coord
     }
 
+export function moveIsEqual(a: Move, b: Move) {
+  switch (a.kind) {
+    case 'normal':
+      return (
+        b.kind === 'normal' &&
+        a.from.equals(b.from) &&
+        a.to.equals(b.to) &&
+        a.promotion === b.promotion
+      )
+    case 'castling':
+      return (
+        b.kind === 'castling' &&
+        a.kingFrom.equals(b.kingFrom) &&
+        a.kingTo.equals(b.kingTo) &&
+        a.rookFrom.equals(b.rookFrom) &&
+        a.rookTo.equals(b.rookTo)
+      )
+  }
+}
+
 /**
  * Determines if a certain side is in check.
  */

@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { isInCheck, Move } from '@/move'
+import { isInCheck, Move, moveIsEqual } from '@/move'
 import { isKing } from '@/piece'
 import _ from 'lodash'
 import { quasiLegalMoves } from './quasiLegal'
@@ -32,7 +32,7 @@ export function isLegalMove(
 
   // If we can't rely on the move being quasi-legal (e.g. when we are checking a move that a human player wants to make), we can simply check if the move is in the list of quasi-legal moves. We don't have to worry about speed here and we already know that the move passes all legality checks *except* for actually being a quasi-legal move.
   if (!optAssumeQuasiLegal) {
-    if (!quasiLegalMoves(boardBeforeMove).some((m) => _.isEqual(m, move))) return false
+    if (!quasiLegalMoves(boardBeforeMove).some((m) => moveIsEqual(m, move))) return false
   }
 
   return true

@@ -4,9 +4,9 @@ import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
-import { findBestMove } from './eval/eval'
 import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
+import { Search } from './eval/search'
 import { Move, notateLine } from './move'
 import { isLegalMove, isLegalMoveAndExecute } from './move/legal'
 import { castlingMoves } from './move/pieces/king'
@@ -38,7 +38,8 @@ function createWidgets(p5: P5CanvasInstance): {
 }
 
 class Chess {
-  board: Board = new Board()
+  board = new Board()
+  search = new Search()
   bestMove: {
     move: Move | null
     score: Score // The score (eval) of the best move
@@ -74,8 +75,6 @@ export const sketch = (p5: P5CanvasInstance) => {
   window.chess.quasiLegalMoves = quasiLegalMoves
   // @ts-ignore
   window.chess.quasiLegalMovesFrom = quasiLegalMovesFrom
-  // @ts-ignore
-  window.chess.findBestMove = findBestMove
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -185,7 +184,10 @@ export const sketch = (p5: P5CanvasInstance) => {
 
     if (chess.bestMove === null) {
       const startTime = performance.now()
-      const bestMove = findBestMove(new EvalNode(chess.board), Number(widgets.depth.value()))
+      const bestMove = chess.search.findBestMove(
+        new EvalNode(chess.board),
+        Number(widgets.depth.value())
+      )
       chess.bestMove = { ...bestMove, time: (performance.now() - startTime) / 1000 }
     }
     if (chess.bestMove.move && chess.board.side === Color.Black && widgets.autoPlay.checked()) {
