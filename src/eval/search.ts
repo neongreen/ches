@@ -65,19 +65,25 @@ export class Search {
   /**
    * A transposition table, storing previously seen positions.
    *
-   * For now we just store all seen positions and don't bother with evicting anything.
+   * We limit ourselves to 2^16 entries so that we wouldn't have to worry about memory usage.
    */
-  private transpositionTable: Map<Zobrist, TranspositionTableEntry> = new Map()
+  private transpositionTable: (TranspositionTableEntry | undefined)[] = new Array(2 ** 16).fill(
+    undefined
+  )
 
   /**
    * Does the transposition table contain an entry for the given board?
    */
-  private probeTranspositionTable(
-    hash: Zobrist,
-    state: string
-  ): TranspositionTableEntry | undefined {
-    const entry = this.transpositionTable.get(hash)
+  private probeTransposition(hash: Zobrist, state: string): TranspositionTableEntry | undefined {
+    const entry = this.transpositionTable[hash & 0xffff]
     if (entry && entry.state === state) return entry
+  }
+
+  /**
+   * Write an entry to the transposition table.
+   */
+  private writeTransposition(hash: Zobrist, entry: TranspositionTableEntry) {
+    this.transpositionTable[hash & 0xffff] = entry
   }
 
   /**
@@ -100,7 +106,7 @@ export class Search {
     const state = node.board.state()
 
     // Check if we have seen this position before
-    const transpositionTableEntry = this.probeTranspositionTable(hash, state)
+    const transpositionTableEntry = this.probeTransposition(hash, state)
     if (transpositionTableEntry && transpositionTableEntry.depth >= depth) {
       return {
         move: transpositionTableEntry.goodMove,
@@ -175,7 +181,7 @@ export class Search {
 
     // Update the transposition table (only if depth>1 because we want to save memory)
     if (depth > 1)
-      this.transpositionTable.set(hash, {
+      this.writeTransposition(hash, {
         state,
         depth,
         goodMove: best.move,
