@@ -104,4 +104,11 @@ export class Coord {
   color(): 'light' | 'dark' {
     return (this.x + this.y) % 2 === 0 ? 'dark' : 'light'
   }
+
+  /**
+   * https://en.wikipedia.org/wiki/Chebyshev_distance
+   */
+  chessboardDistance(to: Coord) {
+    return Math.max(Math.abs(this.x - to.x), Math.abs(this.y - to.y))
+  }
 }
