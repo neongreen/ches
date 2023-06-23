@@ -153,7 +153,7 @@ export const sketch = (p5: P5CanvasInstance) => {
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
         const light = (x + y) % 2 !== 0
-        p5.fill(light ? 240 : 170)
+        p5.fill(light ? '#ebecd0' : '#779556') // Chess.com colors
         const xy = squareCenter(p5, new Coord(x, y))
         p5.rectMode(p5.CENTER)
         p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
