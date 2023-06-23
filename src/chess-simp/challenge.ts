@@ -81,12 +81,32 @@ const _2022_01_29: Challenge = {
   },
 }
 
+const _2022_03_07: Challenge = {
+  videoTitle: 'Such Torture',
+  videoUrl: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
+  challenge:
+    'Chess, but your king is a commander, you can only move something if your king can see it.',
+  isMoveAllowed(board: Board, move: Move): boolean {
+    // Only pieces with distance=1 to the king are allowed to move. (1:05 in the video - line of sight doesn't count as "can see"). Unclear if castling is allowed, and theoretically it *can* happen if the opponent takes your N and B - but let's say it's not allowed.
+    return (
+      match(move)
+        // TODO: once again we are assuming that the human is playing white
+        .with({ kind: 'normal' }, ({ from }) => board.kings.white.chessboardDistance(from) <= 1)
+        .with({ kind: 'enPassant' }, ({ from }) => board.kings.white.chessboardDistance(from) <= 1)
+        .with({ kind: 'castling' }, () => false)
+        .exhaustive()
+    )
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
 export const challenges: Challenge[] = _.concat(
   // Jan 2022
   [_2022_01_29],
+  // Mar 2022
+  [_2022_03_07],
   // May 2022
   [_2022_05_24],
   // Jun 2022
