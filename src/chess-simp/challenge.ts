@@ -100,6 +100,22 @@ const _2022_03_07: Challenge = {
   },
 }
 
+const _2022_03_29: Challenge = {
+  videoTitle: "I Don't Invade Anyone Today",
+  videoUrl: 'https://www.youtube.com/watch?v=XQZFvszSddk',
+  challenge: "Chess but your pawns and pieces can't cross the half-way line.",
+  isMoveAllowed(board: Board, move: Move): boolean {
+    return (
+      match(move)
+        // TODO: once again we are assuming that the human is playing white
+        .with({ kind: 'normal' }, ({ to }) => to.y <= 3)
+        .with({ kind: 'enPassant' }, ({ to }) => to.y <= 3)
+        .with({ kind: 'castling' }, () => true)
+        .exhaustive()
+    )
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -107,7 +123,7 @@ export const challenges: Challenge[] = _.concat(
   // Jan 2022
   [_2022_01_29],
   // Mar 2022
-  [_2022_03_07],
+  [_2022_03_07, _2022_03_29],
   // May 2022
   [_2022_05_24],
   // Jun 2022
