@@ -1,7 +1,17 @@
 import { Coord } from '@/utils/coord'
-import { Piece, pieceToLetter, pieceType, PieceType, pieceTypeToLetter, Color } from '@/piece'
+import {
+  Piece,
+  pieceToLetter,
+  pieceType,
+  PieceType,
+  pieceTypeToLetter,
+  Color,
+  isPawn,
+} from '@/piece'
 import { Board } from '@/board'
-import { isAttackedByColor } from '@/move/attacked'
+import { isKingAttackedByColor } from '@/move/attacked'
+import { match } from 'ts-pattern'
+import { castlingMoves } from './move/pieces/king'
 
 export type Move =
   | { kind: 'normal'; from: Coord; to: Coord; promotion?: Piece }
@@ -11,6 +21,12 @@ export type Move =
       kingTo: Coord
       rookFrom: Coord
       rookTo: Coord
+    }
+  | {
+      kind: 'enPassant'
+      from: Coord
+      to: Coord
+      // NB: we can never have a promotion on an en passant move
     }
 
 export function moveIsEqual(a: Move, b: Move) {
@@ -30,17 +46,19 @@ export function moveIsEqual(a: Move, b: Move) {
         a.rookFrom.equals(b.rookFrom) &&
         a.rookTo.equals(b.rookTo)
       )
+    case 'enPassant':
+      return b.kind === 'enPassant' && a.from.equals(b.from) && a.to.equals(b.to)
   }
 }
 
 /**
- * Determines if a certain side is in check.
+ * Determine if a certain side is in check.
  */
 export function isInCheck(board: Board, color: Color): boolean {
   if (color === Color.White) {
-    return isAttackedByColor(board, Color.Black, board.kings.white)
+    return isKingAttackedByColor(board, Color.Black, board.kings.white)
   } else {
-    return isAttackedByColor(board, Color.White, board.kings.black)
+    return isKingAttackedByColor(board, Color.White, board.kings.black)
   }
 }
 
@@ -81,6 +99,9 @@ export function notateMove(board: Board, move: Move): string {
     case 'castling': {
       return move.kingTo.x > move.kingFrom.x ? 'O-O' : 'O-O-O'
     }
+    case 'enPassant': {
+      return algebraicCoord(move.from).charAt(0) + 'x' + algebraicCoord(move.to)
+    }
   }
 }
 
@@ -95,4 +116,59 @@ export function notateLine(board: Board, line: Move[]): string[] {
     board_.executeMove(move)
   }
   return result
+}
+
+/**
+ * Translate a piece drag-and-drop into a (possibly illegal) move.
+ *
+ * TODO: promotion to other pieces than queen
+ */
+export function translateFromHumanMove(
+  board: Board,
+  drag: { from: Coord; to: Coord }
+): Move | null {
+  const piece = board.at(drag.from)
+  return match('')
+    .when(
+      () => piece === Piece.WhiteKing && drag.to.x - drag.from.x > 1,
+      () => ({ kind: 'castling', ...castlingMoves.white.kingside } satisfies Move)
+    )
+    .when(
+      () => piece === Piece.WhiteKing && drag.to.x - drag.from.x < -1,
+      () => ({ kind: 'castling', ...castlingMoves.white.queenside } satisfies Move)
+    )
+    .when(
+      () => piece === Piece.BlackKing && drag.to.x - drag.from.x > 1,
+      () => ({ kind: 'castling', ...castlingMoves.black.kingside } satisfies Move)
+    )
+    .when(
+      () => piece === Piece.BlackKing && drag.to.x - drag.from.x < -1,
+      () => ({ kind: 'castling', ...castlingMoves.black.queenside } satisfies Move)
+    )
+    .when(
+      () =>
+        isPawn(piece) && board.enPassantTargetSquare && drag.to.equals(board.enPassantTargetSquare),
+      () => ({ kind: 'enPassant', from: drag.from, to: drag.to } satisfies Move)
+    )
+    .otherwise(
+      () =>
+        ({
+          kind: 'normal',
+          from: drag.from,
+          to: drag.to,
+          ...(piece === Piece.WhitePawn && drag.to.y === 7 ? { promotion: Piece.WhiteQueen } : {}),
+          ...(piece === Piece.BlackPawn && drag.to.y === 0 ? { promotion: Piece.BlackQueen } : {}),
+        } satisfies Move)
+    )
+}
+
+/**
+ * Translate a move into a piece drag-and-drop.
+ */
+export function translateToHumanMove(move: Move): { from: Coord; to: Coord } {
+  return match(move)
+    .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
+    .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
+    .with({ kind: 'enPassant' }, ({ from, to }) => ({ from, to }))
+    .exhaustive()
 }

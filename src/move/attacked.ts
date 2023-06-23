@@ -1,15 +1,13 @@
-// TODO: en passant
-
 import { Board } from '@/board'
 import { Piece, PieceType, Color, makePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
- * Determine if a square is attacked by pieces of a certain color.
+ * Determine if a king would be attacked by pieces of a certain color, if the king was standing on that square.
  *
  * NB: A square is not considered to be attacked by a piece standing on that square.
  */
-export function isAttackedByColor(board: Board, enemy: Color, target: Coord) {
+export function isKingAttackedByColor(board: Board, enemy: Color, target: Coord) {
   // We could do a check for all pieces of the opposite color, and we actually did it, and it was slow. Instead we'll go in 8 directions + 8 knight moves, and check if we stumble upon a piece of the opposite color.
 
   const enemyKnight = makePiece(enemy, PieceType.Knight)
@@ -18,9 +16,7 @@ export function isAttackedByColor(board: Board, enemy: Color, target: Coord) {
   const enemyQueen = makePiece(enemy, PieceType.Queen)
   const enemyKing = makePiece(enemy, PieceType.King)
 
-  // Step 1: check if there's a pawn that can attack the target square.
-  //
-  // TODO: we don't need en passant for the king, but we do need it for pawns if we're ever going to use 'isAttackedByColor' for pawns.
+  // Step 1: check if there's a pawn that can attack the target square. We don't count en passant because a king can't be attacked by en passant.
   if (enemy === Color.Black) {
     if (board.at(target.nw()) === Piece.BlackPawn) return true
     if (board.at(target.ne()) === Piece.BlackPawn) return true

@@ -120,6 +120,14 @@ export class EvalNode {
           this.countPiece(rook, move.rookTo, true)
         }
         break
+      case 'enPassant': {
+        const pawn = this.board.at(move.from)
+        const enPassantTargetPawn = this.board.enPassantTargetPawn()!
+        const capturedPawn = this.board.at(enPassantTargetPawn)
+        this.countPiece(pawn, move.from, false)
+        this.countPiece(pawn, move.to, true)
+        this.countPiece(capturedPawn, enPassantTargetPawn, false)
+      }
     }
 
     if (newBoard) this.board = newBoard

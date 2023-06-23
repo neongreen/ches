@@ -7,9 +7,8 @@ import { squareCenter } from './draw/square'
 import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
-import { Move, notateLine } from './move'
+import { Move, notateLine, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveAndExecute } from './move/legal'
-import { castlingMoves } from './move/pieces/king'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
@@ -128,12 +127,9 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   const drawBestMove = () => {
     if (widgets.showBestMove.checked() && chess.bestMove?.move) {
-      const { from, to } = match(chess.bestMove.move)
-        .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
-        .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
-        .exhaustive()
-      const fromCoord = squareCenter(p5, from)
-      const toCoord = squareCenter(p5, to)
+      const arrow = translateToHumanMove(chess.bestMove.move)
+      const fromCoord = squareCenter(p5, arrow.from)
+      const toCoord = squareCenter(p5, arrow.to)
       p5.push()
       p5.stroke('rgba(255,0,0,0.5)')
       p5.strokeWeight(6)
@@ -240,48 +236,19 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   p5.mouseReleased = () => {
     if (dragged !== null) {
-      const coord: Coord = dragged
-      const piece = chess.board.at(coord)
+      let dest: Coord | null = null
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-          const dest = new Coord(x, y)
-          if (isTouching(dest)) {
-            // We found the square we are dropping the piece on
-            const move: Move = match('')
-              .when(
-                () => piece === Piece.WhiteKing && dest.x - coord.x > 1,
-                () => ({ kind: 'castling', ...castlingMoves.white.kingside } satisfies Move)
-              )
-              .when(
-                () => piece === Piece.WhiteKing && dest.x - coord.x < -1,
-                () => ({ kind: 'castling', ...castlingMoves.white.queenside } satisfies Move)
-              )
-              .when(
-                () => piece === Piece.BlackKing && dest.x - coord.x > 1,
-                () => ({ kind: 'castling', ...castlingMoves.black.kingside } satisfies Move)
-              )
-              .when(
-                () => piece === Piece.BlackKing && dest.x - coord.x < -1,
-                () => ({ kind: 'castling', ...castlingMoves.black.queenside } satisfies Move)
-              )
-              .otherwise(
-                () =>
-                  ({
-                    kind: 'normal',
-                    from: coord,
-                    to: dest,
-                    ...(piece === Piece.WhitePawn && y === 7
-                      ? { promotion: Piece.WhiteQueen }
-                      : {}),
-                    ...(piece === Piece.BlackPawn && y === 0
-                      ? { promotion: Piece.BlackQueen }
-                      : {}),
-                  } satisfies Move)
-              )
-            let boardAfterMove = chess.board.clone()
-            boardAfterMove.executeMove(move)
-            if (isLegalMove(chess.board, boardAfterMove, move)) makeMove(move)
-          }
+          const square = new Coord(x, y)
+          if (isTouching(square)) dest = square
+        }
+      }
+      if (dest) {
+        const move = translateFromHumanMove(chess.board, { from: dragged, to: dest })
+        if (move) {
+          let boardAfterMove = chess.board.clone()
+          boardAfterMove.executeMove(move)
+          if (isLegalMove(chess.board, boardAfterMove, move)) makeMove(move)
         }
       }
       dragged = null

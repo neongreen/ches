@@ -25,6 +25,8 @@ export function isLegalMove(
       break
     case 'castling':
       break
+    case 'enPassant':
+      break
   }
 
   // The side to move must not be in check after the move

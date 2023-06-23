@@ -32,6 +32,25 @@ export class Board {
   }
 
   /**
+   * If the last move was a double pawn push, this is the "target square" for en passant captures - that is, the square behind the pawn that was pushed.
+   */
+  enPassantTargetSquare: Coord | null = null
+
+  /**
+   * The current position of the en passant pawn, if any.
+   *
+   * Invariant: `enPassantTarget === null` IFF `enPassantPawn() === null`.
+   */
+  enPassantTargetPawn(): Coord | null {
+    if (this.enPassantTargetSquare === null) return null
+    if (this.side === Color.White) {
+      return this.enPassantTargetSquare.s()
+    } else {
+      return this.enPassantTargetSquare.n()
+    }
+  }
+
+  /**
    * Previous positions' `state()`s. Used to detect three-fold repetition.
    *
    * This array is cleared after each irreversible move (pawn moves, captures, castling).
@@ -69,14 +88,14 @@ export class Board {
       this.side = board.side
       this.kings = { ...board.kings }
       this.castlingRights = board.castlingRights
+      this.enPassantTargetSquare = board.enPassantTargetSquare
       this.previousPositions = board.previousPositions.slice()
       this.previousPositionHashes = board.previousPositionHashes.slice()
       this.hash = board.hash
       this.irreversibleMoveClock = board.irreversibleMoveClock
       this.halfmoveClock = board.halfmoveClock
     } else {
-      // We don't actually care about anything because `setFen` will overwrite everything,
-      // but things seem to be slower if we use {} etc.
+      // We don't actually care about anything because `setFen` will overwrite everything, but things seem to be slower if we use {} etc.
       this.board = new Uint8Array(64)
       this.side = Color.White
       this.castlingRights = Castling.None
@@ -94,12 +113,18 @@ export class Board {
   }
 
   /**
-   * Return the position as a weird binary-ish string.
+   * Return the position as a weird binary-ish string. We don't care about the contents of the string as long as the following invariant holds:
    *
-   * If two strings are the same, the positions are the same with respect to the three-fold repetition rule.
+   * if two strings are the same, the positions are the same with respect to the three-fold repetition rule.
    */
   state(): string {
-    return String.fromCharCode(...this.board, this.side, this.castlingRights)
+    return String.fromCharCode(
+      ...this.board,
+      this.side,
+      this.castlingRights,
+      this.enPassantTargetSquare ? this.enPassantTargetSquare.x + 1 : 0,
+      this.enPassantTargetSquare ? this.enPassantTargetSquare.y + 1 : 0
+    )
   }
 
   /**
@@ -203,6 +228,8 @@ export class Board {
     this.side = side === 'w' ? Color.White : Color.Black
     if (this.side === Color.White) this.hash ^= zobristWhiteToMove
 
+    this.enPassantTargetSquare = enPassant === '-' ? null : Coord.fromAlgebraic(enPassant)
+
     this.castlingRights =
       (castling.includes('K') ? Castling.WhiteKingside : Castling.None) |
       (castling.includes('Q') ? Castling.WhiteQueenside : Castling.None) |
@@ -255,6 +282,9 @@ export class Board {
           const piece = this.at(move.from)
           const target = this.at(move.to)
 
+          // We know we don't need the en passant target anymore, so we can remove it
+          this.enPassantTargetSquare = null
+
           // If the king is moved, castling rights are lost
           if (piece === Piece.WhiteKing) {
             this.castlingRights &= ~Castling.WhiteAny
@@ -291,6 +321,13 @@ export class Board {
             }
           }
 
+          // If it was a double pawn push, set the en passant target
+          if (piece === Piece.WhitePawn && move.from.n().n().equals(move.to)) {
+            this.enPassantTargetSquare = move.from.n()
+          } else if (piece === Piece.BlackPawn && move.from.s().s().equals(move.to)) {
+            this.enPassantTargetSquare = move.from.s()
+          }
+
           // Captures and pawn moves are irreversible and reset the halfmove clock
           if (target !== Piece.Empty || isPawn(piece)) captureOrPawnMove = true
 
@@ -301,7 +338,10 @@ export class Board {
         break
       case 'castling':
         {
+          this.enPassantTargetSquare = null
+
           if (this.side === Color.White) {
+            // TODO: "move" instead of "replace"?
             this.replace(move.kingFrom, Piece.WhiteKing, Piece.Empty)
             this.replace(move.kingTo, Piece.Empty, Piece.WhiteKing)
             this.replace(move.rookFrom, Piece.WhiteRook, Piece.Empty)
@@ -313,6 +353,25 @@ export class Board {
             this.replace(move.rookFrom, Piece.BlackRook, Piece.Empty)
             this.replace(move.rookTo, Piece.Empty, Piece.BlackRook)
             this.castlingRights &= ~Castling.BlackAny
+          }
+        }
+        break
+      case 'enPassant':
+        {
+          const enPassantPawn = this.enPassantTargetPawn()
+          if (enPassantPawn === null)
+            throw new Error(
+              'We are trying to execute an en passant move, but there is no en passant pawn'
+            )
+          this.enPassantTargetSquare = null
+          if (this.side === Color.White) {
+            this.replace(move.from, Piece.WhitePawn, Piece.Empty)
+            this.replace(move.to, Piece.Empty, Piece.WhitePawn)
+            this.replace(enPassantPawn, Piece.BlackPawn, Piece.Empty)
+          } else {
+            this.replace(move.from, Piece.BlackPawn, Piece.Empty)
+            this.replace(move.to, Piece.Empty, Piece.BlackPawn)
+            this.replace(enPassantPawn, Piece.WhitePawn, Piece.Empty)
           }
         }
         break

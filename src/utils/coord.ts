@@ -1,4 +1,8 @@
-/** Coordinates of a square on the chess board. */
+/**
+ * Coordinates of a square on the chess board.
+ *
+ * a1 is `Coord(0, 0)` and h8 is `Coord(7, 7)`.
+ */
 export class Coord {
   x: number
   y: number
@@ -15,6 +19,13 @@ export class Coord {
 
   equals(other: Coord) {
     return this.x === other.x && this.y === other.y
+  }
+
+  /** Convert from algebraic notation. Upper and lower case letters are supported. */
+  static fromAlgebraic(algebraic: string) {
+    const x = algebraic.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0)
+    const y = algebraic.charCodeAt(1) - '1'.charCodeAt(0)
+    return new Coord(x, y)
   }
 
   /** Shift by delta.

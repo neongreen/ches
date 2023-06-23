@@ -9,7 +9,7 @@ import _ from 'lodash'
 /**
  * All possible pawn moves on the board, including captures.
  *
- * TODO: en passant, promotion to pieces other than queen
+ * TODO: promotion to pieces other than queen
  */
 export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
   let moves: Move[] = []
@@ -42,6 +42,23 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           ...(dest.y === 7 ? { promotion: Piece.WhiteQueen } : {}),
         })
     }
+
+    // en passant, if possible
+    if (board.enPassantTargetSquare) {
+      const dest = board.enPassantTargetSquare
+      //
+      //          [en passant]
+      //   (x)    [black pawn]    (x)
+      //
+      // En passant is possible if we are at (x). We don't need to check anything else - the en passant square is guaranteed to be empty, and the pawn is guaranteed to be present and of the opposite color.
+      if (coord.ne().equals(dest) || coord.nw().equals(dest)) {
+        moves.push({
+          kind: 'enPassant',
+          from: coord,
+          to: dest,
+        })
+      }
+    }
   } else {
     // going down 1 if empty
     {
@@ -69,6 +86,23 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           to: dest,
           ...(dest.y === 0 ? { promotion: Piece.BlackQueen } : {}),
         })
+    }
+
+    // en passant, if possible
+    if (board.enPassantTargetSquare) {
+      const dest = board.enPassantTargetSquare
+      //
+      //   (x)    [white pawn]    (x)
+      //          [en passant]
+      //
+      // En passant is possible if we are at (x).
+      if (coord.se().equals(dest) || coord.sw().equals(dest)) {
+        moves.push({
+          kind: 'enPassant',
+          from: coord,
+          to: dest,
+        })
+      }
     }
   }
   return moves

@@ -2,7 +2,7 @@ import { Board } from '@/board'
 import { isInCheck, Move, moveIsEqual } from '@/move'
 import { isLegalMove } from '@/move/legal'
 import { quasiLegalMoves } from '@/move/quasiLegal'
-import { allPieceTypes, Color, Piece, pieceType } from '@/piece'
+import { allPieceTypes, Color, Piece, PieceType, pieceType } from '@/piece'
 import { Zobrist } from '@/zobrist'
 import _ from 'lodash'
 import { leafEvalNode } from './eval'
@@ -19,7 +19,13 @@ type TranspositionTableEntry = {
   line: Move[]
 }
 
-// https://rustic-chess.org/search/ordering/mvv_lva.html
+/**
+ * MVV_LVA is indexed by [PieceType][PieceType]. It lists the score of a capture move, where the first index is the victim and the second index is the attacker. Higher score is better.
+ *
+ * https://rustic-chess.org/search/ordering/mvv_lva.html
+ *
+ * > MVV-LVA stands for Most Valuable Victim, Least Valuable Attacker. This is a move ordering technique that does exactly what it describes: it orders the capture moves, ordered from the strongest to the weakest. The more valuable the captured piece is, and the less valuable the attacker is, the stronger the capture will be, and thus it will be ordered higher in the move list. As a consequence, the alpha-beta function will search the stronger captures first, which causes it to find better moves faster, and thus it can disregard large portions of the search tree.
+ */
 const MVV_LVA: number[][] = []
 for (const victim of allPieceTypes) {
   MVV_LVA[victim] = []
@@ -39,9 +45,13 @@ function quasiLegalOrderedMoves(board: Board, goodMove?: Move): Move[] {
 
 /**
  * Move ordering. We want to search most promising moves first because then the search tree might get smaller due to alpha-beta pruning.
+ *
+ * This function returns a number that is higher for better moves.
+ *
+ * @param goodMove If we already know a good move, we want to prioritize it in the search.
  */
 function moveOrder(board: Board, move: Move, goodMove?: Move): number {
-  if (goodMove && moveIsEqual(move, goodMove)) return 1000000
+  if (goodMove && moveIsEqual(move, goodMove)) return 1_000_000
   switch (move.kind) {
     case 'normal': {
       // NB: We could just do "material difference" but this would give equal trades score 0, and we don't want that — we still want to look at captures before quiet moves.
@@ -51,7 +61,12 @@ function moveOrder(board: Board, move: Move, goodMove?: Move): number {
       return MVV_LVA[pieceType(to)][pieceType(from)]
     }
     case 'castling': {
-      return 0
+      // ...Maybe castling is also usually good? I don't know.
+      return 500_000
+    }
+    case 'enPassant': {
+      // We always want to prioritize en passant in move search, because en passant is cool. This will only influence bestMove if there is a choice between en passant and a normal capture. (...And maybe not even then.)
+      return 500_000
     }
   }
 }

@@ -6,7 +6,7 @@ import { Color, Piece, pieceColor } from '@/piece'
 import { Castling } from '@/utils/castling'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
-import { isAttackedByColor } from '../attacked'
+import { isKingAttackedByColor } from '../attacked'
 
 export const castlingMoves = {
   white: {
@@ -63,7 +63,7 @@ export function kingMoves(board: Board, color: Color, coord: Coord): Move[] {
       move.kingFrom.pathTo(move.rookFrom, 'exclusive').every((c) => board.isEmpty(c)) &&
       move.kingFrom
         .pathTo(move.kingTo, 'inclusive')
-        .every((c) => !isAttackedByColor(board, opposite, c))
+        .every((c) => !isKingAttackedByColor(board, opposite, c))
     )
   }
 
