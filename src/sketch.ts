@@ -9,7 +9,7 @@ import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
 import { Move, notateLine, translateFromHumanMove, translateToHumanMove } from './move'
-import { isLegalMove, isLegalMoveWithExecute } from './move/legal'
+import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
@@ -254,17 +254,64 @@ export const sketch = (p5: P5CanvasInstance) => {
       )
       chess.bestMove = { ...bestMove, time: (performance.now() - startTime) / 1000 }
     }
+
     if (chess.bestMove.move && chess.board.side === Color.Black && widgets.autoPlay.checked()) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
     } else {
       drawBestMove()
-      p5.fill(0)
-      const evalTime = Math.round(chess.bestMove.time * 100) / 100
-      p5.text(
-        `eval: ${renderScore(chess.bestMove.score)} (${evalTime}s)`,
-        5,
-        DrawConstants(p5).CELL * 8 + 14
-      )
+      // If the game is not over, show eval, otherwise show result
+      const challenge = widgets.chessSimpChallenge.value()
+      const legalMoves = legalMoves_slow(chess.board)
+      const legalMovesAfterChallenge = challenge
+        ? legalMoves.filter((move) => challenge.isMoveAllowed(chess.board, move))
+        : legalMoves
+      match('')
+        // Game over, we won
+        .when(
+          () => chess.bestMove!.move === null && chess.bestMove!.score > 0,
+          () => {
+            p5.fill('green')
+            p5.text('Checkmate. You won!', 5, DrawConstants(p5).CELL * 8 + 14)
+          }
+        )
+        // Game over, we lost
+        .when(
+          () => chess.bestMove!.move === null && chess.bestMove!.score < 0,
+          () => {
+            p5.fill('red')
+            p5.text('Checkmate. You lost.', 5, DrawConstants(p5).CELL * 8 + 14)
+          }
+        )
+        // Game over, draw
+        .when(
+          () => chess.bestMove!.move === null && chess.bestMove!.score === 0,
+          () => {
+            p5.fill('black')
+            p5.text('Draw', 5, DrawConstants(p5).CELL * 8 + 14)
+          }
+        )
+        // There are moves but all of them are illegal challenge-wise
+        .when(
+          () => legalMoves.length > 0 && legalMovesAfterChallenge.length === 0,
+          () => {
+            p5.fill('red')
+            p5.text(
+              'All possible moves fail the challenge. You lost.',
+              5,
+              DrawConstants(p5).CELL * 8 + 14
+            )
+          }
+        )
+        // The game goes on, show eval
+        .otherwise(() => {
+          p5.fill(0)
+          const evalTime = Math.round(chess.bestMove!.time * 100) / 100
+          p5.text(
+            `eval: ${renderScore(chess.bestMove!.score)} (${evalTime}s)`,
+            5,
+            DrawConstants(p5).CELL * 8 + 14
+          )
+        })
     }
 
     let newOutput = ''

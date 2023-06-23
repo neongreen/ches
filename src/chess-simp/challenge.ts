@@ -74,6 +74,7 @@ const _2022_01_29: Challenge = {
   videoUrl: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
   challenge: 'Chess, but if your pawn can move, it has to.',
   isMoveAllowed(board: Board, move: Move): boolean {
+    // Note: per 3:02 in the video, if you're in check you can move a non-pawn (which is incidentally what this code already does.)
     const pawnMoves = legalMoves_slow(board).filter((move) =>
       isPawn(classifyMovePiece(board, move))
     )
