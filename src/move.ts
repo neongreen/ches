@@ -174,7 +174,7 @@ export function translateToHumanMove(move: Move): { from: Coord; to: Coord } {
 }
 
 /**
- * Which peace is doing the move? (Castling is assumed to be done by the king.)
+ * Which piece is doing the move? (Castling is assumed to be done by the king.)
  */
 export function classifyMovePiece(board: Board, move: Move): Piece {
   switch (move.kind) {

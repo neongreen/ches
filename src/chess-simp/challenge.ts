@@ -1,7 +1,7 @@
 import { Board } from '@/board'
 import { classifyMovePiece, Move, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { isBlack, isPawn } from '@/piece'
+import { isBlack, isKing, isPawn } from '@/piece'
 import _ from 'lodash'
 import { match } from 'ts-pattern'
 
@@ -132,6 +132,18 @@ const _2022_05_30: Challenge = {
   },
 }
 
+const _2022_04_21: Challenge = {
+  videoTitle: 'All Predictions Went Wrong',
+  videoUrl: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
+  challenge: 'Chess but you have to move your King if you can.',
+  isMoveAllowed(board: Board, move: Move): boolean {
+    const kingMoves = legalMoves_slow(board).filter((move) =>
+      isKing(classifyMovePiece(board, move))
+    )
+    return kingMoves.length === 0 || kingMoves.some((kingMove) => moveIsEqual(kingMove, move))
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -140,6 +152,8 @@ export const challenges: Challenge[] = _.concat(
   [_2022_01_29],
   // Mar 2022
   [_2022_03_07, _2022_03_29],
+  // Apr 2022
+  [_2022_04_21],
   // May 2022
   [_2022_05_24, _2022_05_30],
   // Jun 2022
