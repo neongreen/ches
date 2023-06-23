@@ -9,7 +9,7 @@ import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
 import { Move, notateLine, translateFromHumanMove, translateToHumanMove } from './move'
-import { isLegalMove, isLegalMoveAndExecute } from './move/legal'
+import { isLegalMove, isLegalMoveWithExecute } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
@@ -116,7 +116,7 @@ export const sketch = (p5: P5CanvasInstance) => {
   // @ts-ignore
   window.chess = chess
   // @ts-ignore
-  window.chess.isLegalMove = isLegalMoveAndExecute
+  window.chess.isLegalMove = isLegalMoveWithExecute
   // @ts-ignore
   window.chess.quasiLegalMoves = quasiLegalMoves
   // @ts-ignore

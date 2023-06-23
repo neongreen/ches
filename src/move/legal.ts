@@ -43,7 +43,7 @@ export function isLegalMove(
 /**
  * Exactly determines if a move is legal, but also does `executeMove()` on its own. Useful for debug.
  */
-export function isLegalMoveAndExecute(
+export function isLegalMoveWithExecute(
   board: Board,
   move: Move,
   options?: { assumeQuasiLegal?: boolean }
@@ -51,4 +51,13 @@ export function isLegalMoveAndExecute(
   let boardAfterMove = board.clone()
   boardAfterMove.executeMove(move)
   return isLegalMove(board, boardAfterMove, move, options)
+}
+
+/**
+ * Generate all legal moves. Shouldn't be used in the search, because it's slow.
+ */
+export function legalMoves_slow(board: Board): Move[] {
+  return quasiLegalMoves(board).filter((move) =>
+    isLegalMoveWithExecute(board, move, { assumeQuasiLegal: true })
+  )
 }

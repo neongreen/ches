@@ -10,8 +10,7 @@ import { queenMoves } from './pieces/queen'
 import { rookMoves } from './pieces/rook'
 
 /**
- * Generate possible moves for the current side, without advanced checks like
- * "is the king in check?"
+ * Generate possible moves for the current side, but without advanced checks like "is the king in check?"
  */
 export function quasiLegalMoves(board: Board): Move[] {
   let moves: Move[] = []

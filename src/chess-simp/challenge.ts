@@ -1,5 +1,7 @@
 import { Board } from '@/board'
-import { Move } from '@/move'
+import { classifyMovePiece, Move, moveIsEqual } from '@/move'
+import { legalMoves_slow } from '@/move/legal'
+import { isPawn } from '@/piece'
 import _ from 'lodash'
 import { match } from 'ts-pattern'
 
@@ -67,10 +69,24 @@ const _2022_06_03: Challenge = {
   },
 }
 
+const _2022_01_29: Challenge = {
+  videoTitle: 'Our Kings Almost Touched',
+  videoUrl: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
+  challenge: 'Chess, but if your pawn can move, it has to.',
+  isMoveAllowed(board: Board, move: Move): boolean {
+    const pawnMoves = legalMoves_slow(board).filter((move) =>
+      isPawn(classifyMovePiece(board, move))
+    )
+    return pawnMoves.length === 0 || pawnMoves.some((pawnMove) => moveIsEqual(pawnMove, move))
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
 export const challenges: Challenge[] = _.concat(
+  // Jan 2022
+  [_2022_01_29],
   // May 2022
   [_2022_05_24],
   // Jun 2022

@@ -172,3 +172,17 @@ export function translateToHumanMove(move: Move): { from: Coord; to: Coord } {
     .with({ kind: 'enPassant' }, ({ from, to }) => ({ from, to }))
     .exhaustive()
 }
+
+/**
+ * Which peace is doing the move? (Castling is assumed to be done by the king.)
+ */
+export function classifyMovePiece(board: Board, move: Move): Piece {
+  switch (move.kind) {
+    case 'normal':
+      return board.at(move.from)
+    case 'castling':
+      return board.at(move.kingFrom)
+    case 'enPassant':
+      return board.at(move.from)
+  }
+}
