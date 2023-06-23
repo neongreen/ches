@@ -36,6 +36,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:18.0.10"],\
             ["@typescript-eslint/eslint-plugin", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
             ["@typescript-eslint/parser", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
+            ["@vercel/analytics", "npm:1.0.1"],\
             ["esbuild", "npm:0.17.0"],\
             ["eslint", "npm:8.31.0"],\
             ["eslint-config-next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
@@ -929,6 +930,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@vercel/analytics", [\
+        ["npm:1.0.1", {\
+          "packageLocation": "./.yarn/cache/@vercel-analytics-npm-1.0.1-545fdc4bb4-6876e1d086.zip/node_modules/@vercel/analytics/",\
+          "packageDependencies": [\
+            ["@vercel/analytics", "npm:1.0.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["acorn", [\
         ["npm:8.8.1", {\
           "packageLocation": "./.yarn/cache/acorn-npm-8.8.1-20e4aea981-4079b67283.zip/node_modules/acorn/",\
@@ -1217,6 +1227,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/react-dom", "npm:18.0.10"],\
             ["@typescript-eslint/eslint-plugin", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
             ["@typescript-eslint/parser", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:5.48.1"],\
+            ["@vercel/analytics", "npm:1.0.1"],\
             ["esbuild", "npm:0.17.0"],\
             ["eslint", "npm:8.31.0"],\
             ["eslint-config-next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
