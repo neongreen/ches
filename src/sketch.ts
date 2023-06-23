@@ -38,7 +38,9 @@ function createWidgets(p5: P5CanvasInstance): {
 
 class Chess {
   board = new Board()
+
   search = new Search()
+
   bestMove: {
     move: Move | null
     score: Score // The score (eval) of the best move
@@ -46,10 +48,20 @@ class Chess {
     line: Move[]
   } | null = null
 
+  /**
+   * Move history
+   */
+  history: Move[] = []
+
+  lastMove(): Move | null {
+    return this.history[this.history.length - 1] ?? null
+  }
+
   /** Make a move (assuming it's already been checked for legality) */
   makeMove(move: Move) {
     this.board.executeMove(move)
     this.bestMove = null
+    this.history.push(move)
   }
 }
 
@@ -125,6 +137,22 @@ export const sketch = (p5: P5CanvasInstance) => {
     }
   }
 
+  const drawLastMove = () => {
+    const lastMove = chess.lastMove()
+    if (lastMove) {
+      const arrow = translateToHumanMove(lastMove)
+      const fromCoord = squareCenter(p5, arrow.from)
+      const toCoord = squareCenter(p5, arrow.to)
+      p5.push()
+      p5.stroke('rgba(0,0,0,0.5)')
+      p5.strokeWeight(6)
+      p5.line(fromCoord.x, fromCoord.y, toCoord.x, toCoord.y)
+      p5.noFill()
+      p5.strokeWeight(3)
+      p5.pop()
+    }
+  }
+
   const drawBestMove = () => {
     if (widgets.showBestMove.checked() && chess.bestMove?.move) {
       const arrow = translateToHumanMove(chess.bestMove.move)
@@ -175,6 +203,7 @@ export const sketch = (p5: P5CanvasInstance) => {
   p5.draw = () => {
     p5.background(220)
     drawBoard()
+    drawLastMove()
     drawPieces()
     if (dragged !== null) drawDraggedPiece(p5, chess.board.at(dragged))
 
