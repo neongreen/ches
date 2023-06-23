@@ -100,4 +100,8 @@ export class Coord {
     if (mode === 'inclusive') squares.push(to)
     return squares
   }
+
+  color(): 'light' | 'dark' {
+    return (this.x + this.y) % 2 === 0 ? 'dark' : 'light'
+  }
 }

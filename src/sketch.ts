@@ -1,6 +1,7 @@
 import { P5CanvasInstance } from 'react-p5-wrapper'
 import { match } from 'ts-pattern'
 import { Board } from './board'
+import { Challenge, challenges } from './chess-simp/challenge'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
@@ -13,26 +14,60 @@ import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
 
+/**
+ * Create all widgets used in the UI.
+ *
+ * TODO: this sucks, migrate to React
+ */
 function createWidgets(p5: P5CanvasInstance): {
   depth: ReturnType<typeof p5.createSlider>
   autoPlay: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   showBestMove: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   showLine: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
   outputBox: ReturnType<typeof p5.createDiv>
+  chessSimpChallenge: Omit<ReturnType<typeof p5.createSelect>, 'value'> & {
+    _value: () => string
+    value: () => Challenge | null
+  }
 } {
-  const depthContainer = p5.createDiv().style('display: flex')
-  const depthLabel = p5.createSpan('Depth: ').parent(depthContainer)
-  const depth = p5
-    .createSlider(/* min */ 1, /*max*/ 7, /* default */ 3, /* step */ 1)
-    .parent(depthContainer)
-  const depthValue = p5.createSpan(depth.value().toString()).parent(depthContainer)
-  depth.elt.oninput = () => depthValue.html(depth.value().toString())
+  const depth = (() => {
+    const depthContainer = p5.createDiv().style('display: flex')
+    const depthLabel = p5.createSpan('Depth: ').parent(depthContainer)
+    const depthSlider = p5
+      .createSlider(/* min */ 1, /*max*/ 7, /* default */ 3, /* step */ 1)
+      .parent(depthContainer)
+    const depthValue = p5.createSpan(depthSlider.value().toString()).parent(depthContainer)
+    depthSlider.elt.oninput = () => depthValue.html(depthSlider.value().toString())
+    return depthSlider
+  })()
+
+  const chessSimpChallenge = (() => {
+    const challengeContainer = p5.createDiv().style('display: flex')
+    const challengeLabel = p5.createSpan('Chess Simp challenge: ').parent(challengeContainer)
+    const challengeSelect: any = p5.createSelect().parent(challengeContainer)
+    challengeSelect.option('-None-', '')
+    challenges.map((challenge, i) => {
+      challengeSelect.option(challenge.videoTitle, i.toString())
+      return undefined
+    })
+    challengeSelect._value = challengeSelect.value
+    challengeSelect.value = () => {
+      if (challengeSelect._value() === '') {
+        return null
+      } else {
+        return challenges[Number(challengeSelect._value())]
+      }
+    }
+    return challengeSelect
+  })()
+
   return {
-    depth,
+    depth: depth,
     autoPlay: p5.createCheckbox('Black makes moves automatically', true) as any,
     showBestMove: p5.createCheckbox('Show the most devious move', false) as any,
     showLine: p5.createCheckbox('Show the line', false) as any,
-    outputBox: p5.createDiv().style('font-family', 'monospace'),
+    outputBox: p5.createDiv().style('font-family', 'monospace').style('max-width', '400px'),
+    chessSimpChallenge: chessSimpChallenge as any,
   }
 }
 
@@ -194,6 +229,10 @@ export const sketch = (p5: P5CanvasInstance) => {
     stopTouchScrolling(renderer.elt)
     widgets = createWidgets(p5)
     // synth = new p5.PolySynth()
+
+    // DEBUG
+    // @ts-ignore
+    window.chess.widgets = widgets
   }
 
   p5.windowResized = () => {
@@ -228,14 +267,18 @@ export const sketch = (p5: P5CanvasInstance) => {
       )
     }
 
+    let newOutput = ''
+    if (widgets.chessSimpChallenge.value()) {
+      newOutput += widgets.chessSimpChallenge.value()?.challenge + '\n\n'
+    }
     if (widgets.showLine.checked() && chess.bestMove) {
       const line = chess.bestMove.line
-      widgets.outputBox.elt.innerText =
+      newOutput +=
         notateLine(chess.board, line).join(' ') +
-        (chess.board.isThreefoldRepetition() ? '\n\nThreefold repetition detected' : '')
-    } else {
-      widgets.outputBox.elt.innerText = ''
+        (chess.board.isThreefoldRepetition() ? '\n\nThreefold repetition detected' : '') +
+        '\n\n'
     }
+    widgets.outputBox.elt.innerText = newOutput
 
     // if (audioStarted) {
     //   if (frameCount % 15 === 0) {
@@ -264,6 +307,9 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   p5.mouseReleased = () => {
+    // No idea why, but when this function is called for the first time, widgets aren't initialized
+    if (!widgets) return
+
     if (dragged !== null) {
       let dest: Coord | null = null
       for (let x = 0; x < 8; x++) {
@@ -277,7 +323,11 @@ export const sketch = (p5: P5CanvasInstance) => {
         if (move) {
           let boardAfterMove = chess.board.clone()
           boardAfterMove.executeMove(move)
-          if (isLegalMove(chess.board, boardAfterMove, move)) makeMove(move)
+          const isLegal = isLegalMove(chess.board, boardAfterMove, move)
+          const challenge = widgets.chessSimpChallenge.value()
+          const isAllowedByChallenge =
+            challenge === null || challenge.isMoveAllowed(chess.board, move)
+          if (isLegal && isAllowedByChallenge) makeMove(move)
         }
       }
       dragged = null
