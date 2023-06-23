@@ -20,3 +20,11 @@ yarn dev
 ```bash
 yarn check
 ```
+
+### Generating sample games
+
+Useful to check that a refactoring didn't change anything (the engine is deterministic right now).
+
+```bash
+yarn sample-games
+```
