@@ -1,7 +1,7 @@
 import { Board } from '@/board'
 import { classifyMovePiece, Move, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { isPawn } from '@/piece'
+import { isBlack, isPawn } from '@/piece'
 import _ from 'lodash'
 import { match } from 'ts-pattern'
 
@@ -116,6 +116,22 @@ const _2022_03_29: Challenge = {
   },
 }
 
+const _2022_05_30: Challenge = {
+  videoTitle: 'He Offered A Draw...',
+  videoUrl: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
+  challenge: '100 rated chess but you can only take their most extended piece or pawn.',
+  isMoveAllowed(board: Board, move: Move): boolean {
+    // If there are several pieces that are equally extended, you can take any of them (1:19). If you're not taking a piece, you can do whatever you want.
+    const blackPieces = board.pieces().filter(({ piece }) => isBlack(piece))
+    const mostExtendedRow: number = _.min(blackPieces.map(({ coord }) => coord.y))!
+    return match(move)
+      .with({ kind: 'normal' }, ({ to }) => board.isEmpty(to) || to.y === mostExtendedRow)
+      .with({ kind: 'enPassant' }, () => board.enPassantTargetPawn()!.y === mostExtendedRow)
+      .with({ kind: 'castling' }, () => true)
+      .exhaustive()
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -125,7 +141,7 @@ export const challenges: Challenge[] = _.concat(
   // Mar 2022
   [_2022_03_07, _2022_03_29],
   // May 2022
-  [_2022_05_24],
+  [_2022_05_24, _2022_05_30],
   // Jun 2022
   [_2022_06_03],
   // Sep 2022

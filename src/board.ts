@@ -181,6 +181,20 @@ export class Board {
   }
 
   /**
+   * Return all pieces and their coordinates.
+   */
+  pieces(): { coord: Coord; piece: Piece }[] {
+    const pieces = []
+    for (let y = 0; y < 8; y++)
+      for (let x = 0; x < 8; x++) {
+        const coord = new Coord(x, y)
+        const piece = this.unsafeAt(coord)
+        if (piece !== Piece.Empty) pieces.push({ coord, piece })
+      }
+    return pieces
+  }
+
+  /**
    * Set the piece at coordinates (x, y).
    *
    * Updates the hash and the kings position, but not the castling rights.
