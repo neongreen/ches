@@ -62,14 +62,14 @@ export default function Home() {
               <span style={{ marginLeft: '5px' }}>{searchDepth}</span>
             </div>
 
-            <div style={{ display: 'flex' }}>
+            <label style={{ display: 'flex' }}>
               <input
                 type="checkbox"
                 checked={autoPlayEnabled}
                 onChange={(e) => setAutoPlayEnabled(e.target.checked)}
               />
               <span style={{ marginLeft: '5px' }}>Black makes moves automatically</span>
-            </div>
+            </label>
 
             <label style={{ display: 'flex' }}>
               <input
