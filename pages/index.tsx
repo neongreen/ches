@@ -49,8 +49,8 @@ export default function Home() {
           <MemoizedGameSketch env={env} />
 
           <div className={styles.controls}>
-            <div style={{ display: 'flex' }}>
-              <span>Depth: </span>
+            <label style={{ display: 'flex' }}>
+              Depth:
               <input
                 style={{ marginLeft: '5px' }}
                 type="range"
@@ -60,7 +60,7 @@ export default function Home() {
                 onChange={(e) => setSearchDepth(Number(e.target.value))}
               />
               <span style={{ marginLeft: '5px' }}>{searchDepth}</span>
-            </div>
+            </label>
 
             <label style={{ display: 'flex' }}>
               <input
