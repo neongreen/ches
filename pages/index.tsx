@@ -52,7 +52,7 @@ export default function Home() {
         <div ref={ref}>
           <MemoizedGameSketch env={env} />
 
-          <Stack mt="md">
+          <Stack mt="md" px="sm">
             <div style={{ paddingBottom: '1rem' }}>
               <Text size="sm">Depth</Text>
               <Slider
