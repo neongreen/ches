@@ -31,6 +31,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@next/font", "npm:13.1.1"],\
             ["@p5-wrapper/next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:0.2.0"],\
             ["@p5-wrapper/react", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:4.2.0"],\
+            ["@types/howler", "npm:2.2.7"],\
             ["@types/lodash", "npm:4.14.191"],\
             ["@types/node", "npm:18.11.18"],\
             ["@types/p5", "npm:1.4.3"],\
@@ -44,6 +45,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
             ["eslint-plugin-compat", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:4.0.2"],\
             ["eslint-plugin-react", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:7.32.0"],\
+            ["howler", "npm:2.2.3"],\
             ["lodash", "npm:4.17.21"],\
             ["next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
             ["p5", "npm:1.6.0"],\
@@ -607,6 +609,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@swc/helpers", "npm:0.4.14"],\
             ["tslib", "npm:2.4.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/howler", [\
+        ["npm:2.2.7", {\
+          "packageLocation": "./.yarn/cache/@types-howler-npm-2.2.7-a74a6d0441-e9d6723f94.zip/node_modules/@types/howler/",\
+          "packageDependencies": [\
+            ["@types/howler", "npm:2.2.7"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -1286,6 +1297,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@next/font", "npm:13.1.1"],\
             ["@p5-wrapper/next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:0.2.0"],\
             ["@p5-wrapper/react", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:4.2.0"],\
+            ["@types/howler", "npm:2.2.7"],\
             ["@types/lodash", "npm:4.14.191"],\
             ["@types/node", "npm:18.11.18"],\
             ["@types/p5", "npm:1.4.3"],\
@@ -1299,6 +1311,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
             ["eslint-plugin-compat", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:4.0.2"],\
             ["eslint-plugin-react", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:7.32.0"],\
+            ["howler", "npm:2.2.3"],\
             ["lodash", "npm:4.17.21"],\
             ["next", "virtual:f3ef53b138f54b10d6a2690e8b97e3df2a654407cde7e6e25f241d89f72d0d6fb7662338108a029a0c339f67234e7bc5d74b5456fec880ba8aeafe99d44a1a8b#npm:13.1.1"],\
             ["p5", "npm:1.6.0"],\
@@ -2536,6 +2549,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["has-tostringtag", "npm:1.0.0"],\
             ["has-symbols", "npm:1.0.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["howler", [\
+        ["npm:2.2.3", {\
+          "packageLocation": "./.yarn/cache/howler-npm-2.2.3-254b855819-c04ce19411.zip/node_modules/howler/",\
+          "packageDependencies": [\
+            ["howler", "npm:2.2.3"]\
           ],\
           "linkType": "HARD"\
         }]\

@@ -9,11 +9,12 @@ import { squareCenter } from './draw/square'
 import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
-import { Move, translateFromHumanMove, translateToHumanMove } from './move'
+import { isCapture, Move, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
+import { Howl } from 'howler'
 
 class Chess {
   board = new Board()
@@ -94,9 +95,28 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
   let lastMoveTimestamp = 0
 
   /** Move delay for AI, in milliseconds */
-  const AI_MOVE_DELAY = 400
+  const AI_MOVE_DELAY = 500
+
+  const sounds = {
+    move: new Howl({
+      src: [
+        '/assets/sounds/30764__el_boss__chess-puzzle-blitz-sfx/546119__el_boss__piece-placement.mp3',
+      ],
+    }),
+    capture: new Howl({
+      src: [
+        '/assets/sounds/30764__el_boss__chess-puzzle-blitz-sfx/546120__el_boss__piece-capture.mp3',
+      ],
+      volume: 0.4,
+    }),
+  }
 
   const makeMove = (move: Move) => {
+    if (isCapture(chess.board, move)) {
+      sounds.capture.play()
+    } else {
+      sounds.move.play()
+    }
     chess.makeMove(move)
     lastMoveTimestamp = performance.now()
   }
@@ -182,6 +202,9 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
 
   p5.preload = () => {
     preloadPieceImages(p5)
+    for (const sound of Object.values(sounds)) {
+      sound.load()
+    }
   }
 
   p5.setup = () => {

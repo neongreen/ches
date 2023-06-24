@@ -513,6 +513,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/howler@npm:^2.2.7":
+  version: 2.2.7
+  resolution: "@types/howler@npm:2.2.7"
+  checksum: e9d6723f946a7526c8562436c06ad64d55f63a0573bfbf08c776e3785ab520a3138da84058f280b0fe7d8a819af77af3dd62d88f873a316d3723dc2ad575aa0d
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:^7.0.9":
   version: 7.0.11
   resolution: "@types/json-schema@npm:7.0.11"
@@ -1025,6 +1032,7 @@ __metadata:
     "@next/font": 13.1.1
     "@p5-wrapper/next": ^0.2.0
     "@p5-wrapper/react": ^4.2.0
+    "@types/howler": ^2.2.7
     "@types/lodash": ^4.14.191
     "@types/node": 18.11.18
     "@types/p5": ^1.4.3
@@ -1038,6 +1046,7 @@ __metadata:
     eslint-config-next: 13.1.1
     eslint-plugin-compat: ^4.0.2
     eslint-plugin-react: ^7.32.0
+    howler: ^2.2.3
     lodash: ^4.17.21
     next: 13.1.1
     p5: ^1.6.0
@@ -2067,6 +2076,13 @@ __metadata:
   dependencies:
     function-bind: ^1.1.1
   checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
+  languageName: node
+  linkType: hard
+
+"howler@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "howler@npm:2.2.3"
+  checksum: c04ce19411f4d86f8508d411a93aea943f128c2686b3df3c61383fd4ed8f5551232c4389aba3a8d4c8b0eeb34ae51df5a9c3ccd9ba48583ac53e9bf9fcbd1ecf
   languageName: node
   linkType: hard
 

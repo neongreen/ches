@@ -186,3 +186,11 @@ export function classifyMovePiece(board: Board, move: Move): Piece {
       return board.at(move.from)
   }
 }
+
+export function isCapture(board: Board, move: Move): boolean {
+  return match(move)
+    .with({ kind: 'normal' }, ({ to }) => board.isOccupied(to) === true)
+    .with({ kind: 'castling' }, () => false)
+    .with({ kind: 'enPassant' }, () => true)
+    .exhaustive()
+}
