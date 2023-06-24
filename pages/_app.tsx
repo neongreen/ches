@@ -6,7 +6,11 @@ import { MantineProvider } from '@mantine/core'
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <MantineProvider withGlobalStyles withNormalizeCSS theme={{ primaryColor: 'lime' }}>
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        theme={{ primaryColor: 'green', primaryShade: 7 }}
+      >
         <Component {...pageProps} />
         <Analytics />
       </MantineProvider>

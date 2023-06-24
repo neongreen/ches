@@ -110,10 +110,10 @@ export default function Home() {
               )}
             </div>
 
-            <div style={{ fontFamily: 'monospace', maxWidth: width }}>{output}</div>
-          </Stack>
+            {output.trim() !== '' && (
+              <div style={{ fontFamily: 'monospace', maxWidth: width }}>{output}</div>
+            )}
 
-          <div className={styles.leaderboard}>
             <Button
               component="a"
               href="https://github.com/users/neongreen/projects/1/views/3"
@@ -121,7 +121,7 @@ export default function Home() {
             >
               Leaderboard
             </Button>
-          </div>
+          </Stack>
         </div>
       </main>
     </>
