@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { P5CanvasInstance } from 'react-p5-wrapper'
 import { match } from 'ts-pattern'
 import { Board } from './board'
@@ -84,19 +85,20 @@ class Chess {
   } | null = null
 
   /**
-   * Move history
+   * Game history.
    */
-  history: Move[] = []
+  history: { boardBeforeMove: Board; move: Move }[] = []
 
   lastMove(): Move | null {
-    return this.history[this.history.length - 1] ?? null
+    return _.last(this.history)?.move ?? null
   }
 
   /** Make a move (assuming it's already been checked for legality) */
   makeMove(move: Move) {
+    const boardBeforeMove = this.board.clone()
     this.board.executeMove(move)
     this.bestMove = null
-    this.history.push(move)
+    this.history.push({ boardBeforeMove, move })
   }
 }
 
@@ -263,7 +265,9 @@ export const sketch = (p5: P5CanvasInstance) => {
       const challenge = widgets.chessSimpChallenge.value()
       const legalMoves = legalMoves_slow(chess.board)
       const legalMovesAfterChallenge = challenge
-        ? legalMoves.filter((move) => challenge.isMoveAllowed(chess.board, move))
+        ? legalMoves.filter((move) =>
+            challenge.isMoveAllowed({ history: chess.history, board: chess.board, move })
+          )
         : legalMoves
       match('')
         // Game over, we won
@@ -373,7 +377,8 @@ export const sketch = (p5: P5CanvasInstance) => {
           const isLegal = isLegalMove(chess.board, boardAfterMove, move)
           const challenge = widgets.chessSimpChallenge.value()
           const isAllowedByChallenge =
-            challenge === null || challenge.isMoveAllowed(chess.board, move)
+            challenge === null ||
+            challenge.isMoveAllowed({ history: chess.history, board: chess.board, move })
           if (isLegal && isAllowedByChallenge) makeMove(move)
         }
       }
