@@ -53,6 +53,15 @@ export default function Home() {
           <MemoizedGameSketch env={env} />
 
           <Stack mt="md" px="sm" style={{ maxWidth: width }}>
+            <Button
+              component="a"
+              href="https://github.com/users/neongreen/projects/1/views/3"
+              target="_blank"
+              leftIcon="🏆"
+            >
+              Leaderboard
+            </Button>
+
             <div style={{ paddingBottom: '1rem' }}>
               <Text size="sm">Depth</Text>
               <Slider
@@ -64,18 +73,6 @@ export default function Home() {
                 marks={_.range(1, 7 + 1).map((value) => ({ value, label: value.toString() }))}
               />
             </div>
-
-            <Checkbox
-              label="Black makes moves automatically"
-              checked={autoPlayEnabled}
-              onChange={(e) => setAutoPlayEnabled(e.target.checked)}
-            />
-
-            <Checkbox
-              label="Show the most devious move"
-              checked={showBestMove}
-              onChange={(e) => setShowBestMove(e.target.checked)}
-            />
 
             <div>
               <Text size="sm">Challenge</Text>
@@ -89,7 +86,6 @@ export default function Home() {
                   ...challenges.map((challenge, i) => ({
                     group: 'Chess Simp',
                     label: challenge.videoTitle,
-
                     value: i.toString(),
                   })),
                 ]}
@@ -106,13 +102,17 @@ export default function Home() {
 
             {output.trim() !== '' && <div style={{ fontFamily: 'monospace' }}>{output}</div>}
 
-            <Button
-              component="a"
-              href="https://github.com/users/neongreen/projects/1/views/3"
-              leftIcon="🏆"
-            >
-              Leaderboard
-            </Button>
+            <Checkbox
+              label="Black makes moves automatically"
+              checked={autoPlayEnabled}
+              onChange={(e) => setAutoPlayEnabled(e.target.checked)}
+            />
+
+            <Checkbox
+              label="Show the most devious move"
+              checked={showBestMove}
+              onChange={(e) => setShowBestMove(e.target.checked)}
+            />
           </Stack>
         </div>
       </main>
