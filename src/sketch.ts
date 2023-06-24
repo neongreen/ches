@@ -9,68 +9,11 @@ import { squareCenter } from './draw/square'
 import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
-import { Move, notateLine, translateFromHumanMove, translateToHumanMove } from './move'
+import { Move, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
-
-/**
- * Create all widgets used in the UI.
- *
- * TODO: this sucks, migrate to React
- */
-function createWidgets(p5: P5CanvasInstance): {
-  depth: ReturnType<typeof p5.createSlider>
-  autoPlay: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
-  showBestMove: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
-  showLine: ReturnType<typeof p5.createCheckbox> & { checked: () => boolean }
-  outputBox: ReturnType<typeof p5.createDiv>
-  chessSimpChallenge: Omit<ReturnType<typeof p5.createSelect>, 'value'> & {
-    _value: () => string
-    value: () => Challenge | null
-  }
-} {
-  const depth = (() => {
-    const depthContainer = p5.createDiv().style('display: flex')
-    const depthLabel = p5.createSpan('Depth: ').parent(depthContainer)
-    const depthSlider = p5
-      .createSlider(/* min */ 1, /*max*/ 7, /* default */ 3, /* step */ 1)
-      .parent(depthContainer)
-    const depthValue = p5.createSpan(depthSlider.value().toString()).parent(depthContainer)
-    depthSlider.elt.oninput = () => depthValue.html(depthSlider.value().toString())
-    return depthSlider
-  })()
-
-  const chessSimpChallenge = (() => {
-    const challengeContainer = p5.createDiv().style('display: flex')
-    const challengeLabel = p5.createSpan('Challenge: ').parent(challengeContainer)
-    const challengeSelect: any = p5.createSelect().parent(challengeContainer)
-    challengeSelect.option('-None-', '')
-    challenges.map((challenge, i) => {
-      challengeSelect.option(challenge.videoTitle, i.toString())
-      return undefined
-    })
-    challengeSelect._value = challengeSelect.value
-    challengeSelect.value = () => {
-      if (challengeSelect._value() === '') {
-        return null
-      } else {
-        return challenges[Number(challengeSelect._value())]
-      }
-    }
-    return challengeSelect
-  })()
-
-  return {
-    depth: depth,
-    autoPlay: p5.createCheckbox('Black makes moves automatically', true) as any,
-    showBestMove: p5.createCheckbox('Show the most devious move', false) as any,
-    showLine: p5.createCheckbox('Show the line', false) as any,
-    outputBox: p5.createDiv().style('font-family', 'monospace').style('max-width', '400px'),
-    chessSimpChallenge: chessSimpChallenge as any,
-  }
-}
 
 class Chess {
   board = new Board()
@@ -102,7 +45,25 @@ class Chess {
   }
 }
 
-export const sketch = (p5: P5CanvasInstance) => {
+/**
+ * A way to pass data from React to the sketch and vice-versa.
+ */
+export type SketchAttributes = {
+  searchDepth: () => number
+  autoPlayEnabled: () => boolean
+  showBestMove: () => boolean
+  currentChallenge: () => Challenge | null
+  /**
+   * Sketch will call this when the best move/line changes.
+   */
+  onBestMoveChange: (move: Chess['bestMove']) => void
+  /**
+   * Sketch will call this when it wants to communicate something to the user.
+   */
+  onOutputChange: (output: string) => void
+}
+
+export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
   p5.disableFriendlyErrors = true
 
   // let synth: PolySynth
@@ -134,8 +95,6 @@ export const sketch = (p5: P5CanvasInstance) => {
 
   /** Move delay for AI, in milliseconds */
   const AI_MOVE_DELAY = 400
-
-  let widgets: ReturnType<typeof createWidgets>
 
   const makeMove = (move: Move) => {
     chess.makeMove(move)
@@ -190,7 +149,7 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   const drawBestMove = () => {
-    if (widgets.showBestMove.checked() && chess.bestMove?.move) {
+    if (env.showBestMove() && chess.bestMove?.move) {
       const arrow = translateToHumanMove(chess.bestMove.move)
       const fromCoord = squareCenter(p5, arrow.from)
       const toCoord = squareCenter(p5, arrow.to)
@@ -228,13 +187,12 @@ export const sketch = (p5: P5CanvasInstance) => {
   p5.setup = () => {
     const renderer = p5.createCanvas(DrawConstants(p5).CELL * 8, DrawConstants(p5).CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
-    widgets = createWidgets(p5)
     // @ts-ignore
     // synth = new p5.PolySynth()
 
     // DEBUG
     // @ts-ignore
-    window.chess.widgets = widgets
+    window.chess.env = env
   }
 
   p5.windowResized = () => {
@@ -250,19 +208,18 @@ export const sketch = (p5: P5CanvasInstance) => {
 
     if (chess.bestMove === null) {
       const startTime = performance.now()
-      const bestMove = chess.search.findBestMove(
-        new EvalNode(chess.board),
-        Number(widgets.depth.value())
-      )
+      const bestMove = chess.search.findBestMove(new EvalNode(chess.board), env.searchDepth())
       chess.bestMove = { ...bestMove, time: (performance.now() - startTime) / 1000 }
     }
 
-    if (chess.bestMove.move && chess.board.side === Color.Black && widgets.autoPlay.checked()) {
+    if (chess.bestMove) env.onBestMoveChange(chess.bestMove)
+
+    if (chess.bestMove.move && chess.board.side === Color.Black && env.autoPlayEnabled()) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
     } else {
       drawBestMove()
       // If the game is not over, show eval, otherwise show result
-      const challenge = widgets.chessSimpChallenge.value()
+      const challenge = env.currentChallenge()
       const legalMoves = legalMoves_slow(chess.board)
       const legalMovesAfterChallenge = challenge
         ? legalMoves.filter((move) =>
@@ -318,18 +275,9 @@ export const sketch = (p5: P5CanvasInstance) => {
         })
     }
 
-    let newOutput = ''
-    if (widgets.chessSimpChallenge.value()) {
-      newOutput += widgets.chessSimpChallenge.value()?.challenge + '\n\n'
-    }
-    if (widgets.showLine.checked() && chess.bestMove) {
-      const line = chess.bestMove.line
-      newOutput +=
-        notateLine(chess.board, line).join(' ') +
-        (chess.board.isThreefoldRepetition() ? '\n\nThreefold repetition detected' : '') +
-        '\n\n'
-    }
-    widgets.outputBox.elt.innerText = newOutput
+    let output = ''
+    if (chess.board.isThreefoldRepetition()) output += 'Threefold repetition detected\n\n'
+    env.onOutputChange(output)
 
     // if (audioStarted) {
     //   if (frameCount % 15 === 0) {
@@ -358,9 +306,6 @@ export const sketch = (p5: P5CanvasInstance) => {
   }
 
   p5.mouseReleased = () => {
-    // No idea why, but when this function is called for the first time, widgets aren't initialized
-    if (!widgets) return
-
     if (dragged !== null) {
       let dest: Coord | null = null
       for (let x = 0; x < 8; x++) {
@@ -375,7 +320,7 @@ export const sketch = (p5: P5CanvasInstance) => {
           let boardAfterMove = chess.board.clone()
           boardAfterMove.executeMove(move)
           const isLegal = isLegalMove(chess.board, boardAfterMove, move)
-          const challenge = widgets.chessSimpChallenge.value()
+          const challenge = env.currentChallenge()
           const isAllowedByChallenge =
             challenge === null ||
             challenge.isMoveAllowed({ history: chess.history, board: chess.board, move })
