@@ -1,4 +1,4 @@
-import { P5CanvasInstance } from 'react-p5-wrapper'
+import { P5CanvasInstance } from '@p5-wrapper/react'
 
 export const DrawConstants = (p5: P5CanvasInstance) => ({
   // Size of a square in pixels.

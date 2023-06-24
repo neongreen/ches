@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { P5CanvasInstance } from 'react-p5-wrapper'
+import { P5CanvasInstance } from '@p5-wrapper/react'
 import { match } from 'ts-pattern'
 import { Board } from './board'
 import { Challenge, challenges } from './chess-simp/challenge'
@@ -105,8 +105,7 @@ class Chess {
 export const sketch = (p5: P5CanvasInstance) => {
   p5.disableFriendlyErrors = true
 
-  // TODO: reenable sound
-  // let synth
+  // let synth: PolySynth
 
   const chess = new Chess()
 
@@ -230,6 +229,7 @@ export const sketch = (p5: P5CanvasInstance) => {
     const renderer = p5.createCanvas(DrawConstants(p5).CELL * 8, DrawConstants(p5).CELL * 8 + 20)
     stopTouchScrolling(renderer.elt)
     widgets = createWidgets(p5)
+    // @ts-ignore
     // synth = new p5.PolySynth()
 
     // DEBUG

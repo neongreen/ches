@@ -2,7 +2,7 @@ import { Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { squareCenter } from '@/draw/square'
 import { DrawConstants } from '@/draw/constants'
-import { P5CanvasInstance } from 'react-p5-wrapper'
+import { P5CanvasInstance } from '@p5-wrapper/react'
 import type { Image } from 'p5'
 
 let pieceImages: Image[] = []

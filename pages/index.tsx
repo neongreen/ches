@@ -1,5 +1,5 @@
 import { sketch } from '@/sketch'
-import { P5 } from 'components/p5'
+import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 
@@ -11,7 +11,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className={styles.main}>
-        <P5 sketch={sketch} />
+        <NextReactP5Wrapper sketch={sketch} />
       </main>
     </>
   )

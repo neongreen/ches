@@ -1,6 +1,6 @@
 import { Coord } from '@/utils/coord'
 import { DrawConstants } from '@/draw/constants'
-import { P5CanvasInstance } from 'react-p5-wrapper'
+import { P5CanvasInstance } from '@p5-wrapper/react'
 
 /**
  * Coordinates of a square on the screen.
