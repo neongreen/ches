@@ -5,7 +5,7 @@ import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import Head from 'next/head'
 import React from 'react'
 import { useState } from 'react'
-import styles from '../styles/index.module.css'
+import styles from '../styles/index.module.scss'
 
 function GameSketch(props: { env: SketchAttributes }) {
   return <NextReactP5Wrapper sketch={(p5) => sketch(props.env, p5)} />
@@ -49,42 +49,41 @@ export default function Home() {
           <MemoizedGameSketch env={env} />
 
           <div className={styles.controls}>
-            <label style={{ display: 'flex' }}>
+            <label>
               Depth:
               <input
-                style={{ marginLeft: '5px' }}
                 type="range"
                 min="1"
                 max="7"
                 value={searchDepth}
                 onChange={(e) => setSearchDepth(Number(e.target.value))}
               />
-              <span style={{ marginLeft: '5px' }}>{searchDepth}</span>
+              <span>{searchDepth}</span>
             </label>
 
-            <label style={{ display: 'flex' }}>
+            <label>
               <input
                 type="checkbox"
                 checked={autoPlayEnabled}
                 onChange={(e) => setAutoPlayEnabled(e.target.checked)}
               />
-              <span style={{ marginLeft: '5px' }}>Black makes moves automatically</span>
+              <span>Black makes moves automatically</span>
             </label>
 
-            <label style={{ display: 'flex' }}>
+            <label>
               <input
                 type="checkbox"
                 checked={showBestMove}
                 onChange={(e) => setShowBestMove(e.target.checked)}
               />
-              <span style={{ marginLeft: '5px' }}>Show the most devious move</span>
+              <span>Show the most devious move</span>
             </label>
 
             <div>
-              <div style={{ display: 'flex' }}>
-                <span>Challenge: </span>
+              <label>
+                Challenge:
                 <select
-                  style={{ marginLeft: '5px', maxWidth: '200px' }}
+                  style={{ maxWidth: '250px' }}
                   value={currentChallengeIndex === null ? '-' : currentChallengeIndex}
                   onChange={(e) => {
                     setCurrentChallengeIndex(e.target.value === '-' ? null : Number(e.target.value))
@@ -99,7 +98,7 @@ export default function Home() {
                     ))}
                   </optgroup>
                 </select>
-              </div>
+              </label>
               {currentChallenge && (
                 <div
                   style={{
@@ -117,6 +116,16 @@ export default function Home() {
             </div>
 
             <div style={{ fontFamily: 'monospace', maxWidth: '400px' }}>{output}</div>
+          </div>
+
+          <div className={styles.leaderboard}>
+            <a
+              href="https://github.com/users/neongreen/projects/1/views/3"
+              target="_blank"
+              rel="noreferrer"
+            >
+              🏆 Leaderboard
+            </a>
           </div>
         </div>
       </main>

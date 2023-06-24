@@ -37,7 +37,8 @@
     "@typescript-eslint/parser": "^5.48.1",
     "esbuild": "^0.17.0",
     "eslint-plugin-compat": "^4.0.2",
-    "eslint-plugin-react": "^7.32.0"
+    "eslint-plugin-react": "^7.32.0",
+    "sass": "^1.63.6"
   },
   "browserslist": [
     "defaults",
