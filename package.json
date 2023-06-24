@@ -10,6 +10,12 @@
     "sample-games": "rm sample-games/*.txt; esbuild tools/sample-games.ts --bundle --platform=node | node"
   },
   "dependencies": {
+    "@emotion/cache": "^11.11.0",
+    "@emotion/react": "^11.11.1",
+    "@emotion/serialize": "^1.1.2",
+    "@emotion/utils": "^1.2.1",
+    "@mantine/core": "^6.0.14",
+    "@mantine/hooks": "^6.0.14",
     "@next/font": "13.1.1",
     "@p5-wrapper/next": "^0.2.0",
     "@p5-wrapper/react": "^4.2.0",

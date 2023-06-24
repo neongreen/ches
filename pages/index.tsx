@@ -3,9 +3,11 @@ import { sketch, SketchAttributes } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
 import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import Head from 'next/head'
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import styles from '../styles/index.module.scss'
+import { Anchor, Button, Checkbox, Select, Slider, Stack, Text } from '@mantine/core'
+import { useElementSize } from '@mantine/hooks'
+import _ from 'lodash'
 
 function GameSketch(props: { env: SketchAttributes }) {
   return <NextReactP5Wrapper sketch={(p5) => sketch(props.env, p5)} />
@@ -38,6 +40,8 @@ export default function Home() {
     onOutputChange: setOutput,
   }
 
+  const { ref, width, height } = useElementSize()
+
   return (
     <>
       <Head>
@@ -45,87 +49,78 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className={styles.main}>
-        <div>
+        <div ref={ref}>
           <MemoizedGameSketch env={env} />
 
-          <div className={styles.controls}>
-            <label>
-              Depth:
-              <input
-                type="range"
-                min="1"
-                max="7"
+          <Stack mt="md">
+            <div style={{ paddingBottom: '1rem' }}>
+              <Text size="sm">Depth</Text>
+              <Slider
+                min={1}
+                max={7}
+                label={null}
                 value={searchDepth}
-                onChange={(e) => setSearchDepth(Number(e.target.value))}
+                onChange={setSearchDepth}
+                marks={_.range(1, 7 + 1).map((value) => ({ value, label: value.toString() }))}
               />
-              <span>{searchDepth}</span>
-            </label>
+            </div>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={autoPlayEnabled}
-                onChange={(e) => setAutoPlayEnabled(e.target.checked)}
-              />
-              <span>Black makes moves automatically</span>
-            </label>
+            <Checkbox
+              label="Black makes moves automatically"
+              checked={autoPlayEnabled}
+              onChange={(e) => setAutoPlayEnabled(e.target.checked)}
+            />
 
-            <label>
-              <input
-                type="checkbox"
-                checked={showBestMove}
-                onChange={(e) => setShowBestMove(e.target.checked)}
-              />
-              <span>Show the most devious move</span>
-            </label>
+            <Checkbox
+              label="Show the most devious move"
+              checked={showBestMove}
+              onChange={(e) => setShowBestMove(e.target.checked)}
+            />
 
             <div>
-              <label>
-                Challenge:
-                <select
-                  style={{ maxWidth: '250px' }}
-                  value={currentChallengeIndex === null ? '-' : currentChallengeIndex}
-                  onChange={(e) => {
-                    setCurrentChallengeIndex(e.target.value === '-' ? null : Number(e.target.value))
-                  }}
-                >
-                  <option value="-">Just chess</option>
-                  <optgroup label="Chess Simp">
-                    {challenges.map((challenge, i) => (
-                      <option key={i} value={i}>
-                        {challenge.videoTitle}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-              </label>
+              <Text size="sm">Challenge</Text>
+              <Select
+                value={currentChallengeIndex === null ? '-' : currentChallengeIndex.toString()}
+                onChange={(value) => {
+                  setCurrentChallengeIndex(value === '-' ? null : Number(value))
+                }}
+                data={[
+                  { group: ' ', label: 'Just chess', value: '-' },
+                  ...challenges.map((challenge, i) => ({
+                    group: 'Chess Simp',
+                    label: challenge.videoTitle,
+
+                    value: i.toString(),
+                  })),
+                ]}
+              />
               {currentChallenge && (
-                <div
+                <Text
+                  size="sm"
                   style={{
-                    fontSize: '0.75rem',
                     marginTop: '5px',
-                    maxWidth: '400px',
+                    maxWidth: width,
                   }}
                 >
                   <span style={{ fontStyle: 'italic' }}>{currentChallenge.challenge}</span>{' '}
-                  <a href={currentChallenge.videoUrl} target="_blank" rel="noreferrer">
+                  <Anchor href={currentChallenge.videoUrl} target="_blank" rel="noreferrer">
                     <b>[Video]</b>
-                  </a>
-                </div>
+                  </Anchor>
+                </Text>
               )}
             </div>
 
-            <div style={{ fontFamily: 'monospace', maxWidth: '400px' }}>{output}</div>
-          </div>
+            <div style={{ fontFamily: 'monospace', maxWidth: width }}>{output}</div>
+          </Stack>
 
           <div className={styles.leaderboard}>
-            <a
+            <Button
+              component="a"
               href="https://github.com/users/neongreen/projects/1/views/3"
-              target="_blank"
-              rel="noreferrer"
+              leftIcon="🏆"
             >
-              🏆 Leaderboard
-            </a>
+              Leaderboard
+            </Button>
           </div>
         </div>
       </main>
