@@ -84,7 +84,7 @@ export default function Home() {
               <div style={{ display: 'flex' }}>
                 <span>Challenge: </span>
                 <select
-                  style={{ marginLeft: '5px' }}
+                  style={{ marginLeft: '5px', maxWidth: '200px' }}
                   value={currentChallengeIndex === null ? '-' : currentChallengeIndex}
                   onChange={(e) => {
                     setCurrentChallengeIndex(e.target.value === '-' ? null : Number(e.target.value))
@@ -104,12 +104,14 @@ export default function Home() {
                 <div
                   style={{
                     fontSize: '0.75rem',
-                    fontStyle: 'italic',
                     marginTop: '5px',
                     maxWidth: '400px',
                   }}
                 >
-                  {currentChallenge.challenge}
+                  <span style={{ fontStyle: 'italic' }}>{currentChallenge.challenge}</span>{' '}
+                  <a href={currentChallenge.videoUrl} target="_blank" rel="noreferrer">
+                    <b>[Video]</b>
+                  </a>
                 </div>
               )}
             </div>
