@@ -44,7 +44,7 @@ function createWidgets(p5: P5CanvasInstance): {
 
   const chessSimpChallenge = (() => {
     const challengeContainer = p5.createDiv().style('display: flex')
-    const challengeLabel = p5.createSpan('Chess Simp challenge: ').parent(challengeContainer)
+    const challengeLabel = p5.createSpan('Challenge: ').parent(challengeContainer)
     const challengeSelect: any = p5.createSelect().parent(challengeContainer)
     challengeSelect.option('-None-', '')
     challenges.map((challenge, i) => {
