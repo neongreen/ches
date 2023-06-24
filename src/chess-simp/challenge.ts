@@ -149,7 +149,7 @@ const _2022_04_21: Challenge = {
 }
 
 const _2022_09_11: Challenge = {
-  videoTitle: 'Chess, but I have to move the same pieces as my opponent did',
+  videoTitle: 'I have to move the same piece as my opponent did',
   videoUrl: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
   challenge: 'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
   isMoveAllowed({ history, board, move }): boolean {

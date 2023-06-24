@@ -52,7 +52,7 @@ export default function Home() {
         <div ref={ref}>
           <MemoizedGameSketch env={env} />
 
-          <Stack mt="md" px="sm">
+          <Stack mt="md" px="sm" style={{ maxWidth: width }}>
             <div style={{ paddingBottom: '1rem' }}>
               <Text size="sm">Depth</Text>
               <Slider
@@ -95,13 +95,7 @@ export default function Home() {
                 ]}
               />
               {currentChallenge && (
-                <Text
-                  size="sm"
-                  style={{
-                    marginTop: '5px',
-                    maxWidth: width,
-                  }}
-                >
+                <Text size="sm" mt="xs">
                   <span style={{ fontStyle: 'italic' }}>{currentChallenge.challenge}</span>{' '}
                   <Anchor href={currentChallenge.videoUrl} target="_blank" rel="noreferrer">
                     <b>[Video]</b>
@@ -110,9 +104,7 @@ export default function Home() {
               )}
             </div>
 
-            {output.trim() !== '' && (
-              <div style={{ fontFamily: 'monospace', maxWidth: width }}>{output}</div>
-            )}
+            {output.trim() !== '' && <div style={{ fontFamily: 'monospace' }}>{output}</div>}
 
             <Button
               component="a"
