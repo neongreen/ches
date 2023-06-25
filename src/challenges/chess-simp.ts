@@ -6,6 +6,7 @@ import { match } from 'ts-pattern'
 import { Challenge } from './core'
 
 const _2022_09_26: Challenge = {
+  uuid: '3b89e3e6-7551-4d8a-850f-9ac6d380011e',
   title: 'My Favorite Opening',
   link: 'https://www.youtube.com/watch?v=OSCDE_ebc1c',
   challenge:
@@ -24,6 +25,7 @@ const _2022_09_26: Challenge = {
 }
 
 const _2022_05_24: Challenge = {
+  uuid: 'f2941f89-4412-448f-94f5-25f7c46dc29b',
   title: 'Slow And Steady',
   link: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
   challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
@@ -37,6 +39,7 @@ const _2022_05_24: Challenge = {
 }
 
 const _2022_06_03: Challenge = {
+  uuid: 'd1a66d2b-6382-4037-9231-18f4b94cfdf8',
   title: "I Don't See Anything Wrong",
   link: 'https://www.youtube.com/watch?v=uc4gT029pNA',
   challenge: 'Chess, but your pieces (and pawns) are always right. You cannot move them leftward.',
@@ -50,6 +53,7 @@ const _2022_06_03: Challenge = {
 }
 
 const _2022_01_29: Challenge = {
+  uuid: '1515dfc7-4ed7-444d-a8cb-ac6b35e699bd',
   title: 'Our Kings Almost Touched',
   link: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
   challenge: 'Chess, but if your pawn can move, it has to.',
@@ -61,6 +65,7 @@ const _2022_01_29: Challenge = {
 }
 
 const _2022_03_07: Challenge = {
+  uuid: '7f577d60-083c-47fe-a335-3a4ee406f5c8',
   title: 'Such Torture',
   link: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
   challenge:
@@ -79,6 +84,7 @@ const _2022_03_07: Challenge = {
 }
 
 const _2022_03_29: Challenge = {
+  uuid: '8f5b6f38-8426-430f-a2ce-698b401a43eb',
   title: "I Don't Invade Anyone Today",
   link: 'https://www.youtube.com/watch?v=XQZFvszSddk',
   challenge: "Chess but your pawns and pieces can't cross the half-way line.",
@@ -95,6 +101,7 @@ const _2022_03_29: Challenge = {
 }
 
 const _2022_05_30: Challenge = {
+  uuid: '8491849c-db4c-4013-a21b-01b0e9203880',
   title: 'He Offered A Draw...',
   link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
   challenge: '100 rated chess but you can only take their most extended piece or pawn.',
@@ -111,6 +118,7 @@ const _2022_05_30: Challenge = {
 }
 
 const _2022_04_21: Challenge = {
+  uuid: '5101988d-c2c1-4585-96b7-06aa04d599fd',
   title: 'All Predictions Went Wrong',
   link: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
   challenge: 'Chess but you have to move your King if you can.',
@@ -121,6 +129,7 @@ const _2022_04_21: Challenge = {
 }
 
 const _2022_09_11: Challenge = {
+  uuid: '9b88d4dd-e1fe-4120-9792-c2ff15fd5920',
   title: 'I have to move the same piece as my opponent did',
   link: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
   challenge: 'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
@@ -136,6 +145,7 @@ const _2022_09_11: Challenge = {
 }
 
 const _2023_02_23: Challenge = {
+  uuid: 'd7e51e7a-afe6-4880-b5a5-1e5ceb4deec2',
   title: 'Highest Voted Challenge EVER',
   link: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
   challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
@@ -147,6 +157,7 @@ const _2023_02_23: Challenge = {
 }
 
 const _2021_12_04: Challenge = {
+  uuid: '983bb958-585c-4547-bb91-e88b6f84b9bd',
   title: 'Chess, But Capture Is Forced',
   link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
   challenge: 'Chess, but you take when you can.',
@@ -157,6 +168,7 @@ const _2021_12_04: Challenge = {
 }
 
 const _2023_06_09: Challenge = {
+  uuid: 'a96dab9f-3a86-4ec9-a754-c9ca0cabd1e0',
   title: '🏳️‍🌈 Pride Chess',
   link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
   challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',

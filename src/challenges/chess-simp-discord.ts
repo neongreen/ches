@@ -7,6 +7,7 @@ import { match } from 'ts-pattern'
 import { Challenge } from './core'
 
 const challenge_mustKeepMoving: Challenge = {
+  uuid: '5f747bf3-6819-482f-86bb-c82b181b8ac3',
   title: '[breadfeller] Must Keep Moving',
   link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122552015080403145',
   challenge:

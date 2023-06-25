@@ -21,6 +21,8 @@ import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { Challenge } from '@/challenges/core'
+import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 
 function GameSketch(props: { env: SketchAttributes }) {
   return <NextReactP5Wrapper sketch={(p5) => sketch(props.env, p5)} />
@@ -49,12 +51,29 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
 ChallengeSelectItem.displayName = 'ChallengeSelectItem'
 
 export default function Home() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  // If we have a challenge ID, we'll just select that as the challenge.
+  const query_challenge_id = searchParams.get('challenge_id')
+
   const challengesFlattened: (Challenge & { group: string })[] = challenges.flatMap((group) =>
     group.list.map((challenge) => ({ ...challenge, group: group.group }))
   )
 
-  const [challengeIndex, setChallengeIndex, challengeIndexRef] = useStateRef<number | null>(null)
-  const currentChallenge = challengeIndex === null ? null : challengesFlattened[challengeIndex]
+  const [challengeUuid, setChallengeUuid, challengeUuidRef] = useStateRef<string | null>(null)
+  const currentChallenge =
+    challengeUuid === null
+      ? null
+      : challengesFlattened.find((challenge) => challenge.uuid === challengeUuid) ?? null
+
+  // For whatever reason, Next.js provides 'null' for search params and only then replaces it with the actual value. We have to use useEffect and wait for the value to become available.
+  React.useEffect(() => {
+    const isValidChallengeChoice =
+      query_challenge_id === null ||
+      challengesFlattened.some((challenge) => challenge.uuid === query_challenge_id)
+    if (isValidChallengeChoice && query_challenge_id !== challengeUuid)
+      setChallengeUuid(query_challenge_id)
+  }, [challengesFlattened, query_challenge_id, challengeUuid, setChallengeUuid])
 
   const [searchDepth, setSearchDepth, searchDepthRef] = useStateRef(3)
   const [autoPlayEnabled, setAutoPlayEnabled, autoPlayEnabledRef] = useStateRef(true)
@@ -69,7 +88,10 @@ export default function Home() {
     autoPlayEnabled: () => autoPlayEnabledRef.current,
     showBestMove: () => showBestMoveRef.current,
     currentChallenge: () =>
-      challengeIndexRef.current === null ? null : challengesFlattened[challengeIndexRef.current],
+      challengeUuidRef.current === null
+        ? null
+        : challengesFlattened.find((challenge) => challenge.uuid === challengeUuidRef.current) ??
+          null,
     onBestMoveChange: setBestMove,
     onOutputChange: setOutput,
   }
@@ -123,17 +145,21 @@ export default function Home() {
               <Select
                 itemComponent={ChallengeSelectItem}
                 maxDropdownHeight={400}
-                value={challengeIndex === null ? '-' : challengeIndex.toString()}
+                value={challengeUuid === null ? '-' : challengeUuid}
                 onChange={(value) => {
-                  setChallengeIndex(value === '-' ? null : Number(value))
+                  setChallengeUuid(value === '-' ? null : value)
+                  void router.replace({
+                    pathname: router.pathname,
+                    query: value === '-' ? {} : { challenge_id: value },
+                  })
                 }}
                 data={[
                   { group: ' ', label: 'Just chess', value: '-' },
-                  ...challengesFlattened.map((challenge, i) => ({
+                  ...challengesFlattened.map((challenge) => ({
                     group: challenge.group,
                     label: challenge.title,
                     description: challenge.challenge,
-                    value: i.toString(),
+                    value: challenge.uuid,
                   })),
                 ]}
               />

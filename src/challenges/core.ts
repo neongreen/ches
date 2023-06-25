@@ -5,6 +5,7 @@ import { Move } from '@/move'
  * A chess challenge.
  */
 export type Challenge = {
+  uuid: string
   title: string
   link?: string
   challenge: string
