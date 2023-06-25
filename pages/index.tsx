@@ -101,7 +101,6 @@ export default function Home() {
             </div>
 
             {/* TODO: restore "Show best line" */}
-            {/* TODO: move "threefold repetition" to the status bar */}
             {output.trim() !== '' && <div style={{ fontFamily: 'monospace' }}>{output}</div>}
 
             <Checkbox

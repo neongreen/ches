@@ -59,7 +59,7 @@ export type SketchAttributes = {
    */
   onBestMoveChange: (move: Chess['bestMove']) => void
   /**
-   * Sketch will call this when it wants to communicate something to the user.
+   * Sketch will call this when it wants to communicate something (eg. debug output) to the user.
    */
   onOutputChange: (output: string) => void
 }
@@ -271,7 +271,10 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
           () => chess.bestMove!.move === null && chess.bestMove!.score === 0,
           () => {
             p5.fill('black')
-            p5.text('Draw', 5, DrawConstants(p5).CELL * 8 + 14)
+            const text = chess.board.isThreefoldRepetition()
+              ? 'Draw by threefold repetition'
+              : 'Draw'
+            p5.text(text, 5, DrawConstants(p5).CELL * 8 + 14)
           }
         )
         // There are moves but all of them are illegal challenge-wise
@@ -297,10 +300,6 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
           )
         })
     }
-
-    let output = ''
-    if (chess.board.isThreefoldRepetition()) output += 'Threefold repetition detected\n\n'
-    env.onOutputChange(output)
 
     // if (audioStarted) {
     //   if (frameCount % 15 === 0) {
