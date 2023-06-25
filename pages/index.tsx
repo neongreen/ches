@@ -5,7 +5,7 @@ import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import Head from 'next/head'
 import React, { useState } from 'react'
 import styles from '../styles/index.module.scss'
-import { Anchor, Button, Checkbox, Select, Slider, Stack, Text } from '@mantine/core'
+import { Anchor, Box, Button, Checkbox, Select, Slider, Stack, Text } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
 
@@ -15,6 +15,25 @@ function GameSketch(props: { env: SketchAttributes }) {
 
 // Note: React doesn't guarantee that `memo` will not rerender. But so far it works, and I haven't found any other way.
 const MemoizedGameSketch = React.memo(GameSketch, () => true)
+
+interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
+  label: string
+  description: string
+}
+
+const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>(
+  ({ label, description, ...others }: ChallengeItemProps, ref) => (
+    <div ref={ref} {...others}>
+      <Box sx={{ '& *': { wordBreak: 'break-word' } }}>
+        <Text size="sm">{label}</Text>
+        <Text size="xs" opacity={0.65}>
+          {description}
+        </Text>
+      </Box>
+    </div>
+  )
+)
+ChallengeSelectItem.displayName = 'ChallengeSelectItem'
 
 export default function Home() {
   const [searchDepth, setSearchDepth, searchDepthRef] = useStateRef(3)
@@ -77,6 +96,8 @@ export default function Home() {
             <div>
               <Text size="sm">Challenge</Text>
               <Select
+                itemComponent={ChallengeSelectItem}
+                maxDropdownHeight={400}
                 value={currentChallengeIndex === null ? '-' : currentChallengeIndex.toString()}
                 onChange={(value) => {
                   setCurrentChallengeIndex(value === '-' ? null : Number(value))
@@ -86,6 +107,7 @@ export default function Home() {
                   ...challenges.map((challenge, i) => ({
                     group: 'Chess Simp',
                     label: challenge.videoTitle,
+                    description: challenge.challenge,
                     value: i.toString(),
                   })),
                 ]}
