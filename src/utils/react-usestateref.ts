@@ -16,7 +16,6 @@ type UseStateRef = {
 }
 
 export const useStateRef: UseStateRef = <S>(initialState?: S | (() => S)) => {
-  console.log('useStateRef', initialState)
   const [state, setState] = useState(initialState)
   const ref = useRef(state)
 
