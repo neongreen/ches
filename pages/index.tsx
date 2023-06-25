@@ -24,8 +24,20 @@ import { Challenge } from '@/challenges/core'
 import { useRouter } from 'next/router'
 import { useSearchParams } from 'next/navigation'
 
+let gameInitialized = false
+
 function GameSketch(props: { env: SketchAttributes }) {
-  return <NextReactP5Wrapper sketch={(p5) => sketch(props.env, p5)} />
+  // This is necessary to avoid two canvases in dev mode in Chrome. Well, there are still two canvases, but one is empty. TODO: figure out how to fix this.
+  return gameInitialized ? null : (
+    <NextReactP5Wrapper
+      sketch={(p5) => {
+        if (!gameInitialized) {
+          gameInitialized = true
+          sketch(props.env, p5)
+        }
+      }}
+    />
+  )
 }
 
 // Note: React doesn't guarantee that `memo` will not rerender. But so far it works, and I haven't found any other way.
@@ -71,6 +83,7 @@ export default function Home() {
     const isValidChallengeChoice =
       query_challenge_id === null ||
       challengesFlattened.some((challenge) => challenge.uuid === query_challenge_id)
+    // TODO: it flickers and I don't know why.
     if (isValidChallengeChoice && query_challenge_id !== challengeUuid)
       setChallengeUuid(query_challenge_id)
   }, [challengesFlattened, query_challenge_id, challengeUuid, setChallengeUuid])
