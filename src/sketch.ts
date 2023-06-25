@@ -2,7 +2,6 @@ import _ from 'lodash'
 import { P5CanvasInstance } from '@p5-wrapper/react'
 import { match } from 'ts-pattern'
 import { Board } from './board'
-import { Challenge, chessSimpChallenges } from './challenges/chess-simp'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareCenter } from './draw/square'
@@ -15,6 +14,7 @@ import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
 import { Coord } from './utils/coord'
 import { Howl } from 'howler'
+import { Challenge } from './challenges/core'
 
 class Chess {
   board = new Board()

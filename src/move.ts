@@ -174,9 +174,22 @@ export function translateToHumanMove(move: Move): { from: Coord; to: Coord } {
 }
 
 /**
+ * Get `from` and `to` coordinates of the move. (Castling is a king move.)
+ *
+ * Same as `translateToHumanMove`, but the semantics are different. `translateToHumanMove` corresponds to *display* - how the move looks on the board. `getMoveCoord` corresponds to *logic* - where a piece moved.
+ */
+export function getMoveCoord(move: Move): { from: Coord; to: Coord } {
+  return match(move)
+    .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
+    .with({ kind: 'enPassant' }, ({ from, to }) => ({ from, to }))
+    .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
+    .exhaustive()
+}
+
+/**
  * Which piece is doing the move? (Castling is assumed to be done by the king.)
  */
-export function classifyMovePiece(board: Board, move: Move): Piece {
+export function getMovePiece(board: Board, move: Move): Piece {
   switch (move.kind) {
     case 'normal':
       return board.at(move.from)

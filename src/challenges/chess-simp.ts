@@ -1,4 +1,4 @@
-import { classifyMovePiece, getCapture, isCapture, Move, moveIsEqual } from '@/move'
+import { getMovePiece, getCapture, isCapture, Move, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { isBlack, isKing, isPawn, pieceType } from '@/piece'
 import _ from 'lodash'
@@ -55,9 +55,7 @@ const _2022_01_29: Challenge = {
   challenge: 'Chess, but if your pawn can move, it has to.',
   isMoveAllowed({ board, move }): boolean {
     // Note: per 3:02 in the video, if you're in check you can move a non-pawn (which is incidentally what this code already does.)
-    const pawnMoves = legalMoves_slow(board).filter((move) =>
-      isPawn(classifyMovePiece(board, move))
-    )
+    const pawnMoves = legalMoves_slow(board).filter((move) => isPawn(getMovePiece(board, move)))
     return pawnMoves.length === 0 || pawnMoves.some((pawnMove) => moveIsEqual(pawnMove, move))
   },
 }
@@ -117,9 +115,7 @@ const _2022_04_21: Challenge = {
   link: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
   challenge: 'Chess but you have to move your King if you can.',
   isMoveAllowed({ board, move }): boolean {
-    const kingMoves = legalMoves_slow(board).filter((move) =>
-      isKing(classifyMovePiece(board, move))
-    )
+    const kingMoves = legalMoves_slow(board).filter((move) => isKing(getMovePiece(board, move)))
     return kingMoves.length === 0 || kingMoves.some((kingMove) => moveIsEqual(kingMove, move))
   },
 }
@@ -133,8 +129,8 @@ const _2022_09_11: Challenge = {
     const lastMove = _.last(history)
     return (
       lastMove === undefined ||
-      pieceType(classifyMovePiece(lastMove.boardBeforeMove, lastMove.move)) ===
-        pieceType(classifyMovePiece(board, move))
+      pieceType(getMovePiece(lastMove.boardBeforeMove, lastMove.move)) ===
+        pieceType(getMovePiece(board, move))
     )
   },
 }
@@ -168,8 +164,7 @@ const _2023_06_09: Challenge = {
     return match(move)
       .with(
         { kind: 'normal' },
-        ({ from, to }) =>
-          isPawn(classifyMovePiece(board, move)) || (from.x !== to.x && from.y !== to.y)
+        ({ from, to }) => isPawn(getMovePiece(board, move)) || (from.x !== to.x && from.y !== to.y)
       )
       .with({ kind: 'enPassant' }, () => true)
       .with({ kind: 'castling' }, () => false)

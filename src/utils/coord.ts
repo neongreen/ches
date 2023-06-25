@@ -107,6 +107,8 @@ export class Coord {
 
   /**
    * https://en.wikipedia.org/wiki/Chebyshev_distance
+   *
+   * Sorta doesn't work for knigts, but whatever.
    */
   chessboardDistance(to: Coord) {
     return Math.max(Math.abs(this.x - to.x), Math.abs(this.y - to.y))
