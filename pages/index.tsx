@@ -33,6 +33,8 @@ const GameSketch = React.forwardRef<SketchMethods, { env: SketchAttributes }>(fu
 ) {
   const sketchMethodsRef = React.useRef<SketchMethods | null>(null)
   // Note: it would be great if we could say that the ref should only be filled when 'sketchMethodsRef' is finally available. Then we could ensure that if it's not 'null', it's good to use. But I don't know how to do that.
+  //
+  // See my question here: https://stackoverflow.com/questions/76552686/how-to-make-sure-an-useimperativehandle-ref-isnt-filled-until-another-ref-is
   React.useImperativeHandle(ref, () => ({
     reset: () => sketchMethodsRef.current?.reset(),
   }))

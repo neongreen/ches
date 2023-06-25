@@ -4,6 +4,23 @@ A small little game I'm making
 
 ## Dev
 
+### For absolute beginners
+
+You need to set up VSCode and Node.js:
+
+* VSCode: https://code.visualstudio.com/
+* Node.js: https://nodejs.org/en/
+
+Once you install both, open a new Terminal and do:
+
+```bash
+corepack enable    # On Windows, has to be done from a "Run as Administrator" Terminal
+git clone https://github.com/neongreen/chess.git
+cd chess
+```
+
+Proceed with the next section.
+
 ### Start
 
 ```bash
@@ -27,4 +44,10 @@ Useful to check that a refactoring didn't change anything (the engine is determi
 
 ```bash
 yarn sample-games
+```
+
+### Can't push huge Git objects
+
+```bash
+git config --global http.postBuffer 524288000
 ```
