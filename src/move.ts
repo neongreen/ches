@@ -187,10 +187,25 @@ export function classifyMovePiece(board: Board, move: Move): Piece {
   }
 }
 
+/**
+ * Is the move a capture?
+ */
 export function isCapture(board: Board, move: Move): boolean {
+  return getCapture(board, move) !== null
+}
+
+/**
+ * Like `isCapture`, but returns the coordinates of the captured piece.
+ */
+export function getCapture(board: Board, move: Move): { attacker: Coord; victim: Coord } | null {
   return match(move)
-    .with({ kind: 'normal' }, ({ to }) => board.isOccupied(to) === true)
-    .with({ kind: 'castling' }, () => false)
-    .with({ kind: 'enPassant' }, () => true)
+    .with({ kind: 'normal' }, ({ from, to }) =>
+      board.isOccupied(to) === true ? { attacker: from, victim: to } : null
+    )
+    .with({ kind: 'castling' }, () => null)
+    .with({ kind: 'enPassant' }, ({ from }) => ({
+      attacker: from,
+      victim: board.enPassantTargetPawn()!,
+    }))
     .exhaustive()
 }

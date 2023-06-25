@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { classifyMovePiece, Move, moveIsEqual } from '@/move'
+import { classifyMovePiece, getCapture, isCapture, Move, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { isBlack, isKing, isPawn, pieceType } from '@/piece'
 import _ from 'lodash'
@@ -163,6 +163,17 @@ const _2022_09_11: Challenge = {
   },
 }
 
+const _2023_02_23: Challenge = {
+  videoTitle: 'Highest Voted Challenge EVER',
+  videoUrl: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
+  challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
+  isMoveAllowed({ board, move }): boolean {
+    // Note: no idea about en passant, let's just say it's not allowed.
+    const capture = getCapture(board, move)
+    return capture === null || capture.victim.y < capture.attacker.y
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -178,5 +189,7 @@ export const challenges: Challenge[] = _.concat(
   // Jun 2022
   [_2022_06_03],
   // Sep 2022
-  [_2022_09_11, _2022_09_26]
+  [_2022_09_11, _2022_09_26],
+  // Feb 2023
+  [_2023_02_23]
 )
