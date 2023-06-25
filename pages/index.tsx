@@ -1,4 +1,4 @@
-import { Challenge, challenges } from '@/chess-simp/challenge'
+import { challenges } from '@/challenges/all'
 import { sketch, SketchAttributes } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
 import { NextReactP5Wrapper } from '@p5-wrapper/next'
@@ -20,6 +20,7 @@ import {
 import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
+import { Challenge } from '@/challenges/core'
 
 function GameSketch(props: { env: SketchAttributes }) {
   return <NextReactP5Wrapper sketch={(p5) => sketch(props.env, p5)} />
@@ -48,13 +49,17 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
 ChallengeSelectItem.displayName = 'ChallengeSelectItem'
 
 export default function Home() {
+  const challengesFlattened: (Challenge & { group: string })[] = challenges.flatMap((group) =>
+    group.list.map((challenge) => ({ ...challenge, group: group.group }))
+  )
+
+  const [challengeIndex, setChallengeIndex, challengeIndexRef] = useStateRef<number | null>(null)
+  const currentChallenge = challengeIndex === null ? null : challengesFlattened[challengeIndex]
+
   const [searchDepth, setSearchDepth, searchDepthRef] = useStateRef(3)
   const [autoPlayEnabled, setAutoPlayEnabled, autoPlayEnabledRef] = useStateRef(true)
   const [showBestMove, setShowBestMove, showBestMoveRef] = useStateRef(false)
-  const [currentChallengeIndex, setCurrentChallengeIndex, currentChallengeIndexRef] = useStateRef<
-    number | null
-  >(null)
-  const currentChallenge = currentChallengeIndex === null ? null : challenges[currentChallengeIndex]
+
   const [bestMove, setBestMove] =
     useState<Parameters<SketchAttributes['onBestMoveChange']>[0]>(null)
   const [output, setOutput] = useState('')
@@ -64,9 +69,7 @@ export default function Home() {
     autoPlayEnabled: () => autoPlayEnabledRef.current,
     showBestMove: () => showBestMoveRef.current,
     currentChallenge: () =>
-      currentChallengeIndexRef.current === null
-        ? null
-        : challenges[currentChallengeIndexRef.current],
+      challengeIndexRef.current === null ? null : challengesFlattened[challengeIndexRef.current],
     onBestMoveChange: setBestMove,
     onOutputChange: setOutput,
   }
@@ -120,15 +123,15 @@ export default function Home() {
               <Select
                 itemComponent={ChallengeSelectItem}
                 maxDropdownHeight={400}
-                value={currentChallengeIndex === null ? '-' : currentChallengeIndex.toString()}
+                value={challengeIndex === null ? '-' : challengeIndex.toString()}
                 onChange={(value) => {
-                  setCurrentChallengeIndex(value === '-' ? null : Number(value))
+                  setChallengeIndex(value === '-' ? null : Number(value))
                 }}
                 data={[
                   { group: ' ', label: 'Just chess', value: '-' },
-                  ...challenges.map((challenge, i) => ({
-                    group: 'Chess Simp',
-                    label: challenge.videoTitle,
+                  ...challengesFlattened.map((challenge, i) => ({
+                    group: challenge.group,
+                    label: challenge.title,
                     description: challenge.challenge,
                     value: i.toString(),
                   })),
@@ -137,8 +140,8 @@ export default function Home() {
               {currentChallenge && (
                 <Text size="sm" mt="xs">
                   <span style={{ fontStyle: 'italic' }}>{currentChallenge.challenge}</span>{' '}
-                  <Anchor href={currentChallenge.videoUrl} target="_blank" rel="noreferrer">
-                    <b>[Video]</b>
+                  <Anchor href={currentChallenge.link} target="_blank" rel="noreferrer">
+                    <b>[Link]</b>
                   </Anchor>
                 </Text>
               )}

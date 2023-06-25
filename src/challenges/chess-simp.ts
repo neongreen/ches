@@ -1,37 +1,13 @@
-import { Board } from '@/board'
 import { classifyMovePiece, getCapture, isCapture, Move, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { isBlack, isKing, isPawn, pieceType } from '@/piece'
 import _ from 'lodash'
 import { match } from 'ts-pattern'
-
-/**
- * A Chess Simp challenge.
- */
-export type Challenge = {
-  videoTitle: string
-  videoUrl: string
-
-  /**
-   * Challenge as done by Simp (potentially with additions/changes to the original challenge).
-   */
-  challenge: string
-
-  /**
-   * Constraints like "can't move to white squares" etc.
-   *
-   * TODO stop assuming that the human is playing white
-   */
-  isMoveAllowed(data: {
-    history: { boardBeforeMove: Board; move: Move }[]
-    board: Board
-    move: Move
-  }): boolean
-}
+import { Challenge } from './core'
 
 const _2022_09_26: Challenge = {
-  videoTitle: 'My Favorite Opening',
-  videoUrl: 'https://www.youtube.com/watch?v=OSCDE_ebc1c',
+  title: 'My Favorite Opening',
+  link: 'https://www.youtube.com/watch?v=OSCDE_ebc1c',
   challenge:
     'Chess, but your pieces (and pawns) are vampires. They cannot step into the light (squares).',
   isMoveAllowed({ move }): boolean {
@@ -48,8 +24,8 @@ const _2022_09_26: Challenge = {
 }
 
 const _2022_05_24: Challenge = {
-  videoTitle: 'Slow And Steady',
-  videoUrl: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
+  title: 'Slow And Steady',
+  link: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
   challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
   isMoveAllowed({ move }): boolean {
     return match(move)
@@ -61,8 +37,8 @@ const _2022_05_24: Challenge = {
 }
 
 const _2022_06_03: Challenge = {
-  videoTitle: "I Don't See Anything Wrong",
-  videoUrl: 'https://www.youtube.com/watch?v=uc4gT029pNA',
+  title: "I Don't See Anything Wrong",
+  link: 'https://www.youtube.com/watch?v=uc4gT029pNA',
   challenge: 'Chess, but your pieces (and pawns) are always right. You cannot move them leftward.',
   isMoveAllowed({ move }): boolean {
     return match(move)
@@ -74,8 +50,8 @@ const _2022_06_03: Challenge = {
 }
 
 const _2022_01_29: Challenge = {
-  videoTitle: 'Our Kings Almost Touched',
-  videoUrl: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
+  title: 'Our Kings Almost Touched',
+  link: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
   challenge: 'Chess, but if your pawn can move, it has to.',
   isMoveAllowed({ board, move }): boolean {
     // Note: per 3:02 in the video, if you're in check you can move a non-pawn (which is incidentally what this code already does.)
@@ -87,8 +63,8 @@ const _2022_01_29: Challenge = {
 }
 
 const _2022_03_07: Challenge = {
-  videoTitle: 'Such Torture',
-  videoUrl: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
+  title: 'Such Torture',
+  link: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
   challenge:
     'Chess, but your king is a commander, you can only move something if your king can see it.',
   isMoveAllowed({ board, move }): boolean {
@@ -105,8 +81,8 @@ const _2022_03_07: Challenge = {
 }
 
 const _2022_03_29: Challenge = {
-  videoTitle: "I Don't Invade Anyone Today",
-  videoUrl: 'https://www.youtube.com/watch?v=XQZFvszSddk',
+  title: "I Don't Invade Anyone Today",
+  link: 'https://www.youtube.com/watch?v=XQZFvszSddk',
   challenge: "Chess but your pawns and pieces can't cross the half-way line.",
   isMoveAllowed({ board, move }): boolean {
     return (
@@ -121,8 +97,8 @@ const _2022_03_29: Challenge = {
 }
 
 const _2022_05_30: Challenge = {
-  videoTitle: 'He Offered A Draw...',
-  videoUrl: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
+  title: 'He Offered A Draw...',
+  link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
   challenge: '100 rated chess but you can only take their most extended piece or pawn.',
   isMoveAllowed({ board, move }): boolean {
     // If there are several pieces that are equally extended, you can take any of them (1:19). If you're not taking a piece, you can do whatever you want.
@@ -137,8 +113,8 @@ const _2022_05_30: Challenge = {
 }
 
 const _2022_04_21: Challenge = {
-  videoTitle: 'All Predictions Went Wrong',
-  videoUrl: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
+  title: 'All Predictions Went Wrong',
+  link: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
   challenge: 'Chess but you have to move your King if you can.',
   isMoveAllowed({ board, move }): boolean {
     const kingMoves = legalMoves_slow(board).filter((move) =>
@@ -149,8 +125,8 @@ const _2022_04_21: Challenge = {
 }
 
 const _2022_09_11: Challenge = {
-  videoTitle: 'I have to move the same piece as my opponent did',
-  videoUrl: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
+  title: 'I have to move the same piece as my opponent did',
+  link: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
   challenge: 'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
   isMoveAllowed({ history, board, move }): boolean {
     // Note: if playing as white, we allow any move. Unfortunately, the video didn't cover castling. Let's just say castling is a king move.
@@ -164,8 +140,8 @@ const _2022_09_11: Challenge = {
 }
 
 const _2023_02_23: Challenge = {
-  videoTitle: 'Highest Voted Challenge EVER',
-  videoUrl: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
+  title: 'Highest Voted Challenge EVER',
+  link: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
   challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
   isMoveAllowed({ board, move }): boolean {
     // Note: no idea about en passant, let's just say it's not allowed.
@@ -175,8 +151,8 @@ const _2023_02_23: Challenge = {
 }
 
 const _2021_12_04: Challenge = {
-  videoTitle: 'Chess, But Capture Is Forced',
-  videoUrl: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
+  title: 'Chess, But Capture Is Forced',
+  link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
   challenge: 'Chess, but you take when you can.',
   isMoveAllowed({ board, move }): boolean {
     const captures = legalMoves_slow(board).filter((move) => isCapture(board, move))
@@ -185,8 +161,8 @@ const _2021_12_04: Challenge = {
 }
 
 const _2023_06_09: Challenge = {
-  videoTitle: '🏳️‍🌈 Pride Chess',
-  videoUrl: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
+  title: '🏳️‍🌈 Pride Chess',
+  link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
   challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
   isMoveAllowed({ board, move }): boolean {
     return match(move)
@@ -204,7 +180,7 @@ const _2023_06_09: Challenge = {
 /**
  * All Chess Simp challenges.
  */
-export const challenges: Challenge[] = _.concat(
+export const chessSimpChallenges: Challenge[] = _.concat(
   // Dec 2021
   [_2021_12_04],
   // Jan 2022
