@@ -15,6 +15,7 @@ import {
   Slider,
   Stack,
   Text,
+  Center,
 } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
@@ -165,6 +166,15 @@ export default function Home() {
                 </Accordion.Panel>
               </Accordion.Item>
             </Accordion>
+
+            <Center>
+              <Text size="sm">
+                Made by Emily •{' '}
+                <Anchor href="https://github.com/neongreen/ches" target="_blank">
+                  GitHub
+                </Anchor>
+              </Text>
+            </Center>
           </Stack>
         </div>
       </main>
