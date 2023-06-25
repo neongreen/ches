@@ -165,7 +165,7 @@ const _2022_09_11: Challenge = {
 
 const _2023_02_23: Challenge = {
   videoTitle: 'Highest Voted Challenge EVER',
-  videoUrl: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
+  videoUrl: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
   challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
   isMoveAllowed({ board, move }): boolean {
     // Note: no idea about en passant, let's just say it's not allowed.
@@ -174,10 +174,22 @@ const _2023_02_23: Challenge = {
   },
 }
 
+const _2021_12_04: Challenge = {
+  videoTitle: 'Chess, But Capture Is Forced',
+  videoUrl: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
+  challenge: 'Chess, but you take when you can.',
+  isMoveAllowed({ board, move }): boolean {
+    const captures = legalMoves_slow(board).filter((move) => isCapture(board, move))
+    return captures.length === 0 || captures.some((x) => moveIsEqual(x, move))
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
 export const challenges: Challenge[] = _.concat(
+  // Dec 2021
+  [_2021_12_04],
   // Jan 2022
   [_2022_01_29],
   // Mar 2022
