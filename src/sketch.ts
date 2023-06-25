@@ -83,21 +83,27 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
 
   // let synth: PolySynth
 
-  let chess = new Chess()
+  let chess: Chess
 
-  // For debug
-  // @ts-ignore
-  window.Coord = Coord
-  // @ts-ignore
-  window.EvalNode = EvalNode
-  // @ts-ignore
-  window.chess = chess
-  // @ts-ignore
-  window.chess.isLegalMove = isLegalMoveWithExecute
-  // @ts-ignore
-  window.chess.quasiLegalMoves = quasiLegalMoves
-  // @ts-ignore
-  window.chess.quasiLegalMovesFrom = quasiLegalMovesFrom
+  const setupGlobals = () => {
+    chess = new Chess()
+    // @ts-ignore
+    window.Coord = Coord
+    // @ts-ignore
+    window.EvalNode = EvalNode
+    // @ts-ignore
+    window.chess = chess
+    // @ts-ignore
+    window.chess.isLegalMove = isLegalMoveWithExecute
+    // @ts-ignore
+    window.chess.quasiLegalMoves = quasiLegalMoves
+    // @ts-ignore
+    window.chess.quasiLegalMovesFrom = quasiLegalMovesFrom
+    // @ts-ignore
+    window.chess.env = env
+  }
+
+  setupGlobals()
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -226,10 +232,6 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     stopTouchScrolling(renderer.elt)
     // @ts-ignore
     // synth = new p5.PolySynth()
-
-    // DEBUG
-    // @ts-ignore
-    window.chess.env = env
   }
 
   p5.windowResized = () => {
@@ -379,7 +381,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   // Return methods / imperative handles
   return {
     reset: () => {
-      chess = new Chess()
+      setupGlobals()
       env.onOutputChange('')
       env.onBestMoveChange(null)
       env.onStatusChange('playing')
