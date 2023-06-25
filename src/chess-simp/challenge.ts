@@ -184,6 +184,23 @@ const _2021_12_04: Challenge = {
   },
 }
 
+const _2023_06_09: Challenge = {
+  videoTitle: '🏳️‍🌈 Pride Chess',
+  videoUrl: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
+  challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
+  isMoveAllowed({ board, move }): boolean {
+    return match(move)
+      .with(
+        { kind: 'normal' },
+        ({ from, to }) =>
+          isPawn(classifyMovePiece(board, move)) || (from.x !== to.x && from.y !== to.y)
+      )
+      .with({ kind: 'enPassant' }, () => true)
+      .with({ kind: 'castling' }, () => false)
+      .exhaustive()
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -203,5 +220,7 @@ export const challenges: Challenge[] = _.concat(
   // Sep 2022
   [_2022_09_11, _2022_09_26],
   // Feb 2023
-  [_2023_02_23]
+  [_2023_02_23],
+  // Jun 2023
+  [_2023_06_09]
 )
