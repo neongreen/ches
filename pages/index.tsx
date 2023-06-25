@@ -5,9 +5,20 @@ import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import Head from 'next/head'
 import React, { useState } from 'react'
 import styles from '../styles/index.module.scss'
-import { Anchor, Box, Button, Checkbox, Select, Slider, Stack, Text } from '@mantine/core'
+import {
+  Anchor,
+  Box,
+  Accordion,
+  Button,
+  Checkbox,
+  Select,
+  Slider,
+  Stack,
+  Text,
+} from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
+import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 
 function GameSketch(props: { env: SketchAttributes }) {
   return <NextReactP5Wrapper sketch={(p5) => sketch(props.env, p5)} />
@@ -71,7 +82,17 @@ export default function Home() {
         <div ref={ref}>
           <MemoizedGameSketch env={env} />
 
-          <Stack mt="md" px="sm" style={{ maxWidth: width }}>
+          <Stack
+            mt="md"
+            sx={(theme) => ({
+              maxWidth: width,
+              // When we have less than 10px left on both sides, add padding.
+              [`@media (max-width: ${MAX_CHESSBOARD_WIDTH + 10 * 2}px)`]: {
+                paddingLeft: theme.spacing.sm,
+                paddingRight: theme.spacing.sm,
+              },
+            })}
+          >
             <Button
               component="a"
               href="https://github.com/users/neongreen/projects/1/views/3"
@@ -125,17 +146,25 @@ export default function Home() {
             {/* TODO: restore "Show best line" */}
             {output.trim() !== '' && <div style={{ fontFamily: 'monospace' }}>{output}</div>}
 
-            <Checkbox
-              label="Black makes moves automatically"
-              checked={autoPlayEnabled}
-              onChange={(e) => setAutoPlayEnabled(e.target.checked)}
-            />
-
-            <Checkbox
-              label="Show the most devious move"
-              checked={showBestMove}
-              onChange={(e) => setShowBestMove(e.target.checked)}
-            />
+            <Accordion variant="separated" multiple>
+              <Accordion.Item value="options">
+                <Accordion.Control>Options</Accordion.Control>
+                <Accordion.Panel>
+                  <Stack>
+                    <Checkbox
+                      label="Black makes moves automatically"
+                      checked={autoPlayEnabled}
+                      onChange={(e) => setAutoPlayEnabled(e.target.checked)}
+                    />
+                    <Checkbox
+                      label="Show the most devious move"
+                      checked={showBestMove}
+                      onChange={(e) => setShowBestMove(e.target.checked)}
+                    />
+                  </Stack>
+                </Accordion.Panel>
+              </Accordion.Item>
+            </Accordion>
           </Stack>
         </div>
       </main>
