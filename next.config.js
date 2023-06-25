@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  // https://github.com/P5-wrapper/react/issues/255
+  reactStrictMode: false,
 }
 
 module.exports = nextConfig

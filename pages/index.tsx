@@ -1,5 +1,5 @@
 import { challenges } from '@/challenges/all'
-import { sketch, SketchAttributes } from '@/sketch'
+import { sketch, SketchAttributes, SketchMethods } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
 import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import Head from 'next/head'
@@ -16,6 +16,8 @@ import {
   Stack,
   Text,
   Center,
+  Space,
+  Group,
 } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
@@ -23,22 +25,28 @@ import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { Challenge } from '@/challenges/core'
 import { useRouter } from 'next/router'
 import { useSearchParams } from 'next/navigation'
+import { match } from 'ts-pattern'
 
-let gameInitialized = false
-
-function GameSketch(props: { env: SketchAttributes }) {
-  // This is necessary to avoid two canvases in dev mode in Chrome. Well, there are still two canvases, but one is empty. TODO: figure out how to fix this.
-  return gameInitialized ? null : (
+const GameSketch = React.forwardRef<SketchMethods, { env: SketchAttributes }>(function GameSketch(
+  props,
+  ref
+) {
+  const sketchMethodsRef = React.useRef<SketchMethods | null>(null)
+  // Note: it would be great if we could say that the ref should only be filled when 'sketchMethodsRef' is finally available. Then we could ensure that if it's not 'null', it's good to use. But I don't know how to do that.
+  React.useImperativeHandle(ref, () => ({
+    reset: () => sketchMethodsRef.current?.reset(),
+  }))
+  return (
     <NextReactP5Wrapper
       sketch={(p5) => {
-        if (!gameInitialized) {
-          gameInitialized = true
-          sketch(props.env, p5)
-        }
+        const methods = sketch(props.env, p5)
+        sketchMethodsRef.current = methods
+        // @ts-ignore
+        window.chessMethods = methods
       }}
     />
   )
-}
+})
 
 // Note: React doesn't guarantee that `memo` will not rerender. But so far it works, and I haven't found any other way.
 const MemoizedGameSketch = React.memo(GameSketch, () => true)
@@ -49,18 +57,19 @@ interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 
 const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>(
-  ({ label, description, ...others }: ChallengeItemProps, ref) => (
-    <div ref={ref} {...others}>
-      <Box sx={{ '& *': { wordBreak: 'break-word' } }}>
-        <Text size="sm">{label}</Text>
-        <Text size="xs" opacity={0.65}>
-          {description}
-        </Text>
-      </Box>
-    </div>
-  )
+  function ChallengeSelectItem({ label, description, ...others }: ChallengeItemProps, ref) {
+    return (
+      <div ref={ref} {...others}>
+        <Box sx={{ '& *': { wordBreak: 'break-word' } }}>
+          <Text size="sm">{label}</Text>
+          <Text size="xs" opacity={0.65}>
+            {description}
+          </Text>
+        </Box>
+      </div>
+    )
+  }
 )
-ChallengeSelectItem.displayName = 'ChallengeSelectItem'
 
 export default function Home() {
   const router = useRouter()
@@ -94,7 +103,9 @@ export default function Home() {
 
   const [bestMove, setBestMove] =
     useState<Parameters<SketchAttributes['onBestMoveChange']>[0]>(null)
-  const [output, setOutput] = useState('')
+  const [output, setOutput] = useState<Parameters<SketchAttributes['onOutputChange']>[0]>('')
+  const [gameStatus, setGameStatus] =
+    useState<Parameters<SketchAttributes['onStatusChange']>[0]>('playing')
 
   const env: SketchAttributes = {
     searchDepth: () => searchDepthRef.current,
@@ -107,9 +118,15 @@ export default function Home() {
           null,
     onBestMoveChange: setBestMove,
     onOutputChange: setOutput,
+    onStatusChange: (x) => {
+      // NB: this is being called on every frame :(
+      setGameStatus(x)
+    },
   }
 
-  const { ref, width, height } = useElementSize()
+  const { ref: containerRef, width, height } = useElementSize()
+
+  const sketchRef = React.useRef<SketchMethods>(null)
 
   return (
     <>
@@ -118,8 +135,8 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main className={styles.main}>
-        <div ref={ref}>
-          <MemoizedGameSketch env={env} />
+        <div ref={containerRef}>
+          <MemoizedGameSketch ref={sketchRef} env={env} />
 
           <Stack
             mt="md"
@@ -132,14 +149,39 @@ export default function Home() {
               },
             })}
           >
-            <Button
-              component="a"
-              href="https://github.com/users/neongreen/projects/1/views/3"
-              target="_blank"
-              leftIcon="🏆"
-            >
-              Leaderboard
-            </Button>
+            <Group grow>
+              {match(gameStatus)
+                .with('playing', () => (
+                  <Button color="dark" variant="light" onClick={sketchRef.current?.reset}>
+                    Reset
+                  </Button>
+                ))
+                .with('won', () => (
+                  <Button color="green" onClick={sketchRef.current?.reset}>
+                    Play again
+                  </Button>
+                ))
+                .with('lost', () => (
+                  <Button color="red" onClick={sketchRef.current?.reset}>
+                    Play again
+                  </Button>
+                ))
+                .with('draw', () => (
+                  <Button color="red" onClick={sketchRef.current?.reset}>
+                    Play again
+                  </Button>
+                ))
+                .exhaustive()}
+              <Button
+                component="a"
+                href="https://github.com/users/neongreen/projects/1/views/3"
+                target="_blank"
+                leftIcon="🏆"
+                color="yellow"
+              >
+                Leaderboard
+              </Button>
+            </Group>
 
             <div style={{ paddingBottom: '1rem' }}>
               <Text size="sm">Depth</Text>

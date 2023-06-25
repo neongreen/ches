@@ -62,14 +62,28 @@ export type SketchAttributes = {
    * Sketch will call this when it wants to communicate something (eg. debug output) to the user.
    */
   onOutputChange: (output: string) => void
+  /**
+   * Sketch will call this to inform React about the current status of the game.
+   */
+  onStatusChange: (status: 'playing' | 'won' | 'lost' | 'draw') => void
 }
 
-export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
+/**
+ * A way to control the sketch from the outside world.
+ */
+export type SketchMethods = {
+  /**
+   * Reset the game.
+   */
+  reset: () => void
+}
+
+export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMethods => {
   p5.disableFriendlyErrors = true
 
   // let synth: PolySynth
 
-  const chess = new Chess()
+  let chess = new Chess()
 
   // For debug
   // @ts-ignore
@@ -256,6 +270,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
           () => {
             p5.fill('green')
             p5.text('Checkmate. You won!', 5, DrawConstants(p5).CELL * 8 + 14)
+            env.onStatusChange('won')
           }
         )
         // Game over, we lost
@@ -264,6 +279,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
           () => {
             p5.fill('red')
             p5.text('Checkmate. You lost.', 5, DrawConstants(p5).CELL * 8 + 14)
+            env.onStatusChange('lost')
           }
         )
         // Game over, draw
@@ -275,6 +291,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
               ? 'Draw by threefold repetition'
               : 'Draw'
             p5.text(text, 5, DrawConstants(p5).CELL * 8 + 14)
+            env.onStatusChange('draw')
           }
         )
         // There are moves but all of them are illegal challenge-wise
@@ -287,6 +304,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
               5,
               DrawConstants(p5).CELL * 8 + 14
             )
+            env.onStatusChange('lost')
           }
         )
         // The game goes on, show eval
@@ -298,6 +316,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
             5,
             DrawConstants(p5).CELL * 8 + 14
           )
+          env.onStatusChange('playing')
         })
     }
 
@@ -355,6 +374,16 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance) => {
 
   p5.keyPressed = () => {
     if (p5.key === ' ') makeBestMove()
+  }
+
+  // Return methods / imperative handles
+  return {
+    reset: () => {
+      chess = new Chess()
+      env.onOutputChange('')
+      env.onBestMoveChange(null)
+      env.onStatusChange('playing')
+    },
   }
 }
 
