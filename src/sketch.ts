@@ -141,6 +141,20 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     lastMoveTimestamp = performance.now()
   }
 
+  /**
+   * Return a function that will check whether a move is allowed, based on the current `env.challenge` and the state of the game.
+   */
+  const mkChallengeMoveDecider = () => {
+    const challenge = env.currentChallenge()
+    const obj: Omit<Parameters<Challenge['isMoveAllowed']>[0], 'move'> = {
+      currentFullMoveNumber: Math.floor(chess.history.length / 2) + 1,
+      currentHalfMoveNumber: chess.history.length + 1,
+      history: chess.history,
+      board: chess.board,
+    }
+    return (move: Move) => challenge?.isMoveAllowed({ ...obj, move }) ?? true
+  }
+
   /** Make the best move for the current side */
   const makeBestMove = () => {
     if (chess.bestMove?.move) makeMove(chess.bestMove.move)
@@ -260,11 +274,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
       // If the game is not over, show eval, otherwise show result
       const challenge = env.currentChallenge()
       const legalMoves = legalMoves_slow(chess.board)
-      const legalMovesAfterChallenge = challenge
-        ? legalMoves.filter((move) =>
-            challenge.isMoveAllowed({ history: chess.history, board: chess.board, move })
-          )
-        : legalMoves
+      const legalMovesAfterChallenge = legalMoves.filter(mkChallengeMoveDecider())
       match('')
         // Game over, we won
         .when(
@@ -363,10 +373,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
           let boardAfterMove = chess.board.clone()
           boardAfterMove.executeMove(move)
           const isLegal = isLegalMove(chess.board, boardAfterMove, move)
-          const challenge = env.currentChallenge()
-          const isAllowedByChallenge =
-            challenge === null ||
-            challenge.isMoveAllowed({ history: chess.history, board: chess.board, move })
+          const isAllowedByChallenge = mkChallengeMoveDecider()(move)
           if (isLegal && isAllowedByChallenge) makeMove(move)
         }
       }
