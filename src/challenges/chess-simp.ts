@@ -146,7 +146,7 @@ const _2022_04_21: Challenge = {
 
 const _2022_09_11: Challenge = {
   uuid: '9b88d4dd-e1fe-4120-9792-c2ff15fd5920',
-  title: 'I have to move the same piece as my opponent did',
+  title: 'I Have To Move The Same Piece As My Opponent Did',
   link: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
   challenge: 'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
   isMoveAllowed({ history, board, move }): boolean {
@@ -176,7 +176,7 @@ const _2021_12_04: Challenge = {
   uuid: '983bb958-585c-4547-bb91-e88b6f84b9bd',
   title: 'Chess, But Capture Is Forced',
   link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
-  challenge: 'Chess, but you take when you can.',
+  challenge: 'You take when you can.',
   isMoveAllowed({ board, move }): boolean {
     const captures = legalMoves_slow(board).filter((move) => isCapture(board, move))
     return captures.length === 0 || captures.some((x) => moveIsEqual(x, move))
