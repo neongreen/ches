@@ -63,10 +63,15 @@ interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
   label: string
   description: string
   beaten: Challenge['beaten'] | undefined
+  // Eg. for "Just chess" we don't want to show the record (we do but right now we don't)
+  showRecord?: boolean
 }
 
 const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>(
-  function ChallengeSelectItem({ label, description, beaten, ...others }: ChallengeItemProps, ref) {
+  function ChallengeSelectItem(
+    { label, description, beaten, showRecord, ...others }: ChallengeItemProps,
+    ref
+  ) {
     return (
       <div ref={ref} {...others}>
         <Box sx={{ '& *': { wordBreak: 'break-word' } }}>
@@ -74,7 +79,7 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
           <Text size="xs" opacity={0.65}>
             {description}
           </Text>
-          <RecordBadge size="sm" recordPrefix beaten={beaten} />
+          {showRecord && <RecordBadge size="sm" recordPrefix beaten={beaten} />}
         </Box>
       </div>
     )
@@ -261,11 +266,12 @@ export default function Home() {
                   })
                 }}
                 data={[
-                  { group: ' ', label: 'Just chess', value: '-' },
+                  { group: ' ', label: 'Just chess', showRecord: false, value: '-' },
                   ...challengesFlattened.map((challenge) => ({
                     group: challenge.group,
                     label: challenge.title,
                     description: challenge.challenge,
+                    showRecord: true,
                     beaten: challenge.beaten,
                     value: challenge.uuid,
                   })),
