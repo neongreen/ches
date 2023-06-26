@@ -28,6 +28,8 @@ import { useRouter } from 'next/router'
 import { useSearchParams } from 'next/navigation'
 import { match } from 'ts-pattern'
 
+const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
+
 const GameSketch = React.forwardRef<SketchMethods, { env: SketchAttributes }>(function GameSketch(
   props,
   ref
@@ -70,25 +72,7 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
             {description}
           </Text>
           {beaten ? (
-            <Badge
-              size="xs"
-              radius="sm"
-              variant="filled"
-              color={match('')
-                .when(
-                  () => beaten.depth <= 2,
-                  () => 'teal'
-                )
-                .when(
-                  () => beaten.depth <= 4,
-                  () => 'blue'
-                )
-                .when(
-                  () => beaten.depth <= 6,
-                  () => 'orange'
-                )
-                .otherwise(() => 'red')}
-            >
+            <Badge size="xs" radius="sm" variant="filled" color={depthColors[beaten.depth]}>
               Record: {beaten.name} @ depth={beaten.depth}
             </Badge>
           ) : (
@@ -221,6 +205,7 @@ export default function Home() {
                 max={7}
                 label={null}
                 value={searchDepth}
+                color={depthColors[searchDepth]}
                 onChange={setSearchDepth}
                 marks={_.range(1, 7 + 1).map((value) => ({ value, label: value.toString() }))}
               />
