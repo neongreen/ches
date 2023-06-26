@@ -96,6 +96,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     // @ts-ignore
     window.chess.isLegalMove = isLegalMoveWithExecute
     // @ts-ignore
+    window.chess.legalMoves = legalMoves_slow
+    // @ts-ignore
     window.chess.quasiLegalMoves = quasiLegalMoves
     // @ts-ignore
     window.chess.quasiLegalMovesFrom = quasiLegalMovesFrom
@@ -146,7 +148,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
    */
   const mkChallengeMoveDecider = () => {
     const challenge = env.currentChallenge()
-    const obj: Omit<Parameters<Challenge['isMoveAllowed']>[0], 'move'> = {
+    const obj = {
       currentFullMoveNumber: Math.floor(chess.history.length / 2) + 1,
       currentHalfMoveNumber: chess.history.length + 1,
       history: chess.history,

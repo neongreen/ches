@@ -3,6 +3,8 @@ import { Score } from './score'
 
 /**
  * Evaluate a node without recursion, based on heuristics.
+ *
+ * Note: doesn't try to detect mate.
  */
 export function leafEvalNode(node: EvalNode): Score {
   // NB: we don't want floating-point numbers anywhere

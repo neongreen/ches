@@ -38,12 +38,12 @@ yarn dev
 yarn check
 ```
 
-### Generating sample games
+### Generating sample (golden) games
 
 Useful to check that a refactoring didn't change anything (the engine is deterministic right now).
 
 ```bash
-yarn sample-games
+yarn golden-games
 ```
 
 ### Can't push huge Git objects

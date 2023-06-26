@@ -102,9 +102,41 @@ export class Search {
   }
 
   /**
+   * Utility function: evaluate a board using search.
+   *
+   * Shouldn't be used during the game. (You already have access to the score - `findBestMove` returns it.)
+   *
+   * @param depth *[0 or greater]* If 0 then just eval the board immediately.
+   */
+  evaluateBoard(board: Board, depth: number): Score {
+    if (depth === 0) {
+      const node = new EvalNode(board)
+      const leafEval = leafEvalNode(node)
+      // leafEval doesn't take draws or mate into account. Changing 'findBestMove' to support depth=0 is too hard, so let's just use depth=1 and only use the score part of the result. We're relying on the fact that 'findBestMove' returns move=null if the game has ended.
+      const eval1 = this.findBestMove(node, 1)
+      return eval1.move === null ? eval1.score : leafEval
+    } else {
+      return this.findBestMove(new EvalNode(board), depth).score
+    }
+  }
+
+  /**
+   * Utility function: evaluate a move using search. The move to evaluate counts as part of the depth.
+   *
+   * Shouldn't be used during the game. (You already have access to the score - `findBestMove` returns it.)
+   *
+   * @param depth *[1 or greater]* If 1 then just eval the board immediately after the move
+   */
+  evaluateMove(board: Board, move: Move, depth: number): Score {
+    const boardAfterMove = board.clone()
+    boardAfterMove.executeMove(move)
+    return this.evaluateBoard(boardAfterMove, depth - 1)
+  }
+
+  /**
    * What is the best move for the current side?
    *
-   * @param depth How many moves to look ahead; if 1 then just eval all the moves
+   * @param depth *[1 or greater]* How many moves to look ahead; if 1 then just eval all the moves
    * @param alpha The minimum eval white can force (white wants to maximize)
    * @param beta The maximum eval black can force (black wants to minimize)
    */
