@@ -29,7 +29,21 @@ const challenge_mustKeepMoving: Challenge = {
   },
 }
 
+const challenge_pawnObsession: Challenge = {
+  uuid: 'c80df7ae-47c4-43a7-ac0f-7c0da4d206cc',
+  title: '[Alexey53] Emil Josef Diemer Wannabe',
+  link: 'https://discord.com/channels/866701779155419206/884667730891010048/1085457075448057916',
+  challenge: 'Your first 17 moves of the game must be consecutive pawn moves.',
+  isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {
+    const isPawnMove = isPawn(getMovePiece(board, move))
+    return isPawnMove || currentFullMoveNumber > 17
+  },
+}
+
 /**
  * Challenges from the #video-suggestion channel on the Chess Simp Discord: https://discord.com/channels/866701779155419206/884667730891010048
  */
-export const chessSimpDiscordChallenges: Challenge[] = [challenge_mustKeepMoving]
+export const chessSimpDiscordChallenges: Challenge[] = [
+  challenge_mustKeepMoving,
+  challenge_pawnObsession,
+]
