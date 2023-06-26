@@ -285,7 +285,12 @@ export default function Home() {
 
             <Center>
               <Text size="sm">
-                Made by Emily •{' '}
+                Made by Emily{' • '}
+                <Anchor href="https://discord.gg/VXQXruqBwB" target="_blank">
+                  Discord
+                </Anchor>{' '}
+                (submit records there!)
+                {' • '}
                 <Anchor href="https://github.com/neongreen/ches" target="_blank">
                   GitHub
                 </Anchor>
