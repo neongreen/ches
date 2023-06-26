@@ -31,8 +31,8 @@ const _2022_05_24: Challenge = {
   challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
   isMoveAllowed({ move }): boolean {
     return match(move)
-      .with({ kind: 'normal' }, ({ from, to }) => from.chessboardDistance(to) === 1)
-      .with({ kind: 'enPassant' }, ({ from, to }) => from.chessboardDistance(to) === 1)
+      .with({ kind: 'normal' }, ({ from, to }) => from.kingDistance(to) === 1)
+      .with({ kind: 'enPassant' }, ({ from, to }) => from.kingDistance(to) === 1)
       .with({ kind: 'castling' }, () => false)
       .exhaustive()
   },
@@ -75,8 +75,8 @@ const _2022_03_07: Challenge = {
     return (
       match(move)
         // TODO: once again we are assuming that the human is playing white
-        .with({ kind: 'normal' }, ({ from }) => board.kings.white.chessboardDistance(from) <= 1)
-        .with({ kind: 'enPassant' }, ({ from }) => board.kings.white.chessboardDistance(from) <= 1)
+        .with({ kind: 'normal' }, ({ from }) => board.kings.white.kingDistance(from) <= 1)
+        .with({ kind: 'enPassant' }, ({ from }) => board.kings.white.kingDistance(from) <= 1)
         .with({ kind: 'castling' }, () => false)
         .exhaustive()
     )

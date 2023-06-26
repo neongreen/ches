@@ -3,7 +3,7 @@ import { legalMovesForPiece_slow, legalMoves_slow } from '@/move/legal'
 import { isBlack, isKing, isPawn, pieceType } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
-import { match } from 'ts-pattern'
+import { match, P } from 'ts-pattern'
 import { Challenge } from './core'
 
 const challenge_mustKeepMoving: Challenge = {
@@ -40,10 +40,34 @@ const challenge_pawnObsession: Challenge = {
   },
 }
 
+const challenge_twoMovesMax: Challenge = {
+  uuid: 'bd58184f-990e-4cc3-9c73-5fb28cc9f95b',
+  title: "[Cheftic] You're Short",
+  link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122275013119180840',
+  challenge:
+    "Chess, but you're short. You cannot make any long distance moves (2 squares max, like the king moves). Short castling is allowed.",
+  isMoveAllowed({ move }): boolean {
+    return match(move)
+      .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => {
+        const distance = from.kingDistance(to)
+        return distance !== null && distance <= 2
+      })
+      .with({ kind: 'castling' }, ({ kingFrom, kingTo, rookFrom, rookTo }) => {
+        const kingDistance = kingFrom.kingDistance(kingTo)
+        const rookDistance = rookFrom.kingDistance(rookTo)
+        return (
+          kingDistance !== null && kingDistance <= 2 && rookDistance !== null && rookDistance <= 2
+        )
+      })
+      .exhaustive()
+  },
+}
+
 /**
  * Challenges from the #video-suggestion channel on the Chess Simp Discord: https://discord.com/channels/866701779155419206/884667730891010048
  */
 export const chessSimpDiscordChallenges: Challenge[] = [
   challenge_mustKeepMoving,
   challenge_pawnObsession,
+  challenge_twoMovesMax,
 ]

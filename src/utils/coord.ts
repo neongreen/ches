@@ -108,9 +108,21 @@ export class Coord {
   /**
    * https://en.wikipedia.org/wiki/Chebyshev_distance
    *
-   * Sorta doesn't work for knigts, but whatever.
+   * How many moves would a king need to make to get to the other square?
    */
-  chessboardDistance(to: Coord) {
+  kingDistance(to: Coord) {
     return Math.max(Math.abs(this.x - to.x), Math.abs(this.y - to.y))
+  }
+
+  /**
+   * Distance horizontally, vertically, or diagonally.
+   *
+   * Returns `null` if can't reach via a straight line.
+   */
+  queenDistance(to: Coord): number | null {
+    if (this.x === to.x) return Math.abs(this.y - to.y)
+    if (this.y === to.y) return Math.abs(this.x - to.x)
+    if (Math.abs(this.x - to.x) === Math.abs(this.y - to.y)) return Math.abs(this.x - to.x)
+    return null
   }
 }
