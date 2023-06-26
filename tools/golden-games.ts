@@ -8,26 +8,48 @@ import { Board } from '@/board'
 import { Search } from '@/eval/search'
 import { EvalNode } from '@/eval/node'
 import { Move, notateMove } from '@/move'
-import { mkdirSync, writeFileSync } from 'fs'
+import { mkdirSync, writeFileSync, rmSync } from 'fs'
 import path from 'path'
 import { renderScore, Score } from '@/eval/score'
 import { Color } from '@/piece'
 import { challenges } from '@/challenges/all'
 import { legalMoves_slow } from '@/move/legal'
 import _ from 'lodash'
+import { parseArgs } from 'node:util'
+
+const args = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    scenario: {
+      type: 'string',
+      short: 's',
+      multiple: true,
+      description:
+        'Which scenario to generate a sample game for. Can specify multiple scenarios by providing the flag several times. If not specified, all scenarios are generated.',
+    },
+  },
+})
 
 const scenarios = [
   { id: 'unrestricted', isMoveAllowed: () => true },
   ...challenges.flatMap(({ list }) =>
     list.map(({ uuid, isMoveAllowed }) => ({ id: uuid, isMoveAllowed }))
   ),
-]
+].filter((scenario) => !args.values.scenario || args.values.scenario.includes(scenario.id))
+
+// Clear relevant folders, or the whole golden-games folder if no scenarios were specified.
+if (!args.values.scenario?.length) {
+  rmSync(path.resolve(process.cwd(), 'golden-games'), { recursive: true, force: true })
+} else {
+  for (const id of args.values.scenario)
+    rmSync(path.resolve(process.cwd(), `golden-games/${id}`), { recursive: true, force: true })
+}
 
 for (const scenario of scenarios) {
   const id = scenario.id
   for (let depth = 1; depth <= 4; depth++) {
     console.debug(`Generating a sample game for ${id}, depth ${depth}`)
-    const filename = path.resolve(__dirname, `golden-games/${id}/depth-${depth}.txt`)
+    const filename = path.resolve(process.cwd(), `golden-games/${id}/depth-${depth}.txt`)
     mkdirSync(path.dirname(filename), { recursive: true })
     const board = new Board()
     const game: [Score, string][] = []

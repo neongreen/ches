@@ -43,11 +43,21 @@ yarn check
 Useful to check that a refactoring didn't change anything (the engine is deterministic right now).
 
 ```bash
-yarn golden-games
+# Needs to be run from the root!
+
+yarn golden-games    # regenerate all
+
+yarn golden-games -s <uuid1> -s <uuid2> ... # regenerate specific challenges
 ```
 
 ### Can't push huge Git objects
 
 ```bash
 git config --global http.postBuffer 524288000
+```
+
+### Upgrading yarn
+
+```bash
+yarn set version latest
 ```

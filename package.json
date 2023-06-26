@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit && echo '\u001b[32m✔ Typecheck OK\u001b[0m' && next lint",
-    "golden-games": "rm -rf golden-games; esbuild tools/golden-games.ts --bundle --platform=node | node"
+    "golden-games": "FILE=$(mktemp); touch $FILE; esbuild tools/golden-games.ts --bundle --platform=node > $FILE; node $FILE"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
