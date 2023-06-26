@@ -15,7 +15,6 @@ import { Color } from '@/piece'
 import { challenges } from '@/challenges/all'
 import { legalMoves_slow } from '@/move/legal'
 import _ from 'lodash'
-import { exit } from 'process'
 
 const scenarios = [
   { id: 'unrestricted', isMoveAllowed: () => true },
