@@ -18,6 +18,7 @@ import {
   Center,
   Space,
   Group,
+  Badge,
 } from '@mantine/core'
 import { useElementSize } from '@mantine/hooks'
 import _ from 'lodash'
@@ -56,10 +57,11 @@ const MemoizedGameSketch = React.memo(GameSketch, () => true)
 interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
   label: string
   description: string
+  beaten: Challenge['beaten'] | undefined
 }
 
 const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>(
-  function ChallengeSelectItem({ label, description, ...others }: ChallengeItemProps, ref) {
+  function ChallengeSelectItem({ label, description, beaten, ...others }: ChallengeItemProps, ref) {
     return (
       <div ref={ref} {...others}>
         <Box sx={{ '& *': { wordBreak: 'break-word' } }}>
@@ -67,6 +69,33 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
           <Text size="xs" opacity={0.65}>
             {description}
           </Text>
+          {beaten ? (
+            <Badge
+              size="xs"
+              radius="sm"
+              variant="filled"
+              color={match('')
+                .when(
+                  () => beaten.depth <= 2,
+                  () => 'teal'
+                )
+                .when(
+                  () => beaten.depth <= 4,
+                  () => 'blue'
+                )
+                .when(
+                  () => beaten.depth <= 6,
+                  () => 'orange'
+                )
+                .otherwise(() => 'red')}
+            >
+              Record: {beaten.name} @ depth={beaten.depth}
+            </Badge>
+          ) : (
+            <Badge size="xs" radius="sm" variant="outline" color="gray">
+              Unbeaten
+            </Badge>
+          )}
         </Box>
       </div>
     )
@@ -216,6 +245,7 @@ export default function Home() {
                     group: challenge.group,
                     label: challenge.title,
                     description: challenge.challenge,
+                    beaten: challenge.beaten,
                     value: challenge.uuid,
                   })),
                 ]}

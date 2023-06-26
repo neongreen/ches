@@ -11,6 +11,14 @@ export type Challenge = {
   challenge: string
 
   /**
+   * The best player so far (challenge beaten at highest depth).
+   */
+  beaten?: {
+    name: string
+    depth: number
+  }
+
+  /**
    * Constraints like "can't move to white squares" etc.
    *
    * TODO stop assuming that the human is playing white

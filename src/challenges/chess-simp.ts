@@ -57,6 +57,10 @@ const _2022_01_29: Challenge = {
   title: 'Our Kings Almost Touched',
   link: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
   challenge: 'Chess, but if your pawn can move, it has to.',
+  beaten: {
+    name: 'Emily',
+    depth: 2,
+  },
   isMoveAllowed({ board, move }): boolean {
     // Note: per 3:02 in the video, if you're in check you can move a non-pawn (which is incidentally what this code already does.)
     const pawnMoves = legalMoves_slow(board).filter((move) => isPawn(getMovePiece(board, move)))
@@ -70,6 +74,10 @@ const _2022_03_07: Challenge = {
   link: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
   challenge:
     'Chess, but your king is a commander, you can only move something if your king can see it.',
+  beaten: {
+    name: 'Emily',
+    depth: 2,
+  },
   isMoveAllowed({ board, move }): boolean {
     // Only pieces with distance=1 to the king are allowed to move. (1:05 in the video - line of sight doesn't count as "can see"). Unclear if castling is allowed, and theoretically it *can* happen if the opponent takes your N and B - but let's say it's not allowed.
     return (
@@ -88,6 +96,10 @@ const _2022_03_29: Challenge = {
   title: "I Don't Invade Anyone Today",
   link: 'https://www.youtube.com/watch?v=XQZFvszSddk',
   challenge: "Chess but your pawns and pieces can't cross the half-way line.",
+  beaten: {
+    name: 'RauchWolke', // discord
+    depth: 2,
+  },
   isMoveAllowed({ board, move }): boolean {
     return (
       match(move)
@@ -105,6 +117,10 @@ const _2022_05_30: Challenge = {
   title: 'He Offered A Draw...',
   link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
   challenge: '100 rated chess but you can only take their most extended piece or pawn.',
+  beaten: {
+    name: 'Emily',
+    depth: 3,
+  },
   isMoveAllowed({ board, move }): boolean {
     // If there are several pieces that are equally extended, you can take any of them (1:19). If you're not taking a piece, you can do whatever you want.
     const blackPieces = board.pieces().filter(({ piece }) => isBlack(piece))
@@ -172,6 +188,10 @@ const _2023_06_09: Challenge = {
   title: '🏳️‍🌈 Pride Chess',
   link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
   challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
+  beaten: {
+    name: 'Emily',
+    depth: 3,
+  },
   isMoveAllowed({ board, move }): boolean {
     return match(move)
       .with(
