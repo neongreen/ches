@@ -1,32 +1,35 @@
 import { challenges } from '@/challenges/all'
+import { Challenge } from '@/challenges/core'
+import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { sketch, SketchAttributes, SketchMethods } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
-import { NextReactP5Wrapper } from '@p5-wrapper/next'
-import Head from 'next/head'
-import React, { useState } from 'react'
-import styles from '../styles/index.module.scss'
 import {
-  Anchor,
-  Box,
   Accordion,
+  Anchor,
+  Badge,
+  Box,
   Button,
+  Center,
   Checkbox,
+  Group,
+  MantineSize,
+  Modal,
   Select,
   Slider,
   Stack,
+  Table,
   Text,
-  Center,
-  Space,
-  Group,
-  Badge,
+  Title,
 } from '@mantine/core'
-import { useElementSize } from '@mantine/hooks'
+import { useDisclosure, useElementSize } from '@mantine/hooks'
+import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import _ from 'lodash'
-import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
-import { Challenge } from '@/challenges/core'
-import { useRouter } from 'next/router'
+import Head from 'next/head'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
 import { match } from 'ts-pattern'
+import styles from '../styles/index.module.scss'
 
 const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
 
@@ -71,20 +74,30 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
           <Text size="xs" opacity={0.65}>
             {description}
           </Text>
-          {beaten ? (
-            <Badge size="xs" radius="sm" variant="filled" color={depthColors[beaten.depth]}>
-              Record: {beaten.name} @ depth={beaten.depth}
-            </Badge>
-          ) : (
-            <Badge size="xs" radius="sm" variant="outline" color="gray">
-              Unbeaten
-            </Badge>
-          )}
+          <RecordBadge size="sm" recordPrefix beaten={beaten} />
         </Box>
       </div>
     )
   }
 )
+
+function RecordBadge(props: {
+  size: MantineSize
+  recordPrefix?: boolean
+  beaten?: Challenge['beaten']
+}) {
+  const { size, beaten } = props
+  return beaten ? (
+    <Badge size={props.size} radius="sm" variant="filled" color={depthColors[beaten.depth]}>
+      {props.recordPrefix && 'Record: '}
+      {beaten.name} @ depth={beaten.depth}
+    </Badge>
+  ) : (
+    <Badge size={props.size} radius="sm" variant="outline" color="gray">
+      Unbeaten
+    </Badge>
+  )
+}
 
 export default function Home() {
   const router = useRouter()
@@ -143,12 +156,41 @@ export default function Home() {
 
   const sketchRef = React.useRef<SketchMethods>(null)
 
+  const [leaderboardShown, leaderboard] = useDisclosure(false)
+
   return (
     <>
       <Head>
         <title>Ches</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+
+      <Modal
+        opened={leaderboardShown}
+        onClose={leaderboard.close}
+        title={<Title>Leaderboard</Title>}
+      >
+        {/* TODO: this should include "Just chess" and it should be implemented as just another challenge */}
+        <Table>
+          <thead>
+            <tr>
+              <th>Challenge</th>
+              <th>Record</th>
+            </tr>
+          </thead>
+          <tbody>
+            {challengesFlattened.map((challenge) => (
+              <tr key={challenge.uuid}>
+                <td>{challenge.title}</td>
+                <td>
+                  <RecordBadge size="sm" beaten={challenge.beaten} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Modal>
+
       <main className={styles.main}>
         <div ref={containerRef}>
           <MemoizedGameSketch ref={sketchRef} env={env} />
@@ -187,13 +229,7 @@ export default function Home() {
                   </Button>
                 ))
                 .exhaustive()}
-              <Button
-                component="a"
-                href="https://github.com/users/neongreen/projects/1/views/3"
-                target="_blank"
-                leftIcon="🏆"
-                color="yellow"
-              >
+              <Button onClick={leaderboard.open} leftIcon="🏆" color="yellow">
                 Leaderboard
               </Button>
             </Group>
