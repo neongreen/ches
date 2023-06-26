@@ -38,8 +38,7 @@ for (const scenario of scenarios) {
       const currentHalfMoveNumber = game.length + 1
       // We need to find the best move, keeping in mind that white always does a challenge, but black can do anything.
       let best
-      // TODO: for whatever reason this gives slightly different results compared to just always using 'search.findBestMove'. I spent an hour (?) investigating and I have no idea why. It'd be nice to walk through 'findBestMove' with the debugger. Maybe it's due to the transposition table?
-      // Update: possibly because when we reach depth=0 in the search, we don't actually detect draws/checkmate, we just use leaf eval - but evaluateBoard does do detection at depth=0, which is an inconsistency.
+      // FIXME: gives different results compared to just using 'false' here. See https://github.com/neongreen/ches/issues/4.
       if (board.side === Color.White) {
         const decider = (() => {
           const obj = { currentFullMoveNumber, currentHalfMoveNumber, history, board }
