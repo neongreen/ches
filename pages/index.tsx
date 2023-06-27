@@ -21,7 +21,7 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { useDisclosure, useElementSize } from '@mantine/hooks'
+import { useDisclosure, useElementSize, useMediaQuery } from '@mantine/hooks'
 import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import _ from 'lodash'
 import Head from 'next/head'
@@ -163,6 +163,8 @@ export default function Home() {
 
   const [leaderboardShown, leaderboard] = useDisclosure(false)
 
+  const isMobile = useMediaQuery('(max-width: 500px)')
+
   return (
     <>
       <Head>
@@ -171,6 +173,7 @@ export default function Home() {
       </Head>
 
       <Modal
+        fullScreen={isMobile}
         opened={leaderboardShown}
         onClose={leaderboard.close}
         title={<Title>Leaderboard</Title>}
