@@ -29,6 +29,10 @@ const _2022_05_24: Challenge = {
   title: 'Slow And Steady',
   link: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
   challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
+  beaten: {
+    name: 'Emily',
+    depth: 3,
+  },
   isMoveAllowed({ move }): boolean {
     return match(move)
       .with({ kind: 'normal' }, ({ from, to }) => from.kingDistance(to) === 1)
