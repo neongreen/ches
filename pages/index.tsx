@@ -176,6 +176,7 @@ export default function Home() {
         fullScreen={isMobile}
         opened={leaderboardShown}
         onClose={leaderboard.close}
+        sx={{ '.mantine-Modal-content': { maxHeight: '100dvh' } }}
         title={<Title>Leaderboard</Title>}
       >
         {/* TODO: this should include "Just chess" and it should be implemented as just another challenge */}
