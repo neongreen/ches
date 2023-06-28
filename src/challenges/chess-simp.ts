@@ -2,7 +2,7 @@ import { getMovePiece, getCapture, isCapture, Move, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { isBlack, isKing, isPawn, pieceType } from '@/piece'
 import _ from 'lodash'
-import { match } from 'ts-pattern'
+import { match, P } from 'ts-pattern'
 import { Challenge } from './core'
 
 const _2022_09_26: Challenge = {
@@ -14,8 +14,7 @@ const _2022_09_26: Challenge = {
   isMoveAllowed({ move }): boolean {
     // Can only move to dark squares.
     return match(move)
-      .with({ kind: 'normal' }, ({ to }) => to.color() === 'dark')
-      .with({ kind: 'enPassant' }, ({ to }) => to.color() === 'dark')
+      .with({ kind: P.union('normal', 'enPassant') }, ({ to }) => to.color() === 'dark')
       .with(
         { kind: 'castling' },
         ({ kingTo, rookTo }) => kingTo.color() === 'dark' && rookTo.color() === 'dark'
@@ -35,8 +34,7 @@ const _2022_05_24: Challenge = {
   },
   isMoveAllowed({ move }): boolean {
     return match(move)
-      .with({ kind: 'normal' }, ({ from, to }) => from.kingDistance(to) === 1)
-      .with({ kind: 'enPassant' }, ({ from, to }) => from.kingDistance(to) === 1)
+      .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => from.kingDistance(to) === 1)
       .with({ kind: 'castling' }, () => false)
       .exhaustive()
   },
@@ -49,8 +47,7 @@ const _2022_06_03: Challenge = {
   challenge: 'Chess, but your pieces (and pawns) are always right. You cannot move them leftward.',
   isMoveAllowed({ move }): boolean {
     return match(move)
-      .with({ kind: 'normal' }, ({ from, to }) => from.x <= to.x)
-      .with({ kind: 'enPassant' }, ({ from, to }) => from.x <= to.x)
+      .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => from.x <= to.x)
       .with({ kind: 'castling' }, () => false)
       .exhaustive()
   },
@@ -87,8 +84,10 @@ const _2022_03_07: Challenge = {
     return (
       match(move)
         // TODO: once again we are assuming that the human is playing white
-        .with({ kind: 'normal' }, ({ from }) => board.kings.white.kingDistance(from) <= 1)
-        .with({ kind: 'enPassant' }, ({ from }) => board.kings.white.kingDistance(from) <= 1)
+        .with(
+          { kind: P.union('normal', 'enPassant') },
+          ({ from }) => board.kings.white.kingDistance(from) <= 1
+        )
         .with({ kind: 'castling' }, () => false)
         .exhaustive()
     )
@@ -108,8 +107,7 @@ const _2022_03_29: Challenge = {
     return (
       match(move)
         // TODO: once again we are assuming that the human is playing white
-        .with({ kind: 'normal' }, ({ to }) => to.y <= 3)
-        .with({ kind: 'enPassant' }, ({ to }) => to.y <= 3)
+        .with({ kind: P.union('normal', 'enPassant') }, ({ to }) => to.y <= 3)
         .with({ kind: 'castling' }, () => true)
         .exhaustive()
     )
@@ -199,10 +197,9 @@ const _2023_06_09: Challenge = {
   isMoveAllowed({ board, move }): boolean {
     return match(move)
       .with(
-        { kind: 'normal' },
+        { kind: P.union('normal', 'enPassant') },
         ({ from, to }) => isPawn(getMovePiece(board, move)) || (from.x !== to.x && from.y !== to.y)
       )
-      .with({ kind: 'enPassant' }, () => true)
       .with({ kind: 'castling' }, () => false)
       .exhaustive()
   },

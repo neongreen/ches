@@ -16,4 +16,4 @@
 ... b1=Q -15.16
 9. Qd1 -15.36
 ... Qxd1 -24.36
-0-1 -24.36
+Challenge lost - no moves available

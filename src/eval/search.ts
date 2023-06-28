@@ -106,18 +106,11 @@ export class Search {
    *
    * Shouldn't be used during the game. (You already have access to the score - `findBestMove` returns it.)
    *
-   * @param depth *[0 or greater]* If 0 then just eval the board immediately.
+   * @param depth *[>= 0]* If 0 then just eval the board immediately.
    */
   evaluateBoard(board: Board, depth: number): Score {
-    if (depth === 0) {
-      const node = new EvalNode(board)
-      const leafEval = leafEvalNode(node)
-      // leafEval doesn't take draws or mate into account. Changing 'findBestMove' to support depth=0 is too hard, so let's just use depth=1 and only use the score part of the result. We're relying on the fact that 'findBestMove' returns move=null if the game has ended.
-      const eval1 = this.findBestMove(node, 1)
-      return eval1.move === null ? eval1.score : leafEval
-    } else {
-      return this.findBestMove(new EvalNode(board), depth).score
-    }
+    if (depth === 0) return this.evaluateDepth0(new EvalNode(board)).score
+    else return this.findBestMove(new EvalNode(board), depth).score
   }
 
   /**
@@ -125,7 +118,7 @@ export class Search {
    *
    * Shouldn't be used during the game. (You already have access to the score - `findBestMove` returns it.)
    *
-   * @param depth *[1 or greater]* If 1 then just eval the board immediately after the move
+   * @param depth *[>= 1]* If 1 then just eval the board immediately after the move
    */
   evaluateMove(board: Board, move: Move, depth: number): Score {
     const boardAfterMove = board.clone()
@@ -136,7 +129,7 @@ export class Search {
   /**
    * What is the best move for the current side?
    *
-   * @param depth *[1 or greater]* How many moves to look ahead; if 1 then just eval all the moves
+   * @param depth [>= 1] How many moves to look ahead. At depth=1, just eval all the moves.
    * @param alpha The minimum eval white can force (white wants to maximize)
    * @param beta The maximum eval black can force (black wants to minimize)
    */
@@ -237,5 +230,51 @@ export class Search {
       })
 
     return best
+  }
+
+  /**
+   * Immediately evaluate a node. Like `findBestMove` but with depth=0. Unlike `leafEvalNode`, this function takes draws and mate into account.
+   *
+   * We don't provide a move, but only an indication of whether a move exists or not. A draw is indicated by `{ move: null, score: 0 }`.
+   */
+  evaluateDepth0(node: EvalNode): { move: 'exists' | null; score: Score } {
+    // Threefold repetition is a draw
+    if (node.board.isThreefoldRepetition()) return { move: null, score: 0 }
+
+    // Check if we have seen this position before
+    const transpositionTableEntry = this.probeTransposition(node.board.hash, node.board.state())
+    if (transpositionTableEntry)
+      return {
+        move: transpositionTableEntry.goodMove && 'exists',
+        score: transpositionTableEntry.score,
+      }
+
+    // Check if we can make any moves
+    const legalMoveExists = quasiLegalOrderedMoves(node.board).some((move) => {
+      let boardAfterMove = node.board.clone()
+      boardAfterMove.executeMove(move)
+      return isLegalMove(node.board, boardAfterMove, move, { assumeQuasiLegal: true })
+    })
+
+    // If we didn't find any moves, it's either checkmate or stalemate.
+    if (!legalMoveExists) {
+      return {
+        move: null,
+        score: isInCheck(node.board, node.board.side)
+          ? node.board.side === Color.White
+            ? mateByBlack(0)
+            : mateByWhite(0)
+          : 0,
+      }
+    }
+    // If we did find a move, it could be a fifty-move draw
+    // (NB: not 100% sure about edge cases here; does checkmate take priority over 50-move draw?)
+    else if (node.board.halfmoveClock >= 100) {
+      return { move: null, score: 0 }
+    }
+    // If we did find a move and it's not a draw:
+    else {
+      return { move: 'exists', score: leafEvalNode(node) }
+    }
   }
 }

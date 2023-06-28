@@ -16,6 +16,7 @@ import { challenges } from '@/challenges/all'
 import { legalMoves_slow } from '@/move/legal'
 import _ from 'lodash'
 import { parseArgs } from 'node:util'
+import { P, match } from 'ts-pattern'
 
 const args = parseArgs({
   args: process.argv.slice(2),
@@ -52,44 +53,72 @@ for (const scenario of scenarios) {
     const filename = path.resolve(process.cwd(), `golden-games/${id}/depth-${depth}.txt`)
     mkdirSync(path.dirname(filename), { recursive: true })
     const board = new Board()
-    const game: [Score, string][] = []
+    const game: ({ boardBeforeMove: Board; move: Move; score: Score } | { result: string })[] = []
     const history: { boardBeforeMove: Board; move: Move }[] = []
     const search = new Search()
     while (true) {
-      const currentFullMoveNumber = Math.floor(game.length / 2) + 1
-      const currentHalfMoveNumber = game.length + 1
+      const currentFullMoveNumber = Math.floor(history.length / 2) + 1
+      const currentHalfMoveNumber = history.length + 1
       // We need to find the best move, keeping in mind that white always does a challenge, but black can do anything.
-      let best
+      let best: { move: Move | null; score: Score; legalMoveExistsButForbidden?: true }
       // FIXME: gives different results compared to just using 'false' here. See https://github.com/neongreen/ches/issues/4.
       if (board.side === Color.White) {
-        const decider = (() => {
-          const obj = { currentFullMoveNumber, currentHalfMoveNumber, history, board }
-          return (move: Move) => scenario.isMoveAllowed({ ...obj, move }) ?? true
-        })()
-        // `search` can't rank moves, so we generate all moves and ask for their eval.
-        const moves = legalMoves_slow(board)
-          .filter(decider)
-          .map((move) => ({
-            move,
-            score: search.evaluateMove(board, move, depth),
-          }))
-        best = _.maxBy(moves, 'score') ?? { move: null, score: search.evaluateBoard(board, 0) }
+        const eval0 = search.evaluateDepth0(new EvalNode(board))
+        if (eval0.move === null) {
+          // The game has ended
+          best = { move: null, score: eval0.score }
+        } else {
+          // The game is still going; since `search` can't rank moves,  we have to generate all possible legal moves allowed by the challenge, and ask for their eval.
+          const decider = (() => {
+            const obj = { currentFullMoveNumber, currentHalfMoveNumber, history, board }
+            return (move: Move) => scenario.isMoveAllowed({ ...obj, move }) ?? true
+          })()
+          const moves = legalMoves_slow(board)
+            .filter(decider)
+            .map((move) => ({
+              move,
+              score: search.evaluateMove(board, move, depth),
+            }))
+          // Note that here it's possible that we'll end the game even though it's not a checkmate or a draw, because the challenge might restrict us from making any moves. This will result in writing something like "0-1 -8.64" to the file. Which is fine.
+          best = _.maxBy(moves, 'score') ?? {
+            move: null,
+            score: eval0.score,
+            legalMoveExistsButForbidden: true,
+          }
+        }
       } else {
         best = search.findBestMove(new EvalNode(board), depth)
       }
       // Now that we've found the best move (or null, meaning game over), we can proceed.
       if (best.move === null) {
-        game.push([best.score, best.score === 0 ? '1/2-1/2' : best.score > 0 ? '1-0' : '0-1'])
+        game.push({
+          result: match(best)
+            .with(
+              { legalMoveExistsButForbidden: true },
+              () => 'Challenge lost - no moves available'
+            )
+            .with({ score: 0 }, () => '1-2/1-2')
+            .otherwise(() => (best.score > 0 ? '1-0' : '0-1')),
+        })
         break
       } else {
-        const notation =
-          board.side === Color.White
-            ? `${currentFullMoveNumber}. ${notateMove(board, best.move)}`
-            : `... ${notateMove(board, best.move)}`
-        game.push([best.score, notation])
+        game.push({ move: best.move, boardBeforeMove: board.clone(), score: best.score })
         board.executeMove(best.move)
       }
     }
-    writeFileSync(filename, game.map(([score, move]) => `${move} ${renderScore(score)}`).join('\n'))
+    writeFileSync(
+      filename,
+      game
+        .map((line, i) =>
+          match(line)
+            .with({ result: P._ }, ({ result }) => result)
+            .with({ move: P._ }, ({ boardBeforeMove, move, score }) => {
+              const n = i % 2 === 0 ? `${Math.floor((i + 1) / 2) + 1}.` : '...'
+              return `${n} ${notateMove(boardBeforeMove, move)} ${renderScore(score)}`
+            })
+            .exhaustive()
+        )
+        .join('\n')
+    )
   }
 }
