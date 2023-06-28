@@ -45,7 +45,11 @@ const challenge_twoMovesMax: Challenge = {
   title: "[Cheftic] You're Short",
   link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122275013119180840',
   challenge:
-    "Chess, but you're short. You cannot make any long distance moves (2 squares max, like the king moves). Short castling is allowed.",
+    "Chess, but you're short. You cannot make any long distance moves (2 squares max, like the king goes). Short castling is allowed.",
+  beaten: {
+    name: 'Emily',
+    depth: 3,
+  },
   isMoveAllowed({ move }): boolean {
     return match(move)
       .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => {
