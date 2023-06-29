@@ -8,7 +8,7 @@ import { squareCenter } from './draw/square'
 import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
-import { isCapture, Move, translateFromHumanMove, translateToHumanMove } from './move'
+import { isCapture, Move, notateMove, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
 import { Color, Piece } from './piece'
@@ -101,6 +101,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     window.chess.quasiLegalMoves = quasiLegalMoves
     // @ts-ignore
     window.chess.quasiLegalMovesFrom = quasiLegalMovesFrom
+    // @ts-ignore
+    window.chess.notateMove = notateMove
     // @ts-ignore
     window.chess.env = env
   }
