@@ -1,4 +1,4 @@
-import { getMovePiece, getCapture, isCapture, Move, moveIsEqual } from '@/move'
+import { getCapture, getMoveCoord, getMovePiece, isCapture, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { isBlack, isKing, isPawn, pieceType } from '@/piece'
 import _ from 'lodash'
@@ -209,10 +209,37 @@ const _2023_06_09: Challenge = {
   },
 }
 
+const _2021_08_17: Challenge = {
+  uuid: 'ad9def81-d090-468d-91fb-58570ec87f39',
+  title: 'Play On The Same File',
+  link: 'https://www.youtube.com/watch?v=yyI9jKf85TY',
+  challenge:
+    "When your opponent's piece (or pawn) lands on a column, you must play a piece (or pawn) that is on the same column.",
+  isMoveAllowed({ history, move }): boolean {
+    // When the opponent does castling, we'll actually the player to use either the rook column or the king column. (For the purposes of "play a piece" part, we still count castling as a king move.)
+    const lastMove = _.last(history)
+    if (!lastMove) return true
+    const ourMoveFrom = getMoveCoord(move).from
+    return match(lastMove.move)
+      .with(
+        { kind: P.union('normal', 'enPassant') },
+        ({ to: lastMoveTo }) => ourMoveFrom.x === lastMoveTo.x
+      )
+      .with(
+        { kind: 'castling' },
+        ({ kingTo: lastMoveKingTo, rookTo: lastMoveRookTo }) =>
+          ourMoveFrom.x === lastMoveKingTo.x || ourMoveFrom.x === lastMoveRookTo.x
+      )
+      .exhaustive()
+  },
+}
+
 /**
  * All Chess Simp challenges.
  */
 export const chessSimpChallenges: Challenge[] = _.concat(
+  // Aug 2021
+  [_2021_08_17],
   // Dec 2021
   [_2021_12_04],
   // Jan 2022
