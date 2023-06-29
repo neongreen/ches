@@ -180,7 +180,7 @@ const _2021_12_04: Challenge = {
   link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
   challenge: 'You take when you can.',
   beaten: {
-    name: 'Chess simp simp',
+    name: 'Chess simp simp', // simple man#6823, Chess Simp discord
     depth: 2,
   },
   isMoveAllowed({ board, move }): boolean {
