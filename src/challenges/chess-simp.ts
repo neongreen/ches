@@ -179,6 +179,10 @@ const _2021_12_04: Challenge = {
   title: 'Chess, But Capture Is Forced',
   link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
   challenge: 'You take when you can.',
+  beaten: {
+    name: 'Chess simp simp',
+    depth: 2,
+  },
   isMoveAllowed({ board, move }): boolean {
     const captures = legalMoves_slow(board).filter((move) => isCapture(board, move))
     return captures.length === 0 || captures.some((x) => moveIsEqual(x, move))
