@@ -321,10 +321,14 @@ class Challenge_2023_04_01 implements Challenge {
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
     const capture = getCapture(board, move)
     if (!capture) return true
-    const captureValue = pieceValue(board.at(capture.victim))
-    if (captureValue < this.minCaptureValue) return false
-    this.minCaptureValue = captureValue
-    return true
+    return pieceValue(board.at(capture.victim)) >= this.minCaptureValue
+  }
+
+  recordMove: NonNullable<Challenge['recordMove']> = ({ boardBeforeMove, move }) => {
+    const capture = getCapture(boardBeforeMove, move)
+    if (boardBeforeMove.side === Color.White && capture) {
+      this.minCaptureValue = pieceValue(boardBeforeMove.at(capture.victim))
+    }
   }
 }
 
