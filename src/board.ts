@@ -195,7 +195,7 @@ export class Board {
   /**
    * Return all pieces and their coordinates.
    */
-  pieces(): { coord: Coord; piece: MaybePiece }[] {
+  pieces(): { coord: Coord; piece: Piece }[] {
     const pieces = []
     for (let y = 0; y < 8; y++)
       for (let x = 0; x < 8; x++) {
