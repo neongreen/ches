@@ -1,8 +1,9 @@
-import { challenges } from '@/challenges/all'
+import { challengesList, challengesMap } from '@/challenges/all'
 import { Challenge } from '@/challenges/core'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { sketch, SketchAttributes, SketchMethods } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
+import { Uuid } from '@/utils/uuid'
 import {
   Accordion,
   Anchor,
@@ -38,11 +39,11 @@ const GameSketch = React.forwardRef<SketchMethods, { env: SketchAttributes }>(fu
   ref
 ) {
   const sketchMethodsRef = React.useRef<SketchMethods | null>(null)
-  // Note: it would be great if we could say that the ref should only be filled when 'sketchMethodsRef' is finally available. Then we could ensure that if it's not 'null', it's good to use. But I don't know how to do that. For now we just use '!' and hoping it's fine.
+  // Note: it would be great if we could say that the ref should only be filled when 'sketchMethodsRef' is finally available. Then we could ensure that if it's not 'null', it's good to use. But I don't know how to do that. For now we just use `?`, but if we want to have any methods that return a value, this won't work anymore.
   //
   // See my question here: https://stackoverflow.com/questions/76552686/how-to-make-sure-an-useimperativehandle-ref-isnt-filled-until-another-ref-is
   React.useImperativeHandle(ref, () => ({
-    reset: () => sketchMethodsRef.current!.reset(),
+    reset: (options) => sketchMethodsRef.current?.reset(options),
   }))
   return (
     <NextReactP5Wrapper
@@ -62,8 +63,9 @@ const MemoizedGameSketch = React.memo(GameSketch, () => true)
 interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
   label: string
   description: string
-  beaten: Challenge['beaten'] | undefined
+  beaten: Challenge['meta']['beaten'] | undefined
   // Eg. for "Just chess" we don't want to show the record (we do but right now we don't)
+  // TODO: Wojtek's record is depth 3
   showRecord?: boolean
 }
 
@@ -89,7 +91,7 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
 function RecordBadge(props: {
   size: MantineSize
   recordPrefix?: boolean
-  beaten?: Challenge['beaten']
+  beaten?: Challenge['meta']['beaten']
 }) {
   const { size, beaten } = props
   return beaten ? (
@@ -107,28 +109,25 @@ function RecordBadge(props: {
 export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  // If we have a challenge ID, we'll just select that as the challenge.
+  // If we have a challenge ID in the query, we'll just select that as the challenge.
   const query_challenge_id = searchParams.get('challenge_id')
 
-  const challengesFlattened: (Challenge & { group: string })[] = challenges.flatMap((group) =>
-    group.list.map((challenge) => ({ ...challenge, group: group.group }))
-  )
-
-  const [challengeUuid, setChallengeUuid, challengeUuidRef] = useStateRef<string | null>(null)
-  const currentChallenge =
-    challengeUuid === null
-      ? null
-      : challengesFlattened.find((challenge) => challenge.uuid === challengeUuid) ?? null
+  // Challenges can keep track of history, so we can't between them mid-game. The `currentChallenge` variable holds the current Challenge object. 'null' means 'Just chess'.
+  const [challengeUuid, setChallengeUuid] = useState<Uuid | null>(null)
+  const [currentChallenge, setCurrentChallenge, currentChallengeRef] =
+    useStateRef<Challenge | null>(null)
 
   // For whatever reason, Next.js provides 'null' for search params and only then replaces it with the actual value. We have to use useEffect and wait for the value to become available.
   React.useEffect(() => {
+    console.debug('Challenge ID in the URL', query_challenge_id)
     const isValidChallengeChoice =
-      query_challenge_id === null ||
-      challengesFlattened.some((challenge) => challenge.uuid === query_challenge_id)
+      query_challenge_id === null || challengesMap.has(query_challenge_id)
     // TODO: it flickers and I don't know why.
-    if (isValidChallengeChoice && query_challenge_id !== challengeUuid)
+    if (isValidChallengeChoice && query_challenge_id !== challengeUuid) {
+      console.debug('setChallengeUuid', query_challenge_id)
       setChallengeUuid(query_challenge_id)
-  }, [challengesFlattened, query_challenge_id, challengeUuid, setChallengeUuid])
+    }
+  }, [query_challenge_id, challengeUuid])
 
   const [searchDepth, setSearchDepth, searchDepthRef] = useStateRef(3)
   const [autoPlayEnabled, setAutoPlayEnabled, autoPlayEnabledRef] = useStateRef(true)
@@ -144,11 +143,6 @@ export default function Home() {
     searchDepth: () => searchDepthRef.current,
     autoPlayEnabled: () => autoPlayEnabledRef.current,
     showBestMove: () => showBestMoveRef.current,
-    currentChallenge: () =>
-      challengeUuidRef.current === null
-        ? null
-        : challengesFlattened.find((challenge) => challenge.uuid === challengeUuidRef.current) ??
-          null,
     onBestMoveChange: setBestMove,
     onOutputChange: setOutput,
     onStatusChange: (x) => {
@@ -165,6 +159,27 @@ export default function Home() {
 
   const isMobile = useMediaQuery('(max-width: 500px)')
 
+  /** Recreate the current challenge and reset the game. */
+  const resetGame = React.useCallback(
+    (challengeUuid: Uuid | null) => {
+      console.debug('resetGame', challengeUuid)
+      if (challengeUuid === null) {
+        setCurrentChallenge(null)
+        sketchRef.current?.reset({ challenge: null })
+      } else {
+        const challengeObj = challengesMap.get(challengeUuid)!
+        const challenge = challengeObj.create()
+        setCurrentChallenge(challenge)
+        sketchRef.current?.reset({ challenge })
+      }
+    },
+    [setCurrentChallenge]
+  )
+
+  React.useEffect(() => {
+    resetGame(challengeUuid)
+  }, [challengeUuid, resetGame])
+
   return (
     <>
       <Head>
@@ -176,7 +191,7 @@ export default function Home() {
         fullScreen={isMobile}
         opened={leaderboardShown}
         onClose={leaderboard.close}
-        sx={{ '.mantine-Modal-content': { maxHeight: '100dvh' } }}
+        sx={{ '.mantine-Modal-content': { maxHeight: isMobile ? '100dvh' : '90vh' } }}
         title={<Title>Leaderboard</Title>}
       >
         {/* TODO: this should include "Just chess" and it should be implemented as just another challenge */}
@@ -188,13 +203,24 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {challengesFlattened.map((challenge) => (
-              <tr key={challenge.uuid}>
-                <td>{challenge.title}</td>
-                <td>
-                  <RecordBadge size="sm" beaten={challenge.beaten} />
-                </td>
-              </tr>
+            {challengesList.map((x, i) => (
+              <>
+                <tr key={`group-${i}`}>
+                  <td colSpan={2}>
+                    <Center>
+                      <i>{x.group}</i>
+                    </Center>
+                  </td>
+                </tr>
+                {Array.from(x.list.values()).map((challenge) => (
+                  <tr key={challenge.meta.uuid}>
+                    <td>{challenge.meta.title}</td>
+                    <td>
+                      <RecordBadge size="sm" beaten={challenge.meta.beaten} />
+                    </td>
+                  </tr>
+                ))}
+              </>
             ))}
           </tbody>
         </Table>
@@ -218,22 +244,22 @@ export default function Home() {
             <Group grow>
               {match(gameStatus)
                 .with('playing', () => (
-                  <Button color="dark" variant="light" onClick={sketchRef.current?.reset}>
+                  <Button color="dark" variant="light" onClick={() => resetGame(challengeUuid)}>
                     Reset
                   </Button>
                 ))
                 .with('won', () => (
-                  <Button color="green" onClick={sketchRef.current?.reset}>
+                  <Button color="green" onClick={() => resetGame(challengeUuid)}>
                     Play again
                   </Button>
                 ))
                 .with('lost', () => (
-                  <Button color="red" onClick={sketchRef.current?.reset}>
+                  <Button color="red" onClick={() => resetGame(challengeUuid)}>
                     Play again
                   </Button>
                 ))
                 .with('draw', () => (
-                  <Button color="red" onClick={sketchRef.current?.reset}>
+                  <Button color="red" onClick={() => resetGame(challengeUuid)}>
                     Play again
                   </Button>
                 ))
@@ -271,20 +297,20 @@ export default function Home() {
                 }}
                 data={[
                   { group: ' ', label: 'Just chess', showRecord: false, value: '-' },
-                  ...challengesFlattened.map((challenge) => ({
+                  ...Array.from(challengesMap.values()).map((challenge) => ({
                     group: challenge.group,
-                    label: challenge.title,
-                    description: challenge.challenge,
+                    label: challenge.meta.title,
+                    description: challenge.meta.challenge,
                     showRecord: true,
-                    beaten: challenge.beaten,
-                    value: challenge.uuid,
+                    beaten: challenge.meta.beaten,
+                    value: challenge.meta.uuid,
                   })),
                 ]}
               />
               {currentChallenge && (
                 <Text size="sm" mt="xs">
-                  <span style={{ fontStyle: 'italic' }}>{currentChallenge.challenge}</span>{' '}
-                  <Anchor href={currentChallenge.link} target="_blank" rel="noreferrer">
+                  <i>{currentChallenge.meta.challenge}</i>{' '}
+                  <Anchor href={currentChallenge.meta.link} target="_blank" rel="noreferrer">
                     <b>[Link]</b>
                   </Anchor>
                 </Text>

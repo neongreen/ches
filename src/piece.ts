@@ -51,9 +51,12 @@ export const pieceEnumRange = { low: Piece.Empty, high: Piece.BlackKing }
 export function pieceType(piece: Piece): PieceType {
   return piece & 0x0f
 }
+
+// TODO: maybe this should return `Color | null`?
 export function pieceColor(piece: Piece): Color {
   return piece & 0xf0
 }
+
 export function makePiece(color: Color, type: PieceType): Piece {
   return type | color
 }

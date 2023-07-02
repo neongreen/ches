@@ -1,29 +1,35 @@
 import { Board } from '@/board'
 import { Move } from '@/move'
+import { Coord } from '@/utils/coord'
+import { Uuid } from '@/utils/uuid'
 
-/**
- * A chess challenge.
- */
-export type Challenge = {
-  uuid: string
+/** Metadata about a challenge. */
+export type ChallengeMeta = {
+  uuid: Uuid
   title: string
   link?: string
   challenge: string
-
-  /**
-   * The best player so far (challenge beaten at highest depth).
-   */
+  /** The best player so far (challenge beaten at highest depth). */
   beaten?: {
     name: string
     depth: number
   }
+}
+
+/**
+ * An interface for chess challenge objects.
+ *
+ * To create a new challenge, you should either use a simple JS object, or create a class implementing the `Challenge` interface if you'd like to keep track of some extra state internally.
+ */
+export interface Challenge {
+  meta: ChallengeMeta
 
   /**
    * Constraints like "can't move to white squares" etc.
    *
    * TODO stop assuming that the human is playing white
    */
-  isMoveAllowed(data: {
+  isMoveAllowed: (data: {
     /**
      * Which move are we currently doing (human notation)?
      *
@@ -48,5 +54,15 @@ export type Challenge = {
      * The move the human is attempting to perform.
      */
     move: Move
-  }): boolean
+  }) => boolean
+
+  /**
+   * This function will be called after any move has been made.
+   */
+  recordMove?: (data: { move: Move; boardBeforeMove: Board; boardAfterMove: Board }) => void
+
+  /**
+   * Should any squares on the board be highlighted?
+   */
+  highlightSquares?: () => Coord[]
 }

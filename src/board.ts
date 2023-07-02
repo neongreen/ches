@@ -6,6 +6,8 @@ import { Castling, CastlingBitmask } from './utils/castling'
 
 /** Game state representation. Includes pieces, whose move it is, etc. */
 export class Board {
+  static dimensions = { width: 8, height: 8 }
+
   /**
    * The board as a 8x8 array.
    */

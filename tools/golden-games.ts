@@ -12,7 +12,7 @@ import { mkdirSync, writeFileSync, rmSync } from 'fs'
 import path from 'path'
 import { renderScore, Score } from '@/eval/score'
 import { Color } from '@/piece'
-import { challenges } from '@/challenges/all'
+import { challengesMap } from '@/challenges/all'
 import { legalMoves_slow } from '@/move/legal'
 import _ from 'lodash'
 import { parseArgs } from 'node:util'
@@ -32,10 +32,16 @@ const args = parseArgs({
 })
 
 const scenarios = [
-  { id: 'unrestricted', isMoveAllowed: () => true },
-  ...challenges.flatMap(({ list }) =>
-    list.map(({ uuid, isMoveAllowed }) => ({ id: uuid, isMoveAllowed }))
-  ),
+  {
+    id: 'unrestricted',
+    create: () => ({
+      isMoveAllowed: () => true,
+      recordMove: () => {
+        return
+      },
+    }),
+  },
+  ...Array.from(challengesMap.values()).map(({ meta, create }) => ({ id: meta.uuid, create })),
 ].filter((scenario) => !args.values.scenario || args.values.scenario.includes(scenario.id))
 
 // Clear relevant folders, or the whole golden-games folder if no scenarios were specified.
@@ -48,6 +54,7 @@ if (!args.values.scenario?.length) {
 
 for (const scenario of scenarios) {
   const id = scenario.id
+  const challenge = scenario.create()
   for (let depth = 1; depth <= 4; depth++) {
     console.debug(`Generating a sample game for ${id}, depth ${depth}`)
     const filename = path.resolve(process.cwd(), `golden-games/${id}/depth-${depth}.txt`)
@@ -71,7 +78,7 @@ for (const scenario of scenarios) {
           // The game is still going; since `search` can't rank moves,  we have to generate all possible legal moves allowed by the challenge, and ask for their eval.
           const decider = (() => {
             const obj = { currentFullMoveNumber, currentHalfMoveNumber, history, board }
-            return (move: Move) => scenario.isMoveAllowed({ ...obj, move }) ?? true
+            return (move: Move) => challenge.isMoveAllowed({ ...obj, move }) ?? true
           })()
           const moves = legalMoves_slow(board)
             .filter(decider)
@@ -102,8 +109,12 @@ for (const scenario of scenarios) {
         })
         break
       } else {
-        game.push({ move: best.move, boardBeforeMove: board.clone(), score: best.score })
-        board.executeMove(best.move)
+        const boardBeforeMove = board.clone()
+        const move = best.move
+        game.push({ move, boardBeforeMove, score: best.score })
+        board.executeMove(move)
+        history.push({ boardBeforeMove, move })
+        challenge.recordMove?.({ move, boardBeforeMove, boardAfterMove: board })
       }
     }
     writeFileSync(

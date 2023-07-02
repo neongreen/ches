@@ -21,6 +21,9 @@ class Chess {
 
   search = new Search()
 
+  challenge: Challenge | null = null
+  isMoveAllowedByChallenge: (move: Move) => boolean = () => true
+
   bestMove: {
     move: Move | null
     score: Score // The score (eval) of the best move
@@ -33,6 +36,23 @@ class Chess {
    */
   history: { boardBeforeMove: Board; move: Move }[] = []
 
+  /**
+   * Make a challenge move decider, based on the current challenge.
+   *
+   * You can use the returned function to quickly check if a move is allowed by the challenge. The returned function is only valid for the current state of the game.
+   */
+  private makeChallengeMoveDecider(): (move: Move) => boolean {
+    const challenge = this.challenge
+    if (!challenge) return () => true
+    const obj = {
+      currentFullMoveNumber: Math.floor(this.history.length / 2) + 1,
+      currentHalfMoveNumber: this.history.length + 1,
+      history: this.history,
+      board: this.board,
+    }
+    return (move: Move) => challenge.isMoveAllowed({ ...obj, move })
+  }
+
   lastMove(): Move | null {
     return _.last(this.history)?.move ?? null
   }
@@ -43,6 +63,13 @@ class Chess {
     this.board.executeMove(move)
     this.bestMove = null
     this.history.push({ boardBeforeMove, move })
+    this.challenge?.recordMove?.({ boardBeforeMove, boardAfterMove: this.board, move })
+    this.isMoveAllowedByChallenge = this.makeChallengeMoveDecider()
+  }
+
+  constructor(options: { challenge: Challenge | null }) {
+    this.challenge = options.challenge
+    this.isMoveAllowedByChallenge = this.makeChallengeMoveDecider()
   }
 }
 
@@ -53,7 +80,6 @@ export type SketchAttributes = {
   searchDepth: () => number
   autoPlayEnabled: () => boolean
   showBestMove: () => boolean
-  currentChallenge: () => Challenge | null
   /**
    * Sketch will call this when the best move/line changes.
    */
@@ -75,7 +101,7 @@ export type SketchMethods = {
   /**
    * Reset the game.
    */
-  reset: () => void
+  reset: (options: { challenge: Challenge | null }) => void
 }
 
 export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMethods => {
@@ -85,8 +111,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
 
   let chess: Chess
 
-  const setupGlobals = () => {
-    chess = new Chess()
+  const setupGlobals = (options: { challenge: Challenge | null }) => {
+    chess = new Chess(options)
     // @ts-ignore
     window.Coord = Coord
     // @ts-ignore
@@ -107,7 +133,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     window.chess.env = env
   }
 
-  setupGlobals()
+  setupGlobals({ challenge: null })
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -145,36 +171,37 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     lastMoveTimestamp = performance.now()
   }
 
-  /**
-   * Return a function that will check whether a move is allowed, based on the current `env.challenge` and the state of the game.
-   */
-  const mkChallengeMoveDecider = () => {
-    const challenge = env.currentChallenge()
-    const obj = {
-      currentFullMoveNumber: Math.floor(chess.history.length / 2) + 1,
-      currentHalfMoveNumber: chess.history.length + 1,
-      history: chess.history,
-      board: chess.board,
-    }
-    return (move: Move) => challenge?.isMoveAllowed({ ...obj, move }) ?? true
-  }
-
   /** Make the best move for the current side */
   const makeBestMove = () => {
     if (chess.bestMove?.move) makeMove(chess.bestMove.move)
   }
 
+  // Chess.com colors
+  const colors = {
+    light: '#ebecd0',
+    dark: '#779556',
+    redHighlight: 'rgba(235,97,80,0.8)',
+  }
+
   // Checkered board
   const drawBoard = () => {
+    const highlighted = chess.challenge?.highlightSquares?.() ?? []
+    console.debug('highlighted', highlighted)
     p5.push()
     p5.noStroke()
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
+        const coord = new Coord(x, y)
         const light = (x + y) % 2 !== 0
-        p5.fill(light ? '#ebecd0' : '#779556') // Chess.com colors
-        const xy = squareCenter(p5, new Coord(x, y))
+        p5.fill(light ? colors.light : colors.dark)
+        const xy = squareCenter(p5, coord)
         p5.rectMode(p5.CENTER)
         p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
+        // Highlight if the challenge says so
+        if (highlighted.some((c) => c.equals(coord))) {
+          p5.fill(colors.redHighlight)
+          p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
+        }
       }
     }
     p5.pop()
@@ -276,9 +303,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     } else {
       drawBestMove()
       // If the game is not over, show eval, otherwise show result
-      const challenge = env.currentChallenge()
       const legalMoves = legalMoves_slow(chess.board)
-      const legalMovesAfterChallenge = legalMoves.filter(mkChallengeMoveDecider())
+      const legalMovesAfterChallenge = legalMoves.filter(chess.isMoveAllowedByChallenge)
       match('')
         // Game over, we won
         .when(
@@ -377,7 +403,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
           let boardAfterMove = chess.board.clone()
           boardAfterMove.executeMove(move)
           const isLegal = isLegalMove(chess.board, boardAfterMove, move)
-          const isAllowedByChallenge = mkChallengeMoveDecider()(move)
+          const isAllowedByChallenge = chess.isMoveAllowedByChallenge(move)
           if (isLegal && isAllowedByChallenge) makeMove(move)
         }
       }
@@ -390,14 +416,15 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   // Return methods / imperative handles
-  return {
-    reset: () => {
-      setupGlobals()
+  return (() => {
+    const reset = (options: { challenge: Challenge | null }) => {
+      setupGlobals({ challenge: options.challenge })
       env.onOutputChange('')
       env.onBestMoveChange(null)
       env.onStatusChange('playing')
-    },
-  }
+    }
+    return { reset }
+  })()
 }
 
 /** Prevent scrolling when touching the canvas */

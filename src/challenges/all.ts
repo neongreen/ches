@@ -1,8 +1,20 @@
+import { mapValues, mergeMapsEnsureDistinct } from '@/utils/map'
+import { Uuid } from '@/utils/uuid'
 import { chessSimpChallenges } from './chess-simp'
 import { chessSimpDiscordChallenges } from './chess-simp-discord'
-import { Challenge } from './core'
+import { Challenge, ChallengeMeta } from './core'
 
-export const challenges: { group: string; list: Challenge[] }[] = [
+export const challengesList: {
+  group: string
+  list: Map<Uuid, { meta: ChallengeMeta; create: () => Challenge }>
+}[] = [
   { group: 'Chess Simp', list: chessSimpChallenges },
   { group: 'Chess Simp Discord', list: chessSimpDiscordChallenges },
 ]
+
+export const challengesMap: Map<
+  Uuid,
+  { group: string; meta: ChallengeMeta; create: () => Challenge }
+> = mergeMapsEnsureDistinct(
+  challengesList.map(({ group, list }) => mapValues(list, (challenge) => ({ group, ...challenge })))
+)
