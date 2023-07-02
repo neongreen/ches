@@ -4,7 +4,7 @@ import { P, match } from 'ts-pattern'
 import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
-import { squareCenter } from './draw/square'
+import { squareXY } from './draw/square'
 import { EvalNode } from './eval/node'
 import { renderScore, Score } from './eval/score'
 import { Search } from './eval/search'
@@ -192,20 +192,30 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
       chess.challenge?.highlightSquares?.({ board: chess.board, history: chess.history }) ?? []
     p5.push()
     p5.noStroke()
-    for (let x = 0; x < 8; x++) {
-      for (let y = 0; y < 8; y++) {
-        const coord = new Coord(x, y)
-        const light = (x + y) % 2 !== 0
-        p5.fill(light ? colors.light : colors.dark)
-        const xy = squareCenter(p5, coord)
-        p5.rectMode(p5.CENTER)
-        p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
-        // Highlight if the challenge says so
-        const highlight = highlights.find((x) => x.coord.equals(coord))
-        if (highlight) {
-          p5.fill(colors.highlight[highlight.color])
-          p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
-        }
+    for (const square of Board.allSquares()) {
+      const light = (square.x + square.y) % 2 !== 0
+      p5.fill(light ? colors.light : colors.dark)
+      const xy = squareXY(p5, square)
+      p5.rectMode(p5.CENTER)
+      p5.square(xy.center.x, xy.center.y, DrawConstants(p5).CELL)
+      // Rank and file labels
+      p5.textSize(10)
+      p5.textStyle(p5.BOLD)
+      if (square.x === 0) {
+        p5.textAlign(p5.LEFT, p5.TOP)
+        p5.fill(light ? colors.dark : colors.light)
+        p5.text(square.y + 1, xy.topLeft.x + 3, xy.topLeft.y + 3)
+      }
+      if (square.y === 0) {
+        p5.textAlign(p5.RIGHT, p5.BOTTOM)
+        p5.fill(light ? colors.dark : colors.light)
+        p5.text('abcdefgh'[square.x], xy.bottomRight.x - 3, xy.bottomRight.y - 3)
+      }
+      // Highlight if the challenge says so
+      const highlight = highlights.find((x) => x.coord.equals(square))
+      if (highlight) {
+        p5.fill(colors.highlight[highlight.color])
+        p5.square(xy.center.x, xy.center.y, DrawConstants(p5).CELL)
       }
     }
     p5.pop()
@@ -225,12 +235,12 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     const lastMove = chess.lastMove()
     if (lastMove) {
       const arrow = translateToHumanMove(lastMove)
-      const fromCoord = squareCenter(p5, arrow.from)
-      const toCoord = squareCenter(p5, arrow.to)
+      const fromXY = squareXY(p5, arrow.from)
+      const toXY = squareXY(p5, arrow.to)
       p5.push()
       p5.stroke('rgba(0,0,0,0.5)')
       p5.strokeWeight(6)
-      p5.line(fromCoord.x, fromCoord.y, toCoord.x, toCoord.y)
+      p5.line(fromXY.center.x, fromXY.center.y, toXY.center.x, toXY.center.y)
       p5.noFill()
       p5.strokeWeight(3)
       p5.pop()
@@ -240,16 +250,16 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   const drawBestMove = () => {
     if (env.showBestMove() && chess.bestMove?.move) {
       const arrow = translateToHumanMove(chess.bestMove.move)
-      const fromCoord = squareCenter(p5, arrow.from)
-      const toCoord = squareCenter(p5, arrow.to)
+      const fromXY = squareXY(p5, arrow.from)
+      const toXY = squareXY(p5, arrow.to)
       p5.push()
       p5.stroke('rgba(255,0,0,0.5)')
       p5.strokeWeight(6)
       // Draw an arrow-like thing
-      p5.line(fromCoord.x, fromCoord.y, toCoord.x, toCoord.y)
+      p5.line(fromXY.center.x, fromXY.center.y, toXY.center.x, toXY.center.y)
       p5.noFill()
       p5.strokeWeight(3)
-      p5.circle(toCoord.x, toCoord.y, DrawConstants(p5).CELL * 0.75)
+      p5.circle(toXY.center.x, toXY.center.y, DrawConstants(p5).CELL * 0.75)
       p5.pop()
     }
   }
@@ -257,15 +267,11 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   /** Is the mouse hovering over a specific square?
    */
   const isTouching = (square: Coord) => {
-    const { x: squareX, y: squareY } = squareCenter(p5, square)
-    const between = (left: number, right: number, x: number) => left <= x && x < right
+    const xy = squareXY(p5, square)
+    const between = (left: number, right: number, a: number) => left <= a && a < right
     return (
-      between(
-        squareX - DrawConstants(p5).CELL / 2,
-        squareX + DrawConstants(p5).CELL / 2,
-        p5.mouseX
-      ) &&
-      between(squareY - DrawConstants(p5).CELL / 2, squareY + DrawConstants(p5).CELL / 2, p5.mouseY)
+      between(xy.topLeft.x, xy.bottomRight.x, p5.mouseX) &&
+      between(xy.topLeft.y, xy.bottomRight.y, p5.mouseY)
     )
   }
 

@@ -1,6 +1,6 @@
 import { MaybePiece, Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
-import { squareCenter } from '@/draw/square'
+import { squareXY } from '@/draw/square'
 import { DrawConstants } from '@/draw/constants'
 import { P5CanvasInstance } from '@p5-wrapper/react'
 import type { Image } from 'p5'
@@ -51,7 +51,7 @@ export function preloadPieceImages(p5: P5CanvasInstance) {
 export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: MaybePiece) {
   p5.push()
   p5.imageMode(p5.CENTER)
-  const { x: squareX, y: squareY } = squareCenter(p5, coord)
+  const { x: squareX, y: squareY } = squareXY(p5, coord).center
   if (pieceImages[piece])
     p5.image(pieceImages[piece], squareX, squareY, DrawConstants(p5).PIECE, DrawConstants(p5).PIECE)
   p5.pop()
