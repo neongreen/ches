@@ -6,7 +6,7 @@ import { allPieceTypes, Color, MaybePiece, MaybePieceType, PieceEmpty, pieceType
 import { Zobrist } from '@/zobrist'
 import _ from 'lodash'
 import { leafEvalNode } from './eval'
-import { pieceTypePoints } from './material'
+import { pieceTypeValue } from './material'
 import { EvalNode } from './node'
 import { isMate, mateByBlack, mateByWhite, Score } from './score'
 
@@ -31,7 +31,7 @@ for (const victim of allPieceTypes) {
   MVV_LVA[victim] = []
   for (const attacker of allPieceTypes) {
     // The number 1000 doesn't matter, we just want to prioritize the victim choice over the attacker choice (i.e. QxQ should have priority over PxP)
-    MVV_LVA[victim][attacker] = pieceTypePoints(victim) * 1000 + 1000 - pieceTypePoints(attacker)
+    MVV_LVA[victim][attacker] = pieceTypeValue(victim) * 1000 + 1000 - pieceTypeValue(attacker)
   }
 }
 

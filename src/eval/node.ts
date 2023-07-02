@@ -2,7 +2,7 @@ import { Board } from '@/board'
 import { Move } from '@/move'
 import { Color, isPawn, MaybePiece, Piece, pieceColor, PieceEmpty } from '@/piece'
 import { Coord } from '@/utils/coord'
-import { piecePoints } from './material'
+import { pieceValue } from './material'
 
 function signed(sign: boolean, x: number) {
   return sign ? x : -x
@@ -46,7 +46,7 @@ export class EvalNode {
     switch (pieceColor(piece)) {
       case Color.White:
         {
-          this.material.white += signed(sign, piecePoints(piece))
+          this.material.white += signed(sign, pieceValue(piece))
           if (isPawn(piece)) {
             this.pawnAdvancement.white += signed(sign, coord.y - 1)
           } else {
@@ -55,7 +55,7 @@ export class EvalNode {
         }
         break
       case Color.Black: {
-        this.material.black += signed(sign, piecePoints(piece))
+        this.material.black += signed(sign, pieceValue(piece))
         if (isPawn(piece)) {
           this.pawnAdvancement.black += signed(sign, 6 - coord.y)
         } else {

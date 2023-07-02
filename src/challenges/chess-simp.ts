@@ -7,6 +7,7 @@ import { match, P } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
 import { Coord } from '@/utils/coord'
 import { Board } from '@/board'
+import { pieceValue } from '@/eval/material'
 
 const _2022_09_26: Challenge = {
   meta: {
@@ -306,6 +307,27 @@ class Challenge_2021_08_17 implements Challenge {
   }
 }
 
+class Challenge_2023_04_01 implements Challenge {
+  meta = {
+    uuid: '3f7fe35d-6811-4ed5-a498-e820aedd2587',
+    title: 'Easiest Win of This Channel',
+    link: 'https://www.youtube.com/watch?v=NSyf4uVbn7c',
+    challenge:
+      'Chess but you can only capture pieces which worth more or equal points than the piece you captured before it.',
+  }
+
+  private minCaptureValue = 0
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    const capture = getCapture(board, move)
+    if (!capture) return true
+    const captureValue = pieceValue(board.at(capture.victim))
+    if (captureValue < this.minCaptureValue) return false
+    this.minCaptureValue = captureValue
+    return true
+  }
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -319,17 +341,19 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       // Jan 2022
       [() => _2022_01_29],
       // Mar 2022
-      [() => new Challenge_2022_03_07(), () => _2022_03_29],
+      [() => new Challenge_2022_03_07() as Challenge, () => _2022_03_29],
       // Apr 2022
       [() => _2022_04_21],
       // May 2022
-      [() => _2022_05_24, () => new Challenge_2022_05_30()],
+      [() => _2022_05_24, () => new Challenge_2022_05_30() as Challenge],
       // Jun 2022
       [() => _2022_06_03],
       // Sep 2022
       [() => _2022_09_11, () => _2022_09_26],
       // Feb 2023
       [() => _2023_02_23],
+      // Apr 2023
+      [() => new Challenge_2023_04_01() as Challenge],
       // Jun 2023
       [() => _2023_06_09]
     ).map((challengeFn) => [

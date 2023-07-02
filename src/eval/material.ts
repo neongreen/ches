@@ -1,10 +1,10 @@
 import { MaybePiece, MaybePieceType, PieceType, PieceTypeEmpty, pieceType } from '@/piece'
 
-export function piecePoints(piece: MaybePiece) {
-  return pieceTypePoints(pieceType(piece))
+export function pieceValue(piece: MaybePiece) {
+  return pieceTypeValue(pieceType(piece))
 }
 
-export function pieceTypePoints(pieceType: MaybePieceType) {
+export function pieceTypeValue(pieceType: MaybePieceType) {
   switch (pieceType) {
     case PieceTypeEmpty:
       return 0
