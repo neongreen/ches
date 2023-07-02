@@ -64,5 +64,8 @@ export interface Challenge {
   /**
    * Should any squares on the board be highlighted?
    */
-  highlightSquares?: () => Coord[]
+  highlightSquares?: (data: {
+    board: Board
+    history: { boardBeforeMove: Board; move: Move }[]
+  }) => { color: 'red' | 'blue'; coord: Coord }[]
 }

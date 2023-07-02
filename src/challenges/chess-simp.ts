@@ -1,10 +1,12 @@
-import { getCapture, getMoveCoord, getMovePiece, isCapture, moveIsEqual } from '@/move'
+import { Move, getCapture, getMoveCoord, getMovePiece, isCapture, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { isBlack, isKing, isPawn, pieceType } from '@/piece'
+import { Color, isBlack, isKing, isPawn, pieceColorOrEmpty, pieceType } from '@/piece'
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
 import { match, P } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
+import { Coord } from '@/utils/coord'
+import { Board } from '@/board'
 
 const _2022_09_26: Challenge = {
   meta: {
@@ -79,8 +81,8 @@ const _2022_01_29: Challenge = {
   },
 }
 
-const _2022_03_07: Challenge = {
-  meta: {
+class Challenge_2022_03_07 implements Challenge {
+  meta = {
     uuid: '7f577d60-083c-47fe-a335-3a4ee406f5c8',
     title: 'Such Torture',
     link: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
@@ -90,20 +92,33 @@ const _2022_03_07: Challenge = {
       name: 'Emily',
       depth: 2,
     },
-  },
-  isMoveAllowed({ board, move }): boolean {
-    // Only pieces with distance=1 to the king are allowed to move. (1:05 in the video - line of sight doesn't count as "can see"). Unclear if castling is allowed, and theoretically it *can* happen if the opponent takes your N and B - but let's say it's not allowed.
-    return (
-      match(move)
-        // TODO: once again we are assuming that the human is playing white
-        .with(
-          { kind: P.union('normal', 'enPassant') },
-          ({ from }) => board.kings.white.kingDistance(from) <= 1
-        )
-        .with({ kind: 'castling' }, () => false)
-        .exhaustive()
-    )
-  },
+  }
+
+  private kingSees = (data: { board: Board; square: Coord }) => {
+    // Only pieces with distance=1 to the king are allowed to move. (1:05 in the video - line of sight doesn't count as "can see").
+    // TODO: once again we are assuming that the human is playing white
+    return data.board.kings.white.kingDistance(data.square) === 1
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    // Note: unclear if castling is allowed, and theoretically it *can* happen if the opponent takes your N and B - but let's say it's not allowed.
+    return match(move)
+      .with(
+        { kind: P.union('normal', 'enPassant') },
+        ({ from }) => from.equals(board.kings.white) || this.kingSees({ board, square: from })
+      )
+      .with({ kind: 'castling' }, () => false)
+      .exhaustive()
+  }
+
+  highlightSquares: Challenge['highlightSquares'] = ({ board }) => {
+    return Board.allSquares()
+      .filter(
+        (square) =>
+          pieceColorOrEmpty(board.at(square)) === Color.White && this.kingSees({ board, square })
+      )
+      .map((coord) => ({ color: 'blue', coord }))
+  }
 }
 
 const _2022_03_29: Challenge = {
@@ -128,8 +143,8 @@ const _2022_03_29: Challenge = {
   },
 }
 
-const _2022_05_30: Challenge = {
-  meta: {
+class Challenge_2022_05_30 implements Challenge {
+  meta = {
     uuid: '8491849c-db4c-4013-a21b-01b0e9203880',
     title: 'He Offered A Draw...',
     link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
@@ -138,17 +153,32 @@ const _2022_05_30: Challenge = {
       name: 'Emily',
       depth: 3,
     },
-  },
-  isMoveAllowed({ board, move }): boolean {
-    // If there are several pieces that are equally extended, you can take any of them (1:19). If you're not taking a piece, you can do whatever you want.
+  }
+
+  private mostExtendedRow = (board: Board) => {
     const blackPieces = board.pieces().filter(({ piece }) => isBlack(piece))
-    const mostExtendedRow: number = _.min(blackPieces.map(({ coord }) => coord.y))!
+    return _.min(blackPieces.map(({ coord }) => coord.y))!
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    // If there are several pieces that are equally extended, you can take any of them (1:19). If you're not taking a piece, you can do whatever you want.
+    const mostExtendedRow = this.mostExtendedRow(board)
     return match(move)
       .with({ kind: 'normal' }, ({ to }) => board.isEmpty(to) || to.y === mostExtendedRow)
       .with({ kind: 'enPassant' }, () => board.enPassantTargetPawn()!.y === mostExtendedRow)
       .with({ kind: 'castling' }, () => true)
       .exhaustive()
-  },
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {
+    const mostExtendedRow = this.mostExtendedRow(board)
+    return Board.allSquares()
+      .filter(
+        (square) =>
+          pieceColorOrEmpty(board.at(square)) === Color.Black && square.y === mostExtendedRow
+      )
+      .map((coord) => ({ color: 'blue', coord }))
+  }
 }
 
 const _2022_04_21: Challenge = {
@@ -236,31 +266,47 @@ const _2023_06_09: Challenge = {
   },
 }
 
-const _2021_08_17: Challenge = {
-  meta: {
+class Challenge_2021_08_17 implements Challenge {
+  meta = {
     uuid: 'ad9def81-d090-468d-91fb-58570ec87f39',
     title: 'Play On The Same File',
     link: 'https://www.youtube.com/watch?v=yyI9jKf85TY',
     challenge:
       "When your opponent's piece (or pawn) lands on a column, you must play a piece (or pawn) that is on the same column.",
-  },
-  isMoveAllowed({ history, move }): boolean {
-    // When the opponent does castling, we'll actually the player to use either the rook column or the king column. (For the purposes of "play a piece" part, we still count castling as a king move.)
-    const lastMove = _.last(history)
+  }
+
+  private isColumnAllowed(data: { column: number; history: { move: Move }[] }) {
+    // When the opponent does castling, we'll actually the player to use either the rook column or the king column.
+    const lastMove = _.last(data.history)
     if (!lastMove) return true
-    const ourMoveFrom = getMoveCoord(move).from
     return match(lastMove.move)
       .with(
         { kind: P.union('normal', 'enPassant') },
-        ({ to: lastMoveTo }) => ourMoveFrom.x === lastMoveTo.x
+        ({ to: lastMoveTo }) => data.column === lastMoveTo.x
       )
       .with(
         { kind: 'castling' },
         ({ kingTo: lastMoveKingTo, rookTo: lastMoveRookTo }) =>
-          ourMoveFrom.x === lastMoveKingTo.x || ourMoveFrom.x === lastMoveRookTo.x
+          data.column === lastMoveKingTo.x || data.column === lastMoveRookTo.x
       )
       .exhaustive()
-  },
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, move }) => {
+    return this.isColumnAllowed({ column: getMoveCoord(move).from.x, history })
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history, board }) => {
+    if (history.length === 0) return [] // No highlight on first move
+    if (board.side === Color.Black) return []
+    return Board.allSquares()
+      .filter(
+        (square) =>
+          pieceColorOrEmpty(board.at(square)) === Color.White &&
+          this.isColumnAllowed({ column: square.x, history })
+      )
+      .map((square) => ({ coord: square, color: 'blue' }))
+  }
 }
 
 /**
@@ -270,17 +316,17 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
   new Map(
     _.concat(
       // Aug 2021
-      [() => _2021_08_17],
+      [() => new Challenge_2021_08_17() as Challenge],
       // Dec 2021
       [() => _2021_12_04],
       // Jan 2022
       [() => _2022_01_29],
       // Mar 2022
-      [() => _2022_03_07, () => _2022_03_29],
+      [() => new Challenge_2022_03_07(), () => _2022_03_29],
       // Apr 2022
       [() => _2022_04_21],
       // May 2022
-      [() => _2022_05_24, () => _2022_05_30],
+      [() => _2022_05_24, () => new Challenge_2022_05_30()],
       // Jun 2022
       [() => _2022_06_03],
       // Sep 2022

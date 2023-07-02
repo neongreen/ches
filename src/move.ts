@@ -68,10 +68,6 @@ export function isInCheck(board: Board, color: Color): boolean {
  * @param board The board before the move.
  */
 export function notateMove(board: Board, move: Move): string {
-  const algebraicCoord = (coord: Coord) => {
-    return String.fromCharCode('a'.charCodeAt(0) + coord.x) + (coord.y + 1)
-  }
-
   switch (move.kind) {
     case 'normal': {
       const pieceFrom = board.at(move.from)
@@ -82,8 +78,8 @@ export function notateMove(board: Board, move: Move): string {
         }
         case PieceType.Pawn: {
           let notation = ''
-          if (pieceTo !== Piece.Empty) notation += algebraicCoord(move.from).charAt(0) + 'x'
-          notation += algebraicCoord(move.to)
+          if (pieceTo !== Piece.Empty) notation += move.from.toAlgebraic().charAt(0) + 'x'
+          notation += move.to.toAlgebraic()
           if (move.promotion) notation += '=' + pieceToLetter(move.promotion).toUpperCase()
           return notation
         }
@@ -91,7 +87,7 @@ export function notateMove(board: Board, move: Move): string {
           return (
             pieceTypeToLetter(pieceType(pieceFrom)) +
             (pieceTo === Piece.Empty ? '' : 'x') +
-            algebraicCoord(move.to)
+            move.to.toAlgebraic()
           )
         }
       }
@@ -100,7 +96,7 @@ export function notateMove(board: Board, move: Move): string {
       return move.kingTo.x > move.kingFrom.x ? 'O-O' : 'O-O-O'
     }
     case 'enPassant': {
-      return algebraicCoord(move.from).charAt(0) + 'x' + algebraicCoord(move.to)
+      return move.from.toAlgebraic().charAt(0) + 'x' + move.to.toAlgebraic()
     }
   }
 }

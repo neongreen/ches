@@ -8,6 +8,16 @@ import { Castling, CastlingBitmask } from './utils/castling'
 export class Board {
   static dimensions = { width: 8, height: 8 }
 
+  static allSquares = () => {
+    const squares: Coord[] = []
+    for (let x = 0; x < Board.dimensions.width; x++) {
+      for (let y = 0; y < Board.dimensions.height; y++) {
+        squares.push(new Coord(x, y))
+      }
+    }
+    return squares
+  }
+
   /**
    * The board as a 8x8 array.
    */

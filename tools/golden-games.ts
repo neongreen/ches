@@ -55,8 +55,9 @@ if (!args.values.scenario?.length) {
 for (const scenario of scenarios) {
   const id = scenario.id
   const challenge = scenario.create()
+  console.debug(`Generating sample games for ${id}`)
   for (let depth = 1; depth <= 4; depth++) {
-    console.debug(`Generating a sample game for ${id}, depth ${depth}`)
+    console.debug(`  - depth ${depth}`)
     const filename = path.resolve(process.cwd(), `golden-games/${id}/depth-${depth}.txt`)
     mkdirSync(path.dirname(filename), { recursive: true })
     const board = new Board()

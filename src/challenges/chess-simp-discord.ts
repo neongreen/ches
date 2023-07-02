@@ -1,36 +1,52 @@
 import { Board } from '@/board'
 import { getMovePiece, getCapture, isCapture, Move, moveIsEqual, getMoveCoord } from '@/move'
 import { legalMovesForPiece_slow, legalMoves_slow } from '@/move/legal'
-import { isBlack, isKing, isPawn, isWhite, Piece, pieceType } from '@/piece'
+import { Color, isBlack, isKing, isPawn, isWhite, Piece, pieceType } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
 import { match, P } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
 
-const challenge_mustKeepMoving: Challenge = {
-  meta: {
+class Challenge_MustKeepMoving implements Challenge {
+  meta = {
     uuid: '5f747bf3-6819-482f-86bb-c82b181b8ac3',
     title: '[breadfeller] Must Keep Moving',
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122552015080403145',
     challenge:
       'Once you move a piece (or pawn), you must keep moving that piece (or pawn) until they can no longer move anymore or is captured.',
-  },
-  isMoveAllowed({ history, move, board }): boolean {
-    // Instead of keeping state, we just look at our last move. If the moved piece doesn't exist anymore or there are no legal moves for that piece, we allow all moves. NB: castling counts as a king move.
-    const ourLastMove = history.at(-2)
-    if (!ourLastMove) return true
-    // Find the piece that moved last.
-    const pieceThatMovedLast: Coord = getMoveCoord(ourLastMove.move).to
-    // If we're moving the piece that moved last, it's good.
-    if (getMoveCoord(move).from.equals(pieceThatMovedLast)) return true
-    // If the moved piece doesn't exist anymore, we allow all moves.
-    if (board.isEmpty(pieceThatMovedLast)) return true
-    // If there are no legal moves for that piece, we allow all moves.
-    if (legalMovesForPiece_slow(board, pieceThatMovedLast).length === 0) return true
-    // Otherwise - no, sorry.
+  }
+
+  private chosenPiece: Coord | null = null
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board }) => {
+    if (!this.chosenPiece) return true
+    if (getMoveCoord(move).from.equals(this.chosenPiece)) return true
+    if (legalMovesForPiece_slow(board, this.chosenPiece).length === 0) return true
     return false
-  },
+  }
+
+  recordMove: NonNullable<Challenge['recordMove']> = ({
+    move,
+    boardBeforeMove,
+    boardAfterMove,
+  }) => {
+    if (boardBeforeMove.side === Color.White) {
+      // If we're moving a piece, we'll record it as the piece we're locking into.
+      this.chosenPiece = getMoveCoord(move).to
+    } else {
+      // If the opponent captured our chosen piece, all pieces are unlocked.
+      if (this.chosenPiece !== null) {
+        const piece = boardAfterMove.at(this.chosenPiece)
+        if (piece === Piece.Empty || isBlack(piece)) this.chosenPiece = null
+      }
+    }
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = () => {
+    if (this.chosenPiece) return [{ color: 'blue', coord: this.chosenPiece }]
+    else return []
+  }
 }
 
 const challenge_pawnObsession: Challenge = {
@@ -106,23 +122,20 @@ class Challenge_Vampires implements Challenge {
       return piece !== Piece.Empty && isWhite(piece)
     })
     // For all our pieces, check if maybe they are burned now.
-    for (let x = 0; x < Board.dimensions.width; x++) {
-      for (let y = 0; y < Board.dimensions.height; y++) {
-        const coord = new Coord(x, y)
-        const piece = boardAfterMove.at(coord)
-        if (piece !== Piece.Empty && isWhite(piece) && !this.isBurned(coord)) {
-          const squares = coord.pathTo(new Coord(x, Board.dimensions.height), 'exclusive')
-          // NB: we can't just pass isEmpty without a lambda, because it would be called with the wrong `this`. Sad times. Maybe TypeScript isn't *that* good after all.
-          // See https://github.com/Microsoft/TypeScript/wiki/FAQ#why-does-this-get-orphaned-in-my-instance-methods
-          const isBurned = squares.every((x) => boardAfterMove.isEmpty(x))
-          if (isBurned) this.burnedPieces.push(coord)
-        }
+    for (const coord of Board.allSquares()) {
+      const piece = boardAfterMove.at(coord)
+      if (piece !== Piece.Empty && isWhite(piece) && !this.isBurned(coord)) {
+        const squares = coord.pathTo(new Coord(coord.x, Board.dimensions.height), 'exclusive')
+        // NB: we can't just pass isEmpty without a lambda, because it would be called with the wrong `this`. Sad times. Maybe TypeScript isn't *that* good after all.
+        // See https://github.com/Microsoft/TypeScript/wiki/FAQ#why-does-this-get-orphaned-in-my-instance-methods
+        const isBurned = squares.every((x) => boardAfterMove.isEmpty(x))
+        if (isBurned) this.burnedPieces.push(coord)
       }
     }
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = () => {
-    return this.burnedPieces
+    return this.burnedPieces.map((coord) => ({ coord, color: 'red' }))
   }
 }
 
@@ -134,7 +147,7 @@ export const chessSimpDiscordChallenges: Map<
   { meta: ChallengeMeta; create: () => Challenge }
 > = new Map(
   [
-    () => challenge_mustKeepMoving,
+    () => new Challenge_MustKeepMoving(),
     () => challenge_pawnObsession,
     () => challenge_twoMovesMax,
     () => new Challenge_Vampires(),

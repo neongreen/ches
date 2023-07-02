@@ -52,9 +52,12 @@ export function pieceType(piece: Piece): PieceType {
   return piece & 0x0f
 }
 
-// TODO: maybe this should return `Color | null`?
 export function pieceColor(piece: Piece): Color {
   return piece & 0xf0
+}
+
+export function pieceColorOrEmpty(piece: Piece): Color | null {
+  return piece === Piece.Empty ? null : pieceColor(piece)
 }
 
 export function makePiece(color: Color, type: PieceType): Piece {

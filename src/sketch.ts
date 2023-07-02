@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { P5CanvasInstance } from '@p5-wrapper/react'
-import { match } from 'ts-pattern'
+import { P, match } from 'ts-pattern'
 import { Board } from './board'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
@@ -180,13 +180,16 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   const colors = {
     light: '#ebecd0',
     dark: '#779556',
-    redHighlight: 'rgba(235,97,80,0.8)',
+    highlight: {
+      blue: 'rgba(82, 176, 220, 0.8)',
+      red: 'rgba(235, 97, 80, 0.8)',
+    },
   }
 
   // Checkered board
   const drawBoard = () => {
-    const highlighted = chess.challenge?.highlightSquares?.() ?? []
-    console.debug('highlighted', highlighted)
+    const highlights =
+      chess.challenge?.highlightSquares?.({ board: chess.board, history: chess.history }) ?? []
     p5.push()
     p5.noStroke()
     for (let x = 0; x < 8; x++) {
@@ -198,8 +201,9 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
         p5.rectMode(p5.CENTER)
         p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
         // Highlight if the challenge says so
-        if (highlighted.some((c) => c.equals(coord))) {
-          p5.fill(colors.redHighlight)
+        const highlight = highlights.find((x) => x.coord.equals(coord))
+        if (highlight) {
+          p5.fill(colors.highlight[highlight.color])
           p5.square(xy.x, xy.y, DrawConstants(p5).CELL)
         }
       }

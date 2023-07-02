@@ -21,6 +21,11 @@ export class Coord {
     return this.x === other.x && this.y === other.y
   }
 
+  /** Convert to algebraic notation. */
+  toAlgebraic(): string {
+    return String.fromCharCode('a'.charCodeAt(0) + this.x) + (this.y + 1)
+  }
+
   /** Convert from algebraic notation. Upper and lower case letters are supported. */
   static fromAlgebraic(algebraic: string) {
     const x = algebraic.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0)
