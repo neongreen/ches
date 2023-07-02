@@ -126,8 +126,8 @@ const _2022_03_29: Challenge = {
     link: 'https://www.youtube.com/watch?v=XQZFvszSddk',
     challenge: "Chess but your pawns and pieces can't cross the half-way line.",
     beaten: {
-      name: 'RauchWolke', // discord
-      depth: 2,
+      name: 'Mendax',
+      depth: 3,
     },
   },
   isMoveAllowed({ board, move }): boolean {
