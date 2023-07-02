@@ -17,6 +17,10 @@ const _2022_09_26: Challenge = {
     link: 'https://www.youtube.com/watch?v=OSCDE_ebc1c',
     challenge:
       'Chess, but your pieces (and pawns) are vampires. They cannot step into the light (squares).',
+    beaten: {
+      name: users.Mendax.name,
+      depth: 1,
+    },
   },
   isMoveAllowed({ move }): boolean {
     // Can only move to dark squares.
