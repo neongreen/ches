@@ -66,7 +66,7 @@ const knightPST = [
 const PIECE_SQUARE_TABLE: number[] = []
 
 assert(pieceEnumRange.low === 0)
-for (let piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece++) {
+for (let piece: Piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece++) {
   for (let i = 0; i < 64; i++) {
     const coord = new Coord(i % 8, Math.floor(i / 8))
     switch (piece) {

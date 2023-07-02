@@ -56,8 +56,17 @@ yarn golden-games -s <uuid1> -s <uuid2> ... # regenerate specific challenges
 git config --global http.postBuffer 524288000
 ```
 
-### Upgrading yarn
+### Upgrading Yarn
 
 ```bash
 yarn set version latest
 ```
+
+### Upgrading TypeScript
+
+```bash
+yarn add -D typescript
+yarn dlx @yarnpkg/sdks vscode
+```
+
+Then "Select TypeScript version" in VSCode.
