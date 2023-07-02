@@ -7,7 +7,7 @@ export const scenario = {
   },
   INTRO: {
     scene: roomScene,
-    steps: ["I'm Artyom. I made this game.", 'Let me show you something.'],
+    steps: ["I'm Emily. I made this game.", 'Let me show you something.'],
     goto: 'CHESS_INTRO',
   },
   CHESS_INTRO: {
