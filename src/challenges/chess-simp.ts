@@ -183,6 +183,10 @@ const _2022_04_21: Challenge = {
     title: 'All Predictions Went Wrong',
     link: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
     challenge: 'Chess but you have to move your King if you can.',
+    beaten: {
+      name: users.Mendax.name,
+      depth: 3,
+    },
   },
   isMoveAllowed({ board, move }): boolean {
     const kingMoves = legalMoves_slow(board).filter((move) => isKing(getMovePiece(board, move)))
