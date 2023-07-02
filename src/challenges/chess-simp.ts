@@ -8,6 +8,7 @@ import { Challenge, ChallengeMeta } from './core'
 import { Coord } from '@/utils/coord'
 import { Board } from '@/board'
 import { pieceValue } from '@/eval/material'
+import { users } from './users'
 
 const _2022_09_26: Challenge = {
   meta: {
@@ -36,7 +37,7 @@ const _2022_05_24: Challenge = {
     link: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
     challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
     beaten: {
-      name: 'Emily',
+      name: users.Emily.name,
       depth: 3,
     },
   },
@@ -71,7 +72,7 @@ const _2022_01_29: Challenge = {
     link: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
     challenge: 'Chess, but if your pawn can move, it has to.',
     beaten: {
-      name: 'Emily',
+      name: users.Emily.name,
       depth: 2,
     },
   },
@@ -90,7 +91,7 @@ class Challenge_2022_03_07 implements Challenge {
     challenge:
       'Chess, but your king is a commander, you can only move something if your king can see it.',
     beaten: {
-      name: 'Emily',
+      name: users.Emily.name,
       depth: 2,
     },
   }
@@ -126,7 +127,7 @@ const _2022_03_29: Challenge = {
     link: 'https://www.youtube.com/watch?v=XQZFvszSddk',
     challenge: "Chess but your pawns and pieces can't cross the half-way line.",
     beaten: {
-      name: 'Mendax',
+      name: users.Mendax.name,
       depth: 3,
     },
   },
@@ -148,7 +149,7 @@ class Challenge_2022_05_30 implements Challenge {
     link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
     challenge: '100 rated chess but you can only take their most extended piece or pawn.',
     beaten: {
-      name: 'Emily',
+      name: users.Emily.name,
       depth: 3,
     },
   }
@@ -197,7 +198,7 @@ const _2022_09_11: Challenge = {
     challenge:
       'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
     beaten: {
-      name: 'ManosSef',
+      name: users.ManosSef.name,
       depth: 1,
     },
   },
@@ -233,7 +234,7 @@ const _2021_12_04: Challenge = {
     link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
     challenge: 'You take when you can.',
     beaten: {
-      name: 'Chess simp simp', // simple man#6823, Chess Simp discord
+      name: users.ChessSimpSimp.name,
       depth: 2,
     },
   },
@@ -250,7 +251,7 @@ const _2023_06_09: Challenge = {
     link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
     challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
     beaten: {
-      name: 'Emily',
+      name: users.Emily.name,
       depth: 3,
     },
   },

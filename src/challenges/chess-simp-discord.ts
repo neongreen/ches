@@ -6,6 +6,7 @@ import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
 import { P, match } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
+import { users } from './users'
 
 class Challenge_MustKeepMoving implements Challenge {
   meta = {
@@ -68,7 +69,7 @@ const challenge_twoMovesMax: Challenge = {
     challenge:
       "Chess, but you're short. You cannot make any long distance moves (2 squares max, like the king goes). Short castling is allowed.",
     beaten: {
-      name: 'Emily',
+      name: users.Emily.name,
       depth: 3,
     },
   },
