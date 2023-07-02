@@ -201,6 +201,10 @@ const _2022_09_11: Challenge = {
     link: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
     challenge:
       'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
+    beaten: {
+      name: 'ManosSef',
+      depth: 1,
+    },
   },
   isMoveAllowed({ history, board, move }): boolean {
     // Note: if playing as white, we allow any move. Unfortunately, the video didn't cover castling. Let's just say castling is a king move.
