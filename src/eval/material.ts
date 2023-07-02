@@ -1,12 +1,12 @@
-import { Piece, PieceType, pieceType } from '@/piece'
+import { MaybePiece, MaybePieceType, PieceType, PieceTypeEmpty, pieceType } from '@/piece'
 
-export function piecePoints(piece: Piece) {
+export function piecePoints(piece: MaybePiece) {
   return pieceTypePoints(pieceType(piece))
 }
 
-export function pieceTypePoints(pieceType: PieceType) {
+export function pieceTypePoints(pieceType: MaybePieceType) {
   switch (pieceType) {
-    case PieceType.Empty:
+    case PieceTypeEmpty:
       return 0
     case PieceType.Pawn:
       return 1

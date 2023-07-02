@@ -1,6 +1,6 @@
 import { Move, getCapture, getMoveCoord, getMovePiece, isCapture, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { Color, isBlack, isKing, isPawn, pieceColorOrEmpty, pieceType } from '@/piece'
+import { Color, isBlackPiece, isKing, isPawn, isWhitePiece, pieceType } from '@/piece'
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
 import { match, P } from 'ts-pattern'
@@ -113,10 +113,7 @@ class Challenge_2022_03_07 implements Challenge {
 
   highlightSquares: Challenge['highlightSquares'] = ({ board }) => {
     return Board.allSquares()
-      .filter(
-        (square) =>
-          pieceColorOrEmpty(board.at(square)) === Color.White && this.kingSees({ board, square })
-      )
+      .filter((square) => isWhitePiece(board.at(square)) && this.kingSees({ board, square }))
       .map((coord) => ({ color: 'blue', coord }))
   }
 }
@@ -156,7 +153,7 @@ class Challenge_2022_05_30 implements Challenge {
   }
 
   private mostExtendedRow = (board: Board) => {
-    const blackPieces = board.pieces().filter(({ piece }) => isBlack(piece))
+    const blackPieces = board.pieces().filter(({ piece }) => isBlackPiece(piece))
     return _.min(blackPieces.map(({ coord }) => coord.y))!
   }
 
@@ -173,10 +170,7 @@ class Challenge_2022_05_30 implements Challenge {
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {
     const mostExtendedRow = this.mostExtendedRow(board)
     return Board.allSquares()
-      .filter(
-        (square) =>
-          pieceColorOrEmpty(board.at(square)) === Color.Black && square.y === mostExtendedRow
-      )
+      .filter((square) => isBlackPiece(board.at(square)) && square.y === mostExtendedRow)
       .map((coord) => ({ color: 'blue', coord }))
   }
 }
@@ -306,8 +300,7 @@ class Challenge_2021_08_17 implements Challenge {
     return Board.allSquares()
       .filter(
         (square) =>
-          pieceColorOrEmpty(board.at(square)) === Color.White &&
-          this.isColumnAllowed({ column: square.x, history })
+          isWhitePiece(board.at(square)) && this.isColumnAllowed({ column: square.x, history })
       )
       .map((square) => ({ coord: square, color: 'blue' }))
   }

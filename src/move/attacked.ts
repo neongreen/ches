@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { Piece, PieceType, Color, makePiece } from '@/piece'
+import { MaybePiece, MaybePieceType, Color, makePiece, Piece, PieceType, PieceEmpty } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
@@ -43,44 +43,44 @@ export function isKingAttackedByColor(board: Board, enemy: Color, target: Coord)
   for (let xy = target.n(); xy.isValid(); xy = xy.n()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyRook || piece === enemyQueen) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
   for (let xy = target.s(); xy.isValid(); xy = xy.s()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyRook || piece === enemyQueen) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
   for (let xy = target.e(); xy.isValid(); xy = xy.e()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyRook || piece === enemyQueen) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
   for (let xy = target.w(); xy.isValid(); xy = xy.w()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyRook || piece === enemyQueen) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
 
   // Step 4: check if there's a bishop or queen that can attack the target square.
   for (let xy = target.ne(); xy.isValid(); xy = xy.ne()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyQueen || piece === enemyBishop) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
   for (let xy = target.nw(); xy.isValid(); xy = xy.nw()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyQueen || piece === enemyBishop) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
   for (let xy = target.se(); xy.isValid(); xy = xy.se()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyQueen || piece === enemyBishop) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
   for (let xy = target.sw(); xy.isValid(); xy = xy.sw()) {
     const piece = board.unsafeAt(xy)
     if (piece === enemyQueen || piece === enemyBishop) return true
-    if (piece !== Piece.Empty) break
+    if (piece !== PieceEmpty) break
   }
 
   // Step 5: check if there's a king that can attack the target square.

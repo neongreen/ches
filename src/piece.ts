@@ -1,5 +1,4 @@
 export const enum PieceType {
-  Empty = 0,
   Pawn = 1,
   Knight = 2,
   Bishop = 3,
@@ -8,8 +7,10 @@ export const enum PieceType {
   King = 6,
 }
 
+export type MaybePieceType = PieceType | 0
+export const PieceTypeEmpty = 0
+
 export const allPieceTypes = [
-  PieceType.Empty,
   PieceType.Pawn,
   PieceType.Knight,
   PieceType.Bishop,
@@ -19,18 +20,18 @@ export const allPieceTypes = [
 ]
 
 export const enum Color {
-  // NB: apparently somewhere we depend on this not being 0x00 and 0x10, maybe because `pieceColor` can return 0x00 for empty squares and we check it for falsiness somewhere?
   White = 0x10,
   Black = 0x20,
 }
 
-/** A chess piece.
- *
- * Can also be `Empty` because Stockfish does this and maybe they have a good reason for it.
- */
-export const enum Piece {
-  Empty = 0,
+export type MaybeColor = 0 | Color
+export const ColorEmpty = 0
 
+export function invertColor(color: Color): Color {
+  return color ^ 0x30
+}
+
+export const enum Piece {
   WhitePawn = PieceType.Pawn | Color.White,
   WhiteKnight = PieceType.Knight | Color.White,
   WhiteBishop = PieceType.Bishop | Color.White,
@@ -46,39 +47,48 @@ export const enum Piece {
   BlackKing = PieceType.King | Color.Black,
 }
 
-export const pieceEnumRange = { low: Piece.Empty, high: Piece.BlackKing }
+export type MaybePiece = 0 | Piece
+export const PieceEmpty = 0
 
-export function pieceType(piece: Piece): PieceType {
+export const maybePieceEnumRange = { low: PieceEmpty, high: Piece.BlackKing }
+
+export function pieceType(piece: Piece): PieceType
+export function pieceType(piece: MaybePiece): MaybePieceType
+export function pieceType(piece: number) {
   return piece & 0x0f
 }
 
-export function pieceColor(piece: Piece): Color {
+export function pieceColor(piece: Piece): Color
+export function pieceColor(piece: MaybePiece): MaybeColor
+export function pieceColor(piece: number) {
   return piece & 0xf0
-}
-
-export function pieceColorOrEmpty(piece: Piece): Color | null {
-  return piece === Piece.Empty ? null : pieceColor(piece)
 }
 
 export function makePiece(color: Color, type: PieceType): Piece {
   return type | color
 }
 
-export const isPawn = (piece: Piece) => piece === Piece.WhitePawn || piece === Piece.BlackPawn
-export const isKnight = (piece: Piece) => piece === Piece.WhiteKnight || piece === Piece.BlackKnight
-export const isBishop = (piece: Piece) => piece === Piece.WhiteBishop || piece === Piece.BlackBishop
-export const isRook = (piece: Piece) => piece === Piece.WhiteRook || piece === Piece.BlackRook
-export const isQueen = (piece: Piece) => piece === Piece.WhiteQueen || piece === Piece.BlackQueen
-export const isKing = (piece: Piece) => piece === Piece.WhiteKing || piece === Piece.BlackKing
+export const isPawn = (piece: Piece | MaybePiece) =>
+  piece === Piece.WhitePawn || piece === Piece.BlackPawn
+export const isKnight = (piece: Piece | MaybePiece) =>
+  piece === Piece.WhiteKnight || piece === Piece.BlackKnight
+export const isBishop = (piece: Piece | MaybePiece) =>
+  piece === Piece.WhiteBishop || piece === Piece.BlackBishop
+export const isRook = (piece: Piece | MaybePiece) =>
+  piece === Piece.WhiteRook || piece === Piece.BlackRook
+export const isQueen = (piece: Piece | MaybePiece) =>
+  piece === Piece.WhiteQueen || piece === Piece.BlackQueen
+export const isKing = (piece: Piece | MaybePiece) =>
+  piece === Piece.WhiteKing || piece === Piece.BlackKing
 
-export const isWhite = (piece: Piece) => pieceColor(piece) === Color.White
-export const isBlack = (piece: Piece) => pieceColor(piece) === Color.Black
+export const isWhitePiece = (piece: Piece | MaybePiece) => pieceColor(piece) === Color.White
+export const isBlackPiece = (piece: Piece | MaybePiece) => pieceColor(piece) === Color.Black
 
 export function colorName(piece: Piece): 'white' | 'black' {
-  return isWhite(piece) ? 'white' : 'black'
+  return isWhitePiece(piece) ? 'white' : 'black'
 }
 
-export function letterToPiece(letter: string): Piece {
+export function letterToPiece(letter: string): MaybePiece {
   switch (letter) {
     case 'P':
       return Piece.WhitePawn
@@ -104,12 +114,14 @@ export function letterToPiece(letter: string): Piece {
       return Piece.BlackQueen
     case 'k':
       return Piece.BlackKing
+    case '-':
+      return PieceEmpty
     default:
-      return Piece.Empty
+      throw new Error(`Invalid piece letter: ${letter}`)
   }
 }
 
-export function pieceToLetter(piece: Piece) {
+export function pieceToLetter(piece: MaybePiece) {
   switch (piece) {
     case Piece.WhitePawn:
       return 'P'
@@ -135,12 +147,12 @@ export function pieceToLetter(piece: Piece) {
       return 'q'
     case Piece.BlackKing:
       return 'k'
-    default:
+    case PieceEmpty:
       return '-'
   }
 }
 
-export function pieceTypeToLetter(pieceType: PieceType) {
+export function pieceTypeToLetter(pieceType: MaybePieceType) {
   switch (pieceType) {
     case PieceType.Pawn:
       return 'P'
@@ -148,13 +160,13 @@ export function pieceTypeToLetter(pieceType: PieceType) {
       return 'N'
     case PieceType.Bishop:
       return 'B'
-    case PieceType.Rook:
-      return 'R'
     case PieceType.Queen:
       return 'Q'
     case PieceType.King:
       return 'K'
-    default:
+    case PieceType.Rook:
+      return 'R'
+    case PieceTypeEmpty:
       return '-'
   }
 }

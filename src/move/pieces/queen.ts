@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, pieceColor } from '@/piece'
+import { Color } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { bishopMoves } from './bishop'
 import { rookMoves } from './rook'

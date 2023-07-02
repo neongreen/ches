@@ -11,7 +11,7 @@ import { Search } from './eval/search'
 import { isCapture, Move, notateMove, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
-import { Color, Piece } from './piece'
+import { Color, MaybePiece } from './piece'
 import { Coord } from './utils/coord'
 import { Howl } from 'howler'
 import { Challenge } from './challenges/core'
@@ -382,12 +382,10 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     // }
 
     dragged = null
-    for (let x = 0; x < 8; x++) {
-      for (let y = 0; y < 8; y++) {
-        if (isTouching(new Coord(x, y)) && chess.board.isOccupied(new Coord(x, y))) {
-          dragged = new Coord(x, y)
-          return
-        }
+    for (const square of Board.allSquares()) {
+      if (isTouching(square) && chess.board.isOccupied(square)) {
+        dragged = square
+        return
       }
     }
   }

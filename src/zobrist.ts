@@ -4,7 +4,7 @@
  * This is a way to hash a chess position, while also being able to quickly update the hash when the position changes a bit (e.g. a piece is moved or castling rights are lost) without having to recompute the whole hash.
  */
 
-import { Piece, pieceEnumRange } from './piece'
+import { MaybePiece, PieceEmpty, maybePieceEnumRange } from './piece'
 import { Coord } from './utils/coord'
 import { XORShift64 } from 'random-seedable'
 import assert from 'assert'
@@ -21,13 +21,13 @@ function zobristRandom(): Zobrist {
 
 // We generate a random number for each piece*square combination, except for the empty square, which is always 0.
 const ZOBRIST_PIECES: Zobrist[] = []
-assert(pieceEnumRange.low === 0)
-for (let piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece++) {
-  for (let i = 0; i < 64; i++) ZOBRIST_PIECES.push(piece === Piece.Empty ? 0 : zobristRandom())
+assert(maybePieceEnumRange.low === 0)
+for (let piece = maybePieceEnumRange.low; piece <= maybePieceEnumRange.high; piece++) {
+  for (let i = 0; i < 64; i++) ZOBRIST_PIECES.push(piece === PieceEmpty ? 0 : zobristRandom())
 }
 
 /** Get the Zobrist hash for a piece on a square. Will return 0 for `Piece.Empty`. */
-export function zobristPiece(piece: Piece, coord: Coord): Zobrist {
+export function zobristPiece(piece: MaybePiece, coord: Coord): Zobrist {
   return ZOBRIST_PIECES[piece * 64 + (coord.y * 8 + coord.x)]
 }
 

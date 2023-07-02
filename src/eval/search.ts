@@ -2,7 +2,7 @@ import { Board } from '@/board'
 import { isInCheck, Move, moveIsEqual } from '@/move'
 import { isLegalMove } from '@/move/legal'
 import { quasiLegalMoves } from '@/move/quasiLegal'
-import { allPieceTypes, Color, Piece, PieceType, pieceType } from '@/piece'
+import { allPieceTypes, Color, MaybePiece, MaybePieceType, PieceEmpty, pieceType } from '@/piece'
 import { Zobrist } from '@/zobrist'
 import _ from 'lodash'
 import { leafEvalNode } from './eval'
@@ -57,7 +57,7 @@ function moveOrder(board: Board, move: Move, goodMove?: Move): number {
       // NB: We could just do "material difference" but this would give equal trades score 0, and we don't want that — we still want to look at captures before quiet moves.
       const from = board.at(move.from)
       const to = board.at(move.to)
-      if (to === Piece.Empty) return 0
+      if (to === PieceEmpty) return 0
       return MVV_LVA[pieceType(to)][pieceType(from)]
     }
     case 'castling': {

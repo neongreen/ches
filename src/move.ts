@@ -1,12 +1,16 @@
 import { Coord } from '@/utils/coord'
 import {
-  Piece,
+  MaybePiece,
   pieceToLetter,
   pieceType,
-  PieceType,
+  MaybePieceType,
   pieceTypeToLetter,
   Color,
   isPawn,
+  PieceTypeEmpty,
+  PieceType,
+  PieceEmpty,
+  Piece,
 } from '@/piece'
 import { Board } from '@/board'
 import { isKingAttackedByColor } from '@/move/attacked'
@@ -14,7 +18,7 @@ import { match } from 'ts-pattern'
 import { castlingMoves } from './move/pieces/king'
 
 export type Move =
-  | { kind: 'normal'; from: Coord; to: Coord; promotion?: Piece }
+  | { kind: 'normal'; from: Coord; to: Coord; promotion?: MaybePiece }
   | {
       kind: 'castling'
       kingFrom: Coord
@@ -73,12 +77,12 @@ export function notateMove(board: Board, move: Move): string {
       const pieceFrom = board.at(move.from)
       const pieceTo = board.at(move.to)
       switch (pieceType(pieceFrom)) {
-        case PieceType.Empty: {
+        case PieceTypeEmpty: {
           throw new Error('move.from is empty')
         }
         case PieceType.Pawn: {
           let notation = ''
-          if (pieceTo !== Piece.Empty) notation += move.from.toAlgebraic().charAt(0) + 'x'
+          if (pieceTo !== PieceEmpty) notation += move.from.toAlgebraic().charAt(0) + 'x'
           notation += move.to.toAlgebraic()
           if (move.promotion) notation += '=' + pieceToLetter(move.promotion).toUpperCase()
           return notation
@@ -86,7 +90,7 @@ export function notateMove(board: Board, move: Move): string {
         default: {
           return (
             pieceTypeToLetter(pieceType(pieceFrom)) +
-            (pieceTo === Piece.Empty ? '' : 'x') +
+            (pieceTo === PieceEmpty ? '' : 'x') +
             move.to.toAlgebraic()
           )
         }
@@ -185,7 +189,7 @@ export function getMoveCoord(move: Move): { from: Coord; to: Coord } {
 /**
  * Which piece is doing the move? (Castling is assumed to be done by the king.)
  */
-export function getMovePiece(board: Board, move: Move): Piece {
+export function getMovePiece(board: Board, move: Move): MaybePiece {
   switch (move.kind) {
     case 'normal':
       return board.at(move.from)

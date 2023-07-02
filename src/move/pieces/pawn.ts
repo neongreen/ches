@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, Piece, pieceColor } from '@/piece'
+import { Color, MaybePiece, Piece, isBlackPiece, isWhitePiece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 
@@ -34,7 +34,7 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
 
     // captures if there's something to capture
     for (const dest of [coord.ne(), coord.nw()]) {
-      if (board.isOccupied(dest) && pieceColor(board.at(dest)) === Color.Black)
+      if (isBlackPiece(board.at(dest)))
         moves.push({
           kind: 'normal',
           from: coord,
@@ -79,7 +79,7 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
 
     // captures if there's something to capture
     for (const dest of [coord.se(), coord.sw()]) {
-      if (board.isOccupied(dest) && pieceColor(board.at(dest)) === Color.White)
+      if (isWhitePiece(board.at(dest)))
         moves.push({
           kind: 'normal',
           from: coord,

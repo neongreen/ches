@@ -1,11 +1,10 @@
 import { Board } from '@/board'
-import { getMovePiece, getCapture, isCapture, Move, moveIsEqual, getMoveCoord } from '@/move'
-import { legalMovesForPiece_slow, legalMoves_slow } from '@/move/legal'
-import { Color, isBlack, isKing, isPawn, isWhite, Piece, pieceType } from '@/piece'
+import { getMoveCoord, getMovePiece } from '@/move'
+import { legalMovesForPiece_slow } from '@/move/legal'
+import { Color, PieceEmpty, isBlackPiece, isPawn, isWhitePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
-import _ from 'lodash'
-import { match, P } from 'ts-pattern'
+import { P, match } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
 
 class Challenge_MustKeepMoving implements Challenge {
@@ -36,9 +35,8 @@ class Challenge_MustKeepMoving implements Challenge {
       this.chosenPiece = getMoveCoord(move).to
     } else {
       // If the opponent captured our chosen piece, all pieces are unlocked.
-      if (this.chosenPiece !== null) {
-        const piece = boardAfterMove.at(this.chosenPiece)
-        if (piece === Piece.Empty || isBlack(piece)) this.chosenPiece = null
+      if (this.chosenPiece !== null && isBlackPiece(boardAfterMove.at(this.chosenPiece))) {
+        this.chosenPiece = null
       }
     }
   }
@@ -117,14 +115,11 @@ class Challenge_Vampires implements Challenge {
 
   recordMove: NonNullable<Challenge['recordMove']> = ({ move, boardAfterMove }) => {
     // Remove all nonexistent pieces from `burnedPieces`.
-    this.burnedPieces = this.burnedPieces.filter((coord) => {
-      const piece = boardAfterMove.at(coord)
-      return piece !== Piece.Empty && isWhite(piece)
-    })
+    this.burnedPieces = this.burnedPieces.filter((coord) => isWhitePiece(boardAfterMove.at(coord)))
     // For all our pieces, check if maybe they are burned now.
     for (const coord of Board.allSquares()) {
       const piece = boardAfterMove.at(coord)
-      if (piece !== Piece.Empty && isWhite(piece) && !this.isBurned(coord)) {
+      if (isWhitePiece(piece) && !this.isBurned(coord)) {
         const squares = coord.pathTo(new Coord(coord.x, Board.dimensions.height), 'exclusive')
         // NB: we can't just pass isEmpty without a lambda, because it would be called with the wrong `this`. Sad times. Maybe TypeScript isn't *that* good after all.
         // See https://github.com/Microsoft/TypeScript/wiki/FAQ#why-does-this-get-orphaned-in-my-instance-methods

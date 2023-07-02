@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, Piece, pieceColor } from '@/piece'
+import { Color, MaybePiece, invertColor, pieceColor } from '@/piece'
 import { Castling } from '@/utils/castling'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
@@ -58,7 +58,7 @@ export function kingMoves(board: Board, color: Color, coord: Coord): Move[] {
 
   // Castling
   const checkCastling = (move: Extract<Move, { kind: 'castling' }>) => {
-    const opposite = color === Color.White ? Color.Black : Color.White
+    const opposite = invertColor(color)
     return (
       move.kingFrom.pathTo(move.rookFrom, 'exclusive').every((c) => board.isEmpty(c)) &&
       move.kingFrom

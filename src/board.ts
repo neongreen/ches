@@ -1,4 +1,4 @@
-import { Color, isPawn, letterToPiece, Piece } from '@/piece'
+import { Color, isPawn, letterToPiece, MaybePiece, Piece, PieceEmpty } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
 import { Zobrist, zobristCastling, zobristPiece, zobristWhiteToMove } from './zobrist'
@@ -179,8 +179,8 @@ export class Board {
    *
    * If the coordinates are off the board, returns Piece.Empty.
    */
-  at(coord: Coord): Piece {
-    if (!coord.isValid()) return Piece.Empty
+  at(coord: Coord): MaybePiece {
+    if (!coord.isValid()) return PieceEmpty
     return this.board[coord.y * 8 + coord.x]
   }
 
@@ -188,20 +188,20 @@ export class Board {
    *
    * Doesn't check if the coordinates are off the board.
    */
-  unsafeAt(coord: Coord): Piece {
+  unsafeAt(coord: Coord): MaybePiece {
     return this.board[coord.y * 8 + coord.x]
   }
 
   /**
    * Return all pieces and their coordinates.
    */
-  pieces(): { coord: Coord; piece: Piece }[] {
+  pieces(): { coord: Coord; piece: MaybePiece }[] {
     const pieces = []
     for (let y = 0; y < 8; y++)
       for (let x = 0; x < 8; x++) {
         const coord = new Coord(x, y)
         const piece = this.unsafeAt(coord)
-        if (piece !== Piece.Empty) pieces.push({ coord, piece })
+        if (piece !== PieceEmpty) pieces.push({ coord, piece })
       }
     return pieces
   }
@@ -214,7 +214,7 @@ export class Board {
    * @param pieceOld The piece that was previously at the given coordinates
    * @param pieceNew The piece to replace it with
    */
-  private replace(coord: Coord, pieceOld: Piece, pieceNew: Piece) {
+  private replace(coord: Coord, pieceOld: MaybePiece, pieceNew: MaybePiece) {
     this.hash ^= zobristPiece(pieceOld, coord) ^ zobristPiece(pieceNew, coord)
     this.board[coord.y * 8 + coord.x] = pieceNew
     if (pieceNew === Piece.WhiteKing) this.kings.white = coord
@@ -226,7 +226,7 @@ export class Board {
    */
   isEmpty(coord: Coord): boolean | undefined {
     if (!coord.isValid()) return undefined
-    return this.unsafeAt(coord) === Piece.Empty
+    return this.unsafeAt(coord) === PieceEmpty
   }
 
   /**
@@ -234,7 +234,7 @@ export class Board {
    */
   isOccupied(coord: Coord): boolean | undefined {
     if (!coord.isValid()) return undefined
-    return this.unsafeAt(coord) !== Piece.Empty
+    return this.unsafeAt(coord) !== PieceEmpty
   }
 
   /**
@@ -268,7 +268,7 @@ export class Board {
     this.previousPositions = []
     this.previousPositionHashes = []
 
-    this.board = new Uint8Array(64).fill(Piece.Empty)
+    this.board = new Uint8Array(64).fill(PieceEmpty)
     let rows = pieces.split('/')
     rows.reverse()
     for (let y = 0; y < 8; y++) {
@@ -279,7 +279,7 @@ export class Board {
         } else {
           const piece = letterToPiece(char)
           const coord = new Coord(x, y)
-          this.replace(coord, Piece.Empty, piece)
+          this.replace(coord, PieceEmpty, piece)
           x++
         }
       }
@@ -355,11 +355,11 @@ export class Board {
           }
 
           // Captures and pawn moves are irreversible and reset the halfmove clock
-          if (target !== Piece.Empty || isPawn(piece)) captureOrPawnMove = true
+          if (target !== PieceEmpty || isPawn(piece)) captureOrPawnMove = true
 
           // Update the board
           this.replace(move.to, target, move.promotion ? move.promotion : piece)
-          this.replace(move.from, piece, Piece.Empty)
+          this.replace(move.from, piece, PieceEmpty)
         }
         break
       case 'castling':
@@ -368,16 +368,16 @@ export class Board {
 
           if (this.side === Color.White) {
             // TODO: "move" instead of "replace"?
-            this.replace(move.kingFrom, Piece.WhiteKing, Piece.Empty)
-            this.replace(move.kingTo, Piece.Empty, Piece.WhiteKing)
-            this.replace(move.rookFrom, Piece.WhiteRook, Piece.Empty)
-            this.replace(move.rookTo, Piece.Empty, Piece.WhiteRook)
+            this.replace(move.kingFrom, Piece.WhiteKing, PieceEmpty)
+            this.replace(move.kingTo, PieceEmpty, Piece.WhiteKing)
+            this.replace(move.rookFrom, Piece.WhiteRook, PieceEmpty)
+            this.replace(move.rookTo, PieceEmpty, Piece.WhiteRook)
             this.castlingRights &= ~Castling.WhiteAny
           } else {
-            this.replace(move.kingFrom, Piece.BlackKing, Piece.Empty)
-            this.replace(move.kingTo, Piece.Empty, Piece.BlackKing)
-            this.replace(move.rookFrom, Piece.BlackRook, Piece.Empty)
-            this.replace(move.rookTo, Piece.Empty, Piece.BlackRook)
+            this.replace(move.kingFrom, Piece.BlackKing, PieceEmpty)
+            this.replace(move.kingTo, PieceEmpty, Piece.BlackKing)
+            this.replace(move.rookFrom, Piece.BlackRook, PieceEmpty)
+            this.replace(move.rookTo, PieceEmpty, Piece.BlackRook)
             this.castlingRights &= ~Castling.BlackAny
           }
         }
@@ -391,13 +391,13 @@ export class Board {
             )
           this.enPassantTargetSquare = null
           if (this.side === Color.White) {
-            this.replace(move.from, Piece.WhitePawn, Piece.Empty)
-            this.replace(move.to, Piece.Empty, Piece.WhitePawn)
-            this.replace(enPassantPawn, Piece.BlackPawn, Piece.Empty)
+            this.replace(move.from, Piece.WhitePawn, PieceEmpty)
+            this.replace(move.to, PieceEmpty, Piece.WhitePawn)
+            this.replace(enPassantPawn, Piece.BlackPawn, PieceEmpty)
           } else {
-            this.replace(move.from, Piece.BlackPawn, Piece.Empty)
-            this.replace(move.to, Piece.Empty, Piece.BlackPawn)
-            this.replace(enPassantPawn, Piece.WhitePawn, Piece.Empty)
+            this.replace(move.from, Piece.BlackPawn, PieceEmpty)
+            this.replace(move.to, PieceEmpty, Piece.BlackPawn)
+            this.replace(enPassantPawn, Piece.WhitePawn, PieceEmpty)
           }
         }
         break

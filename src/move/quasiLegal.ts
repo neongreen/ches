@@ -1,6 +1,6 @@
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Piece, pieceColor, PieceType, pieceType } from '@/piece'
+import { MaybePiece, PieceEmpty, PieceType, pieceColor, pieceType } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { bishopMoves } from './pieces/bishop'
 import { kingMoves } from './pieces/king'
@@ -27,10 +27,9 @@ export function quasiLegalMoves(board: Board): Move[] {
 /**
  * Generate possible moves for a specific piece, without advanced checks.
  */
-export function quasiLegalMovesFrom(board: Board, piece: Piece, coord: Coord): Move[] {
-  switch (pieceType(piece)) {
-    case PieceType.Empty:
-      return []
+export function quasiLegalMovesFrom(board: Board, piece: MaybePiece, coord: Coord): Move[] {
+  if (piece === PieceEmpty) return []
+  switch (pieceType(piece) satisfies PieceType) {
     case PieceType.Pawn:
       return pawnMoves(board, pieceColor(piece), coord)
     case PieceType.Bishop:

@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, Piece, pieceColor } from '@/piece'
+import { Color, MaybePiece, invertColor, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
@@ -22,7 +22,7 @@ export function bishopMoves(board: Board, color: Color, coord: Coord): Move[] {
       moves.push({ kind: 'normal', from: coord, to: xy })
       xy = xy.shift(delta)
     }
-    if (board.isOccupied(xy) && pieceColor(board.at(xy)) !== color) {
+    if (pieceColor(board.at(xy)) === invertColor(color)) {
       moves.push({ kind: 'normal', from: coord, to: xy })
     }
   }

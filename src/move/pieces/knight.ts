@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, Piece, pieceColor } from '@/piece'
+import { Color, MaybePiece, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 

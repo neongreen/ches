@@ -1,6 +1,6 @@
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, isPawn, Piece, pieceColor } from '@/piece'
+import { Color, isPawn, MaybePiece, Piece, pieceColor, PieceEmpty } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { piecePoints } from './material'
 
@@ -79,7 +79,7 @@ export class EvalNode {
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
           const piece = board.unsafeAt(new Coord(x, y))
-          if (piece !== Piece.Empty) this.countPiece(piece, new Coord(x, y), true)
+          if (piece !== PieceEmpty) this.countPiece(piece, new Coord(x, y), true)
         }
       }
     } else {
@@ -101,19 +101,19 @@ export class EvalNode {
     switch (move.kind) {
       case 'normal':
         {
-          const piece = this.board.at(move.from)
+          const piece = this.board.at(move.from) as Piece // I swear it's not empty
           const dest = this.board.at(move.to)
           // The moved piece leaves the board, and, potentially promoted, enters the board
           this.countPiece(piece, move.from, false)
           this.countPiece(move.promotion || piece, move.to, true)
           // If we have captured a piece, it leaves the board
-          if (dest !== Piece.Empty) this.countPiece(dest, move.to, false)
+          if (dest !== PieceEmpty) this.countPiece(dest, move.to, false)
         }
         break
       case 'castling':
         {
-          const king = this.board.at(move.kingFrom)
-          const rook = this.board.at(move.rookFrom)
+          const king = this.board.at(move.kingFrom) as Piece
+          const rook = this.board.at(move.rookFrom) as Piece
           this.countPiece(king, move.kingFrom, false)
           this.countPiece(rook, move.rookFrom, false)
           this.countPiece(king, move.kingTo, true)
@@ -121,9 +121,9 @@ export class EvalNode {
         }
         break
       case 'enPassant': {
-        const pawn = this.board.at(move.from)
+        const pawn = this.board.at(move.from) as Piece
         const enPassantTargetPawn = this.board.enPassantTargetPawn()!
-        const capturedPawn = this.board.at(enPassantTargetPawn)
+        const capturedPawn = this.board.at(enPassantTargetPawn) as Piece
         this.countPiece(pawn, move.from, false)
         this.countPiece(pawn, move.to, true)
         this.countPiece(capturedPawn, enPassantTargetPawn, false)

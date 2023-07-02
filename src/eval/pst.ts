@@ -4,7 +4,7 @@
  * See https://rustic-chess.org/evaluation/psqt.html
  */
 
-import { Piece, pieceEnumRange } from '@/piece'
+import { MaybePiece, Piece, maybePieceEnumRange } from '@/piece'
 import { Coord } from '@/utils/coord'
 import assert from 'assert'
 
@@ -65,8 +65,8 @@ const knightPST = [
 
 const PIECE_SQUARE_TABLE: number[] = []
 
-assert(pieceEnumRange.low === 0)
-for (let piece: Piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece++) {
+assert(maybePieceEnumRange.low === 0)
+for (let piece: MaybePiece = maybePieceEnumRange.low; piece <= maybePieceEnumRange.high; piece++) {
   for (let i = 0; i < 64; i++) {
     const coord = new Coord(i % 8, Math.floor(i / 8))
     switch (piece) {
@@ -93,6 +93,6 @@ for (let piece: Piece = pieceEnumRange.low; piece <= pieceEnumRange.high; piece+
 }
 
 /** Get the piece-square table bonus for a piece on a square. */
-export function pieceSquareBonus(piece: Piece, coord: Coord): number {
+export function pieceSquareBonus(piece: MaybePiece, coord: Coord): number {
   return PIECE_SQUARE_TABLE[piece * 64 + (coord.y * 8 + coord.x)]
 }

@@ -1,4 +1,4 @@
-import { Piece } from '@/piece'
+import { MaybePiece, Piece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { squareCenter } from '@/draw/square'
 import { DrawConstants } from '@/draw/constants'
@@ -48,7 +48,7 @@ export function preloadPieceImages(p5: P5CanvasInstance) {
 
 /** Draw one piece.
  */
-export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: Piece) {
+export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: MaybePiece) {
   p5.push()
   p5.imageMode(p5.CENTER)
   const { x: squareX, y: squareY } = squareCenter(p5, coord)
@@ -59,7 +59,7 @@ export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: Piece) {
 
 /** Draw a dragged piece.
  */
-export function drawDraggedPiece(p5: P5CanvasInstance, piece: Piece) {
+export function drawDraggedPiece(p5: P5CanvasInstance, piece: MaybePiece) {
   p5.push()
   p5.imageMode(p5.CENTER)
   p5.image(
