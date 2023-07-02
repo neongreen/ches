@@ -57,8 +57,8 @@ const _2022_06_03: Challenge = {
     challenge:
       'Chess, but your pieces (and pawns) are always right. You cannot move them leftward.',
     beaten: {
-      name: users.Gneurshk.name,
-      depth: 1,
+      name: users.Mendax.name,
+      depth: 2,
     },
   },
   isMoveAllowed({ move }): boolean {
