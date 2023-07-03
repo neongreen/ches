@@ -15,6 +15,10 @@ class Challenge_MustKeepMoving implements Challenge {
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122552015080403145',
     challenge:
       'Once you move a piece (or pawn), you must keep moving that piece (or pawn) until they can no longer move anymore or is captured.',
+    beaten: {
+      name: users.Mendax.name,
+      depth: 1,
+    },
   }
 
   private chosenPiece: Coord | null = null
@@ -54,6 +58,10 @@ const challenge_pawnObsession: Challenge = {
     title: '[Alexey53] Emil Josef Diemer Wannabe',
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1085457075448057916',
     challenge: 'Your first 17 moves of the game must be consecutive pawn moves.',
+    beaten: {
+      name: users.Mendax.name,
+      depth: 1,
+    },
   },
   isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {
     const isPawnMove = isPawn(getMovePiece(board, move))
