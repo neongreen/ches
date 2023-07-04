@@ -327,6 +327,10 @@ class Challenge_2023_04_01 implements Challenge {
     link: 'https://www.youtube.com/watch?v=NSyf4uVbn7c',
     challenge:
       'Chess but you can only capture pieces which worth more or equal points than the piece you captured before it.',
+    beaten: {
+      name: users.ChessSimpSimp.name,
+      depth: 2,
+    },
   }
 
   private minCaptureValue = 0
