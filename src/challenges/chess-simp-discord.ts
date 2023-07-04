@@ -105,6 +105,10 @@ class Challenge_Vampires implements Challenge {
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122440838719479808',
     challenge:
       'Chess, but all of your pieces (and pawns) are vampires. Anytime one of your pieces (or pawns) has a direct line of sight past your opponent’s edge of the board, they are hit by sunlight and turn to ash.',
+    beaten: {
+      name: users.Emily.name,
+      depth: 2,
+    },
   }
 
   private burnedPieces: Coord[] = []
