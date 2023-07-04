@@ -204,8 +204,8 @@ export default function Home() {
           </thead>
           <tbody>
             {challengesList.map((x, i) => (
-              <>
-                <tr key={`group-${i}`}>
+              <React.Fragment key={`group-${i}`}>
+                <tr>
                   <td colSpan={2}>
                     <Center>
                       <i>{x.group}</i>
@@ -220,7 +220,7 @@ export default function Home() {
                     </td>
                   </tr>
                 ))}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </Table>
