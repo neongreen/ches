@@ -1,6 +1,6 @@
 import { Move, getCapture, getMoveCoord, getMovePiece, isCapture, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { Color, isBlackPiece, isKing, isPawn, isWhitePiece, pieceType } from '@/piece'
+import { Color, Piece, isBlackPiece, isKing, isPawn, isWhitePiece, pieceType } from '@/piece'
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
 import { match, P } from 'ts-pattern'
@@ -349,6 +349,22 @@ class Challenge_2023_04_01 implements Challenge {
   }
 }
 
+class Challenge_2022_09_19 implements Challenge {
+  meta = {
+    uuid: '52620ef2-a11c-4b1c-bb40-652a482ba724',
+    title: 'The Entire Game Were BLUNDERS !!!',
+    link: 'https://www.youtube.com/watch?v=TRkyi_i6EqY',
+    challenge:
+      'Chess, but your pawns are plotting against you, you need to get rid of them before making any captures.',
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    const capture = getCapture(board, move)
+    const noPawnsLeft = board.pieces().every(({ piece }) => piece !== Piece.WhitePawn)
+    return capture ? noPawnsLeft : true
+  }
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -370,7 +386,7 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       // Jun 2022
       [() => _2022_06_03],
       // Sep 2022
-      [() => _2022_09_11, () => _2022_09_26],
+      [() => _2022_09_11, () => new Challenge_2022_09_19(), () => _2022_09_26],
       // Feb 2023
       [() => _2023_02_23],
       // Apr 2023
