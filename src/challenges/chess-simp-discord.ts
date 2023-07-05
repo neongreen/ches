@@ -77,8 +77,8 @@ const challenge_twoMovesMax: Challenge = {
     challenge:
       "Chess, but you're short. You cannot make any long distance moves (2 squares max, like the king goes). Short castling is allowed.",
     beaten: {
-      name: users.Emily.name,
-      depth: 3,
+      name: users.Mendax.name,
+      depth: 4,
     },
   },
   isMoveAllowed({ move }): boolean {
