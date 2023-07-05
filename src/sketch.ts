@@ -102,6 +102,10 @@ export type SketchMethods = {
    * Reset the game.
    */
   reset: (options: { challenge: Challenge | null }) => void
+  /**
+   * Enable/disable mouse and keyboard controls.
+   */
+  enableControls: (enabled: boolean) => void
 }
 
 export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMethods => {
@@ -134,6 +138,9 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   setupGlobals({ challenge: null })
+
+  /** Whether controls should be enabled */
+  let controlsEnabled = true
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -264,7 +271,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     }
   }
 
-  /** Is the mouse hovering over a specific square?
+  /**
+   * Is the mouse hovering over a specific square?
    */
   const isTouching = (square: Coord) => {
     const xy = squareXY(p5, square)
@@ -382,6 +390,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
 
   // If we are touching a piece when the mouse is pressed, start dragging it
   p5.mousePressed = () => {
+    if (!controlsEnabled) return
+
     // if (!audioStarted) {
     //   userStartAudio()
     //   audioStarted = true
@@ -397,6 +407,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   p5.mouseReleased = () => {
+    if (!controlsEnabled) return
+
     if (dragged !== null) {
       let dest: Coord | null = null
       for (let x = 0; x < 8; x++) {
@@ -420,6 +432,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   p5.keyPressed = () => {
+    if (!controlsEnabled) return
+
     if (p5.key === ' ') makeBestMove()
   }
 
@@ -431,7 +445,10 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
       env.onBestMoveChange(null)
       env.onStatusChange('playing')
     }
-    return { reset }
+    const enableControls = (value: boolean) => {
+      controlsEnabled = value
+    }
+    return { reset, enableControls }
   })()
 }
 

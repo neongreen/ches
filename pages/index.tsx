@@ -31,6 +31,8 @@ import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { match } from 'ts-pattern'
 import styles from '../styles/index.module.scss'
+import CommandPalette from 'react-command-palette'
+import NoSSR from 'react-no-ssr'
 
 const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
 
@@ -44,6 +46,7 @@ const GameSketch = React.forwardRef<SketchMethods, { env: SketchAttributes }>(fu
   // See my question here: https://stackoverflow.com/questions/76552686/how-to-make-sure-an-useimperativehandle-ref-isnt-filled-until-another-ref-is
   React.useImperativeHandle(ref, () => ({
     reset: (options) => sketchMethodsRef.current?.reset(options),
+    enableControls: (value) => sketchMethodsRef.current?.enableControls(value),
   }))
   return (
     <NextReactP5Wrapper
@@ -186,6 +189,30 @@ export default function Home() {
         <title>Ches</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+
+      <NoSSR>
+        <CommandPalette
+          trigger={null}
+          closeOnSelect
+          resetInputOnOpen
+          onAfterOpen={() => sketchRef.current?.enableControls(false)}
+          onRequestClose={() => sketchRef.current?.enableControls(true)}
+          commands={[
+            {
+              name: 'Reset',
+              command: () => resetGame(challengeUuid),
+            },
+            {
+              name: `Black makes moves automatically: ${autoPlayEnabled ? 'disable' : 'enable'}`,
+              command: () => setAutoPlayEnabled((x) => !x),
+            },
+            {
+              name: `Show best move: ${showBestMove ? 'disable' : 'enable'}`,
+              command: () => setShowBestMove((x) => !x),
+            },
+          ].map((x, i) => ({ ...x, id: i, color: '' }))}
+        />
+      </NoSSR>
 
       <Modal
         fullScreen={isMobile}
