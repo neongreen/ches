@@ -157,8 +157,8 @@ class Challenge_2022_05_30 implements Challenge {
     link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
     challenge: '100 rated chess but you can only take their most extended piece or pawn.',
     beaten: {
-      name: users.Emily.name,
-      depth: 3,
+      name: users.Mendax.name,
+      depth: 4,
     },
   }
 
@@ -263,8 +263,8 @@ const _2023_06_09: Challenge = {
     link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
     challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
     beaten: {
-      name: users.Emily.name,
-      depth: 3,
+      name: users.Mendax.name,
+      depth: 4,
     },
   },
   isMoveAllowed({ board, move }): boolean {
