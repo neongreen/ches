@@ -423,7 +423,8 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
           let boardAfterMove = chess.board.clone()
           boardAfterMove.executeMove(move)
           const isLegal = isLegalMove(chess.board, boardAfterMove, move)
-          const isAllowedByChallenge = chess.isMoveAllowedByChallenge(move)
+          const isAllowedByChallenge =
+            chess.board.side === Color.Black || chess.isMoveAllowedByChallenge(move)
           if (isLegal && isAllowedByChallenge) makeMove(move)
         }
       }
