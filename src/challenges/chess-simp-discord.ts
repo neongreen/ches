@@ -106,8 +106,8 @@ class Challenge_Vampires implements Challenge {
     challenge:
       'Chess, but all of your pieces (and pawns) are vampires. Anytime one of your pieces (or pawns) has a direct line of sight past your opponent’s edge of the board, they are hit by sunlight and turn to ash.',
     beaten: {
-      name: users.Emily.name,
-      depth: 2,
+      name: users.Mendax.name,
+      depth: 3,
     },
   }
 

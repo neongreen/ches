@@ -231,6 +231,10 @@ const _2023_02_23: Challenge = {
     title: 'Highest Voted Challenge EVER',
     link: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
     challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
+    beaten: {
+      name: users.Mendax.name,
+      depth: 1,
+    },
   },
   isMoveAllowed({ board, move }): boolean {
     // Note: no idea about en passant, let's just say it's not allowed.
@@ -328,8 +332,8 @@ class Challenge_2023_04_01 implements Challenge {
     challenge:
       'Chess but you can only capture pieces which worth more or equal points than the piece you captured before it.',
     beaten: {
-      name: users.ChessSimpSimp.name,
-      depth: 2,
+      name: users.Mendax.name,
+      depth: 3,
     },
   }
 
