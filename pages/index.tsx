@@ -271,6 +271,7 @@ export default function Home() {
               whiteSpace: 'nowrap',
               width: width,
               backgroundColor: theme.colors.gray[3],
+              padding: '3px 0',
               // Hide the scrollbar in all browsers
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -279,7 +280,8 @@ export default function Home() {
           >
             <Box
               sx={(theme) => ({
-                display: 'inline-block',
+                display: 'flex',
+                flexDirection: 'row',
               })}
             >
               {(() => {
@@ -287,7 +289,17 @@ export default function Home() {
                   history.map(({ move, boardBeforeMove }) => notateMove(boardBeforeMove, move)),
                   2
                 )
-                if (chunked.length === 0) return ' '
+                if (chunked.length === 0)
+                  return (
+                    <Text
+                      size="xs"
+                      sx={(theme) => ({
+                        fontFamily: theme.fontFamilyMonospace,
+                      })}
+                    >
+                      &nbsp;
+                    </Text>
+                  )
                 return chunked.map((chunk, i) => (
                   <Text
                     span
@@ -295,7 +307,7 @@ export default function Home() {
                     key={i}
                     ref={i === chunked.length - 1 ? lastMoveRef : undefined}
                     sx={(theme) => ({
-                      padding: '0 .5rem',
+                      padding: '0 .35rem',
                       fontFamily: theme.fontFamilyMonospace,
                     })}
                   >
