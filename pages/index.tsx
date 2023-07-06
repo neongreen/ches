@@ -361,7 +361,18 @@ export default function Home() {
             </Group>
 
             <div style={{ paddingBottom: '1rem' }}>
-              <Text size="sm">Depth</Text>
+              <Text size="sm">
+                Depth{' '}
+                {history.length > 0 && (
+                  <Box
+                    component="span"
+                    pl="sm"
+                    sx={(theme) => ({ color: theme.colors.gray[6], fontSize: theme.fontSizes.xs })}
+                  >
+                    <i>You can pick a new depth after pressing 'Reset'.</i>
+                  </Box>
+                )}
+              </Text>
               <Slider
                 min={1}
                 max={7}
@@ -370,6 +381,7 @@ export default function Home() {
                 color={depthColors[searchDepth]}
                 onChange={setSearchDepth}
                 marks={_.range(1, 7 + 1).map((value) => ({ value, label: value.toString() }))}
+                disabled={history.length > 0}
               />
             </div>
 
