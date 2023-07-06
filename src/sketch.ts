@@ -1,20 +1,20 @@
-import _ from 'lodash'
 import { P5CanvasInstance } from '@p5-wrapper/react'
-import { P, match } from 'ts-pattern'
+import { Howl } from 'howler'
+import _ from 'lodash'
+import { match } from 'ts-pattern'
 import { Board } from './board'
+import { Challenge } from './challenges/core'
 import { DrawConstants } from './draw/constants'
 import { drawDraggedPiece, drawPiece, preloadPieceImages } from './draw/piece'
 import { squareXY } from './draw/square'
 import { EvalNode } from './eval/node'
-import { renderScore, Score } from './eval/score'
+import { Score, renderScore } from './eval/score'
 import { Search } from './eval/search'
-import { isCapture, Move, notateMove, translateFromHumanMove, translateToHumanMove } from './move'
+import { Move, isCapture, notateMove, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
 import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
-import { Color, MaybePiece } from './piece'
+import { Color } from './piece'
 import { Coord } from './utils/coord'
-import { Howl } from 'howler'
-import { Challenge } from './challenges/core'
 
 class Chess {
   board = new Board()
@@ -81,7 +81,7 @@ export type SketchAttributes = {
   autoPlayEnabled: () => boolean
   showBestMove: () => boolean
   /**
-   * Sketch will call this when the best move/line changes.
+   * Sketch will call this when the evaluated best move/line changes.
    */
   onBestMoveChange: (move: Chess['bestMove']) => void
   /**
@@ -92,6 +92,10 @@ export type SketchAttributes = {
    * Sketch will call this to inform React about the current status of the game.
    */
   onStatusChange: (status: 'playing' | 'won' | 'lost' | 'draw') => void
+  /**
+   * Sketch will call this when current game's history changes.
+   */
+  onHistoryChange: (history: Chess['history']) => void
 }
 
 /**
@@ -175,6 +179,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
       sounds.move.play()
     }
     chess.makeMove(move)
+    env.onHistoryChange([...chess.history])
     lastMoveTimestamp = performance.now()
   }
 
@@ -444,6 +449,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
       setupGlobals({ challenge: options.challenge })
       env.onOutputChange('')
       env.onBestMoveChange(null)
+      env.onHistoryChange([])
       env.onStatusChange('playing')
     }
     const enableControls = (value: boolean) => {

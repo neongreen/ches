@@ -1,7 +1,8 @@
 import { challengesList, challengesMap } from '@/challenges/all'
 import { Challenge } from '@/challenges/core'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
-import { sketch, SketchAttributes, SketchMethods } from '@/sketch'
+import { notateMove } from '@/move'
+import { SketchAttributes, SketchMethods, sketch } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
 import { Uuid } from '@/utils/uuid'
 import {
@@ -28,11 +29,11 @@ import _ from 'lodash'
 import Head from 'next/head'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
-import { match } from 'ts-pattern'
-import styles from '../styles/index.module.scss'
+import React, { useRef, useState } from 'react'
 import CommandPalette from 'react-command-palette'
 import NoSSR from 'react-no-ssr'
+import { match } from 'ts-pattern'
+import styles from '../styles/index.module.scss'
 
 const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
 
@@ -138,6 +139,9 @@ export default function Home() {
 
   const [bestMove, setBestMove] =
     useState<Parameters<SketchAttributes['onBestMoveChange']>[0]>(null)
+  const [history, setHistory] = useState<Parameters<SketchAttributes['onHistoryChange']>[0]>([])
+  const lastMoveRef = useRef<HTMLDivElement>(null)
+
   const [output, setOutput] = useState<Parameters<SketchAttributes['onOutputChange']>[0]>('')
   const [gameStatus, setGameStatus] =
     useState<Parameters<SketchAttributes['onStatusChange']>[0]>('playing')
@@ -152,6 +156,7 @@ export default function Home() {
       // NB: this is being called on every frame :(
       setGameStatus(x)
     },
+    onHistoryChange: setHistory,
   }
 
   const { ref: containerRef, width, height } = useElementSize()
@@ -182,6 +187,10 @@ export default function Home() {
   React.useEffect(() => {
     resetGame(challengeUuid)
   }, [challengeUuid, resetGame])
+
+  React.useEffect(() => {
+    lastMoveRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [history, lastMoveRef])
 
   return (
     <>
@@ -255,6 +264,49 @@ export default function Home() {
 
       <main className={styles.main}>
         <div ref={containerRef}>
+          <Box
+            sx={(theme) => ({
+              overflowX: 'scroll',
+              overflowY: 'hidden',
+              whiteSpace: 'nowrap',
+              width: width,
+              backgroundColor: theme.colors.gray[3],
+              // Hide the scrollbar in all browsers
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
+            })}
+          >
+            <Box
+              sx={(theme) => ({
+                display: 'inline-block',
+              })}
+            >
+              {(() => {
+                const chunked = _.chunk(
+                  history.map(({ move, boardBeforeMove }) => notateMove(boardBeforeMove, move)),
+                  2
+                )
+                if (chunked.length === 0) return ' '
+                return chunked.map((chunk, i) => (
+                  <Text
+                    span
+                    size="xs"
+                    key={i}
+                    ref={i === chunked.length - 1 ? lastMoveRef : undefined}
+                    sx={(theme) => ({
+                      padding: '0 .5rem',
+                      fontFamily: theme.fontFamilyMonospace,
+                    })}
+                  >
+                    {i + 1}.{chunk[0]}
+                    {chunk[1] ? ' ' + chunk[1] : null}
+                  </Text>
+                ))
+              })()}
+            </Box>
+          </Box>
+
           <MemoizedGameSketch ref={sketchRef} env={env} />
 
           <Stack
