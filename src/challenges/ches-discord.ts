@@ -9,6 +9,10 @@ class Challenge_NoGoingBackwards implements Challenge {
     title: `[${users.RotomAppliance.name}] Into Battle!`,
     link: 'https://discord.com/channels/1054591816105726003/1063831721524600854/1126625935295266966',
     challenge: 'You cannot move pieces (and pawns) backwards.',
+    beaten: {
+      name: users.RotomAppliance.name,
+      depth: 3,
+    },
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {

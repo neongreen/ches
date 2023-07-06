@@ -396,6 +396,10 @@ class Challenge_2022_05_31 implements Challenge {
     title: 'What If He Only Moves His King ??',
     link: 'https://www.youtube.com/watch?v=KDPXaL9V7hY',
     challenge: 'Chess, but the only piece you can take is the piece your opponent had just moved.',
+    beaten: {
+      name: users.RotomAppliance.name,
+      depth: 3,
+    },
   }
 
   private allowedVictims = (history: { move: Move; boardBeforeMove: Board }[]) => {
