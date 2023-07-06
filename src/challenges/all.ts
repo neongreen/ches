@@ -3,11 +3,13 @@ import { Uuid } from '@/utils/uuid'
 import { chessSimpChallenges } from './chess-simp'
 import { chessSimpDiscordChallenges } from './chess-simp-discord'
 import { Challenge, ChallengeMeta } from './core'
+import { chesDiscordChallenges } from './ches-discord'
 
 export const challengesList: {
   group: string
   list: Map<Uuid, { meta: ChallengeMeta; create: () => Challenge }>
 }[] = [
+  { group: '⭐️ Ches Discord', list: chesDiscordChallenges },
   { group: 'Chess Simp', list: chessSimpChallenges },
   { group: 'Chess Simp Discord', list: chessSimpDiscordChallenges },
 ]
