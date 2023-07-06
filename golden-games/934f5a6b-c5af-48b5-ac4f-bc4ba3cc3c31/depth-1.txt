@@ -1,0 +1,9 @@
+1. Nc3 +0.20
+... Nc6 0.00
+2. a4 +0.02
+... Nh6 -0.18
+3. b4 -0.16
+... Nxb4 -1.18
+4. d4 -1.16
+... Nxc2 -2.16
+Challenge lost - no moves available
