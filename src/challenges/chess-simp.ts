@@ -365,6 +365,23 @@ class Challenge_2022_09_19 implements Challenge {
   }
 }
 
+class Challenge_2022_02_10 implements Challenge {
+  meta = {
+    uuid: '934f5a6b-c5af-48b5-ac4f-bc4ba3cc3c31',
+    title: 'I Moved Pawns 100 Times',
+    link: 'https://www.youtube.com/watch?v=lco2G0Ri-DM',
+    challenge: 'If your opponent moves a piece, you move a pawn, and vice versa.',
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
+    const lastMove = _.last(history)
+    if (!lastMove) return true
+    const lastMoveIsPawn = isPawn(getMovePiece(lastMove.boardBeforeMove, lastMove.move))
+    const currentMoveIsPawn = isPawn(getMovePiece(board, move))
+    return lastMoveIsPawn !== currentMoveIsPawn
+  }
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -377,6 +394,8 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       [() => _2021_12_04],
       // Jan 2022
       [() => _2022_01_29],
+      // Feb 2022
+      [() => new Challenge_2022_02_10() as Challenge],
       // Mar 2022
       [() => new Challenge_2022_03_07() as Challenge, () => _2022_03_29],
       // Apr 2022

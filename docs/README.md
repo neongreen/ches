@@ -1,0 +1,1 @@
+Chess Simp challenge table: <https://docs.google.com/spreadsheets/d/1Smv4hJAUSoJE11wm_cQ0BiF5CInLdR7zFhycfNbzENA/edit?usp=sharing> (cloned from <https://docs.google.com/spreadsheets/d/12Y8-HfHaGDOD-puaysiKWKJCi622Z3EC-aYQzebwrOU/edit?pli=1#gid=326656566>)
