@@ -390,6 +390,41 @@ class Challenge_2022_02_10 implements Challenge {
   }
 }
 
+class Challenge_2022_05_31 implements Challenge {
+  meta = {
+    uuid: '39efe131-5fb0-4294-b832-1d4d31a89f84',
+    title: 'What If He Only Moves His King ??',
+    link: 'https://www.youtube.com/watch?v=KDPXaL9V7hY',
+    challenge: 'Chess, but the only piece you can take is the piece your opponent had just moved.',
+  }
+
+  private allowedVictims = (history: { move: Move; boardBeforeMove: Board }[]) => {
+    const lastMove = _.last(history)
+    if (!lastMove) return null
+    // Note: kings can't ever be captured so we take care not to return them
+    return match(lastMove.move)
+      .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) =>
+        isKing(lastMove.boardBeforeMove.at(from)) ? [] : [to]
+      )
+      .with({ kind: 'castling' }, ({ rookTo }) => [rookTo])
+      .exhaustive()
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
+    const allowedVictims = this.allowedVictims(history)
+    if (!allowedVictims) return true
+    const capture = getCapture(board, move)
+    if (!capture) return true
+    return allowedVictims.some((victim) => victim.equals(capture.victim))
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history, board }) => {
+    const allowedVictims = this.allowedVictims(history)
+    if (!allowedVictims || board.side === Color.Black) return []
+    return allowedVictims.map((victim) => ({ coord: victim, color: 'blue' }))
+  }
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -409,7 +444,11 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       // Apr 2022
       [() => _2022_04_21],
       // May 2022
-      [() => _2022_05_24, () => new Challenge_2022_05_30() as Challenge],
+      [
+        () => _2022_05_24,
+        () => new Challenge_2022_05_30() as Challenge,
+        () => new Challenge_2022_05_31() as Challenge,
+      ],
       // Jun 2022
       [() => _2022_06_03],
       // Sep 2022
