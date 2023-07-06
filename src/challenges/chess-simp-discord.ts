@@ -60,7 +60,7 @@ const challenge_pawnObsession: Challenge = {
     challenge: 'Your first 17 moves of the game must be consecutive pawn moves.',
     beaten: {
       name: users.Mendax.name,
-      depth: 1,
+      depth: 4,
     },
   },
   isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {

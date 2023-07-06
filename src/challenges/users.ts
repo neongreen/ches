@@ -19,4 +19,8 @@ export const users = {
     name: 'Gneurshk',
     notes: 'Elias / jigglyvonpuff, Ches Discord',
   },
+  RotomAppliance: {
+    name: 'RotomAppliance',
+    notes: 'Patrick#6232, Ches Discord',
+  },
 }
