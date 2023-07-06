@@ -271,7 +271,6 @@ export default function Home() {
               whiteSpace: 'nowrap',
               width: width,
               backgroundColor: theme.colors.gray[3],
-              padding: '3px 0',
               // Hide the scrollbar in all browsers
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -295,6 +294,7 @@ export default function Home() {
                       size="xs"
                       sx={(theme) => ({
                         fontFamily: theme.fontFamilyMonospace,
+                        padding: '3px .35rem',
                       })}
                     >
                       &nbsp;
@@ -307,7 +307,7 @@ export default function Home() {
                     key={i}
                     ref={i === chunked.length - 1 ? lastMoveRef : undefined}
                     sx={(theme) => ({
-                      padding: '0 .35rem',
+                      padding: '3px .35rem',
                       fontFamily: theme.fontFamilyMonospace,
                     })}
                   >
