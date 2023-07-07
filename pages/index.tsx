@@ -375,7 +375,6 @@ export default function Home() {
                     ),
                 }))}
                 disabled={history.length > 0}
-                styles={(theme) => ({})}
               />
             </div>
 
