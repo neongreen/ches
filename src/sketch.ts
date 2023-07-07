@@ -196,10 +196,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
     highlight: {
       blue: 'rgba(82, 176, 220, 0.8)',
       red: 'rgba(235, 97, 80, 0.8)',
-    },
-    highlightText: {
-      blue: '#52b0dc',
-      red: '#eb6150',
+      lightYellow: 'rgba(235, 227, 80, 0.5)', // custom
     },
   }
 

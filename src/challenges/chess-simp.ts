@@ -494,6 +494,33 @@ class Challenge_2023_01_09 implements Challenge {
   }
 }
 
+class Challenge_2022_05_12 implements Challenge {
+  meta = {
+    uuid: 'b1583d71-56eb-4a4f-871a-7ae6ca041ca8',
+    title: 'This Is Not Cheating',
+    link: 'https://www.youtube.com/watch?v=noAFs6XVS74',
+    challenge:
+      'Chess, but you have tunnel vision. You can only move the pieces (or pawns) that are CURRENTLY within a 3-tile range from what your opponent just moved.',
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, history }) => {
+    const lastMove = _.last(history)
+    if (!lastMove) return true
+    const justMoved: Coord = getMoveCoords(lastMove.move).to
+    const movers = getAllMovers(move)
+    return movers.every((mover) => mover.kingDistance(justMoved) <= 3)
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history }) => {
+    const lastBlackMove = _.findLast(history, (x) => x.boardBeforeMove.side === Color.Black)
+    if (!lastBlackMove) return []
+    const justMoved: Coord = getMoveCoords(lastBlackMove.move).to
+    return Board.allSquares()
+      .filter((square) => square.kingDistance(justMoved) <= 3)
+      .map((square) => ({ coord: square, color: 'lightYellow' }))
+  }
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -514,6 +541,7 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       [() => _2022_04_21],
       // May 2022
       [
+        () => new Challenge_2022_05_12() as Challenge,
         () => _2022_05_24,
         () => new Challenge_2022_05_30() as Challenge,
         () => new Challenge_2022_05_31() as Challenge,

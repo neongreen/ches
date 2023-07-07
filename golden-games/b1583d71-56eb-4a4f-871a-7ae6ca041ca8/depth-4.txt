@@ -1,0 +1,9 @@
+1. Nc3 0.00
+... c6 +0.21
+2. Ne4 -0.81
+... Qa5 +0.01
+3. a4 -2.99
+... Nh6 +0.01
+4. Ng3 -1.21
+... Na6 -0.01
+Challenge lost - no moves available

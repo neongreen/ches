@@ -1,0 +1,5 @@
+1. Nc3 +0.20
+... Nc6 0.00
+2. Nd5 0.00
+... Nh6 -0.20
+Challenge lost - no moves available
