@@ -6,7 +6,7 @@ import { P5CanvasInstance } from '@p5-wrapper/react'
  * Coordinates of a square on the screen.
  */
 export function squareXY(
-  p5: P5CanvasInstance,
+  p5: P5CanvasInstance<any>,
   coord: Coord
 ): {
   center: { x: number; y: number }

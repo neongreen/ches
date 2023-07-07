@@ -2,7 +2,7 @@ import { challengesList, challengesMap } from '@/challenges/all'
 import { Challenge } from '@/challenges/core'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { notateMove } from '@/move'
-import { SketchAttributes, SketchMethods, sketch } from '@/sketch'
+import { GameMethods, GameProps, sketch } from '@/sketch'
 import { useStateRef } from '@/utils/react-usestateref'
 import { Uuid } from '@/utils/uuid'
 import {
@@ -24,7 +24,6 @@ import {
   Title,
 } from '@mantine/core'
 import { useDisclosure, useElementSize, useMediaQuery } from '@mantine/hooks'
-import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import _ from 'lodash'
 import Head from 'next/head'
 import { useSearchParams } from 'next/navigation'
@@ -34,35 +33,10 @@ import CommandPalette from 'react-command-palette'
 import NoSSR from 'react-no-ssr'
 import { match } from 'ts-pattern'
 import styles from '../styles/index.module.scss'
+import { NextReactP5Wrapper } from '@p5-wrapper/next'
+import { P5CanvasInstance, SketchProps } from '@p5-wrapper/react'
 
 const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
-
-const GameSketch = React.forwardRef<SketchMethods, { env: SketchAttributes }>(function GameSketch(
-  props,
-  ref
-) {
-  const sketchMethodsRef = React.useRef<SketchMethods | null>(null)
-  // Note: it would be great if we could say that the ref should only be filled when 'sketchMethodsRef' is finally available. Then we could ensure that if it's not 'null', it's good to use. But I don't know how to do that. For now we just use `?`, but if we want to have any methods that return a value, this won't work anymore.
-  //
-  // See my question here: https://stackoverflow.com/questions/76552686/how-to-make-sure-an-useimperativehandle-ref-isnt-filled-until-another-ref-is
-  React.useImperativeHandle(ref, () => ({
-    reset: (options) => sketchMethodsRef.current?.reset(options),
-    enableControls: (value) => sketchMethodsRef.current?.enableControls(value),
-  }))
-  return (
-    <NextReactP5Wrapper
-      sketch={(p5) => {
-        const methods = sketch(props.env, p5)
-        sketchMethodsRef.current = methods
-        // @ts-ignore
-        window.chessMethods = methods
-      }}
-    />
-  )
-})
-
-// Note: React doesn't guarantee that `memo` will not rerender. But so far it works, and I haven't found any other way.
-const MemoizedGameSketch = React.memo(GameSketch, () => true)
 
 interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
   label: string
@@ -110,6 +84,19 @@ function RecordBadge(props: {
   )
 }
 
+// I spent like 8 hours overall trying to do things properly with refs and failed. I'll just use window for now. See https://github.com/P5-wrapper/react/issues/258
+function gameMethods(): GameMethods | null {
+  // @ts-ignore
+  return window.gameMethods || null
+}
+
+const game = (p5: P5CanvasInstance<SketchProps & GameProps>) => {
+  console.debug('Creating sketch')
+  const methods = sketch(p5)
+  // @ts-ignore
+  window.gameMethods = methods
+}
+
 export default function Home() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -133,35 +120,20 @@ export default function Home() {
     }
   }, [query_challenge_id, challengeUuid])
 
-  const [searchDepth, setSearchDepth, searchDepthRef] = useStateRef(3)
-  const [autoPlayEnabled, setAutoPlayEnabled, autoPlayEnabledRef] = useStateRef(true)
-  const [showBestMove, setShowBestMove, showBestMoveRef] = useStateRef(false)
+  const [searchDepth, setSearchDepth] = useState(3)
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(true)
+  const [controlsEnabled, setControlsEnabled] = useState(true)
+  const [showBestMove, setShowBestMove] = useState(false)
 
-  const [bestMove, setBestMove] =
-    useState<Parameters<SketchAttributes['onBestMoveChange']>[0]>(null)
-  const [history, setHistory] = useState<Parameters<SketchAttributes['onHistoryChange']>[0]>([])
+  const [bestMove, setBestMove] = useState<Parameters<GameProps['onBestMoveChange']>[0]>(null)
+  const [history, setHistory] = useState<Parameters<GameProps['onHistoryChange']>[0]>([])
   const lastMoveRef = useRef<HTMLDivElement>(null)
 
-  const [output, setOutput] = useState<Parameters<SketchAttributes['onOutputChange']>[0]>('')
+  const [output, setOutput] = useState<Parameters<GameProps['onOutputChange']>[0]>('')
   const [gameStatus, setGameStatus] =
-    useState<Parameters<SketchAttributes['onStatusChange']>[0]>('playing')
-
-  const env: SketchAttributes = {
-    searchDepth: () => searchDepthRef.current,
-    autoPlayEnabled: () => autoPlayEnabledRef.current,
-    showBestMove: () => showBestMoveRef.current,
-    onBestMoveChange: setBestMove,
-    onOutputChange: setOutput,
-    onStatusChange: (x) => {
-      // NB: this is being called on every frame :(
-      setGameStatus(x)
-    },
-    onHistoryChange: setHistory,
-  }
+    useState<Parameters<GameProps['onStatusChange']>[0]>('playing')
 
   const { ref: containerRef, width, height } = useElementSize()
-
-  const sketchRef = React.useRef<SketchMethods>(null)
 
   const [leaderboardShown, leaderboard] = useDisclosure(false)
 
@@ -170,15 +142,15 @@ export default function Home() {
   /** Recreate the current challenge and reset the game. */
   const resetGame = React.useCallback(
     (challengeUuid: Uuid | null) => {
-      console.debug('resetGame', challengeUuid)
+      console.debug('Calling resetGame', challengeUuid)
       if (challengeUuid === null) {
         setCurrentChallenge(null)
-        sketchRef.current?.reset({ challenge: null })
+        gameMethods()?.reset?.()
       } else {
         const challengeObj = challengesMap.get(challengeUuid)!
         const challenge = challengeObj.create()
         setCurrentChallenge(challenge)
-        sketchRef.current?.reset({ challenge })
+        gameMethods()?.reset?.()
       }
     },
     [setCurrentChallenge]
@@ -204,8 +176,8 @@ export default function Home() {
           trigger={null}
           closeOnSelect
           resetInputOnOpen
-          onAfterOpen={() => sketchRef.current?.enableControls(false)}
-          onRequestClose={() => sketchRef.current?.enableControls(true)}
+          onAfterOpen={() => setControlsEnabled(false)}
+          onRequestClose={() => setControlsEnabled(true)}
           commands={[
             {
               name: 'Reset',
@@ -319,7 +291,18 @@ export default function Home() {
             </Box>
           </Box>
 
-          <MemoizedGameSketch ref={sketchRef} env={env} />
+          <NextReactP5Wrapper
+            challenge={currentChallenge}
+            searchDepth={searchDepth}
+            autoPlayEnabled={autoPlayEnabled}
+            controlsEnabled={controlsEnabled}
+            showBestMove={showBestMove}
+            onBestMoveChange={setBestMove}
+            onStatusChange={setGameStatus}
+            onOutputChange={setOutput}
+            onHistoryChange={setHistory}
+            sketch={game}
+          />
 
           <Stack
             mt="md"

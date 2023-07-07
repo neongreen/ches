@@ -1,4 +1,4 @@
-import { P5CanvasInstance } from '@p5-wrapper/react'
+import { P5CanvasInstance, SketchProps } from '@p5-wrapper/react'
 import { Howl } from 'howler'
 import _ from 'lodash'
 import { match } from 'ts-pattern'
@@ -74,50 +74,46 @@ class Chess {
 }
 
 /**
- * A way to pass data from React to the sketch and vice-versa.
- */
-export type SketchAttributes = {
-  searchDepth: () => number
-  autoPlayEnabled: () => boolean
-  showBestMove: () => boolean
-  /**
-   * Sketch will call this when the evaluated best move/line changes.
-   */
-  onBestMoveChange: (move: Chess['bestMove']) => void
-  /**
-   * Sketch will call this when it wants to communicate something (eg. debug output) to the user.
-   */
-  onOutputChange: (output: string) => void
-  /**
-   * Sketch will call this to inform React about the current status of the game.
-   */
-  onStatusChange: (status: 'playing' | 'won' | 'lost' | 'draw') => void
-  /**
-   * Sketch will call this when current game's history changes.
-   */
-  onHistoryChange: (history: Chess['history']) => void
-}
-
-/**
  * A way to control the sketch from the outside world.
  */
-export type SketchMethods = {
+export type GameMethods = {
   /**
    * Reset the game.
    */
-  reset: (options: { challenge: Challenge | null }) => void
-  /**
-   * Enable/disable mouse and keyboard controls.
-   */
-  enableControls: (enabled: boolean) => void
+  reset: () => void
 }
 
-export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMethods => {
+/**
+ * A way to pass data from React to the sketch and vice-versa.
+ */
+export type GameProps = {
+  /** The challenge to play. */
+  challenge: Challenge | null
+  /** Game search depth. */
+  searchDepth: number
+  /** Black makes moves automatically. */
+  autoPlayEnabled: boolean
+  /** Whether mouse/keyboard controls should be working. */
+  controlsEnabled: boolean
+  /** Display an arrow with the best move. */
+  showBestMove: boolean
+  /** Called when the evaluated best move/line changes. */
+  onBestMoveChange: (move: Chess['bestMove']) => void
+  /** Called when the sketch wants to communicate something (eg. debug output) to the user. */
+  onOutputChange: (output: string) => void
+  /** Called whenever the current status of the game changes (and also on every frame actually). */
+  onStatusChange: (status: 'playing' | 'won' | 'lost' | 'draw') => void
+  /** Called when current game's history changes. */
+  onHistoryChange: (history: Chess['history']) => void
+}
+
+export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMethods => {
   p5.disableFriendlyErrors = true
 
   // let synth: PolySynth
 
   let chess: Chess
+  let vars: GameProps = undefined as any
 
   const setupGlobals = (options: { challenge: Challenge | null }) => {
     chess = new Chess(options)
@@ -138,13 +134,18 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
     // @ts-ignore
     window.chess.notateMove = notateMove
     // @ts-ignore
-    window.chess.env = env
+    window.chess.vars = vars
   }
 
   setupGlobals({ challenge: null })
 
-  /** Whether controls should be enabled */
-  let controlsEnabled = true
+  p5.updateWithProps = (props: GameProps) => {
+    console.debug('Updating game vars', props)
+    if (props.challenge !== chess.challenge) {
+      setupGlobals({ challenge: props.challenge })
+    }
+    vars = props
+  }
 
   /** Which piece is currently being dragged */
   let dragged: Coord | null = null
@@ -179,7 +180,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
       sounds.move.play()
     }
     chess.makeMove(move)
-    env.onHistoryChange([...chess.history])
+    vars.onHistoryChange([...chess.history])
     lastMoveTimestamp = performance.now()
   }
 
@@ -260,7 +261,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   const drawBestMove = () => {
-    if (env.showBestMove() && chess.bestMove?.move) {
+    if (vars.showBestMove && chess.bestMove?.move) {
       const arrow = translateToHumanMove(chess.bestMove.move)
       const fromXY = squareXY(p5, arrow.from)
       const toXY = squareXY(p5, arrow.to)
@@ -315,13 +316,13 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
 
     if (chess.bestMove === null) {
       const startTime = performance.now()
-      const bestMove = chess.search.findBestMove(new EvalNode(chess.board), env.searchDepth())
+      const bestMove = chess.search.findBestMove(new EvalNode(chess.board), vars.searchDepth)
       chess.bestMove = { ...bestMove, time: (performance.now() - startTime) / 1000 }
     }
 
-    if (chess.bestMove) env.onBestMoveChange(chess.bestMove)
+    if (chess.bestMove) vars.onBestMoveChange(chess.bestMove)
 
-    if (chess.bestMove.move && chess.board.side === Color.Black && env.autoPlayEnabled()) {
+    if (chess.bestMove.move && chess.board.side === Color.Black && vars.autoPlayEnabled) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
     } else {
       drawBestMove()
@@ -335,7 +336,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
           () => {
             p5.fill('green')
             p5.text('Checkmate. You won!', 5, DrawConstants(p5).CELL * 8 + 14)
-            env.onStatusChange('won')
+            vars.onStatusChange('won')
           }
         )
         // Game over, we lost
@@ -344,7 +345,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
           () => {
             p5.fill('red')
             p5.text('Checkmate. You lost.', 5, DrawConstants(p5).CELL * 8 + 14)
-            env.onStatusChange('lost')
+            vars.onStatusChange('lost')
           }
         )
         // Game over, draw
@@ -356,7 +357,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
               ? 'Draw by threefold repetition'
               : 'Draw'
             p5.text(text, 5, DrawConstants(p5).CELL * 8 + 14)
-            env.onStatusChange('draw')
+            vars.onStatusChange('draw')
           }
         )
         // There are moves but all of them are illegal challenge-wise
@@ -369,7 +370,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
               5,
               DrawConstants(p5).CELL * 8 + 14
             )
-            env.onStatusChange('lost')
+            vars.onStatusChange('lost')
           }
         )
         // The game goes on, show eval
@@ -381,7 +382,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
             5,
             DrawConstants(p5).CELL * 8 + 14
           )
-          env.onStatusChange('playing')
+          vars.onStatusChange('playing')
         })
     }
 
@@ -395,7 +396,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
 
   // If we are touching a piece when the mouse is pressed, start dragging it
   p5.mousePressed = () => {
-    if (!controlsEnabled) return
+    if (!vars.controlsEnabled) return
 
     // if (!audioStarted) {
     //   userStartAudio()
@@ -412,7 +413,7 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   p5.mouseReleased = () => {
-    if (!controlsEnabled) return
+    if (!vars.controlsEnabled) return
 
     if (dragged !== null) {
       let dest: Coord | null = null
@@ -438,24 +439,21 @@ export const sketch = (env: SketchAttributes, p5: P5CanvasInstance): SketchMetho
   }
 
   p5.keyPressed = () => {
-    if (!controlsEnabled) return
+    if (!vars.controlsEnabled) return
 
     if (p5.key === ' ') makeBestMove()
   }
 
   // Return methods / imperative handles
   return (() => {
-    const reset = (options: { challenge: Challenge | null }) => {
-      setupGlobals({ challenge: options.challenge })
-      env.onOutputChange('')
-      env.onBestMoveChange(null)
-      env.onHistoryChange([])
-      env.onStatusChange('playing')
+    const reset = () => {
+      setupGlobals({ challenge: vars.challenge })
+      vars.onOutputChange('')
+      vars.onBestMoveChange(null)
+      vars.onHistoryChange([])
+      vars.onStatusChange('playing')
     }
-    const enableControls = (value: boolean) => {
-      controlsEnabled = value
-    }
-    return { reset, enableControls }
+    return { reset }
   })()
 }
 

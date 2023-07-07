@@ -7,7 +7,7 @@ import type { Image } from 'p5'
 
 let pieceImages: Image[] = []
 
-export function preloadPieceImages(p5: P5CanvasInstance) {
+export function preloadPieceImages(p5: P5CanvasInstance<any>) {
   pieceImages[Piece.BlackKing] = p5.loadImage(
     'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Chess_kdt45.svg/240px-Chess_kdt45.svg.png'
   )
@@ -48,7 +48,7 @@ export function preloadPieceImages(p5: P5CanvasInstance) {
 
 /** Draw one piece.
  */
-export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: MaybePiece) {
+export function drawPiece(p5: P5CanvasInstance<any>, coord: Coord, piece: MaybePiece) {
   p5.push()
   p5.imageMode(p5.CENTER)
   const { x: squareX, y: squareY } = squareXY(p5, coord).center
@@ -59,7 +59,7 @@ export function drawPiece(p5: P5CanvasInstance, coord: Coord, piece: MaybePiece)
 
 /** Draw a dragged piece.
  */
-export function drawDraggedPiece(p5: P5CanvasInstance, piece: MaybePiece) {
+export function drawDraggedPiece(p5: P5CanvasInstance<any>, piece: MaybePiece) {
   p5.push()
   p5.imageMode(p5.CENTER)
   p5.image(
