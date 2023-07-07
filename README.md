@@ -30,7 +30,7 @@ yarn dev
 
 ### Debug
 
-`chess` and `chessMethods` are available in the browser console. Just type it. You'll be pleasantly surprised.
+`chess` and `gameMethods` are available in the browser console. Just type it. You'll be pleasantly surprised.
 
 ### Typecheck and lint
 
