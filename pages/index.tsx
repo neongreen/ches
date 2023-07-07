@@ -363,8 +363,19 @@ export default function Home() {
                 value={searchDepth}
                 color={depthColors[searchDepth]}
                 onChange={setSearchDepth}
-                marks={_.range(1, 7 + 1).map((value) => ({ value, label: value.toString() }))}
+                marks={_.range(1, 7 + 1).map((value) => ({
+                  value,
+                  label:
+                    value === searchDepth ? (
+                      <Text size="md" weight="bold">
+                        {value}
+                      </Text>
+                    ) : (
+                      <Text size="xs">{value}</Text>
+                    ),
+                }))}
                 disabled={history.length > 0}
+                styles={(theme) => ({})}
               />
             </div>
 
