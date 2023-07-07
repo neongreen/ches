@@ -501,6 +501,10 @@ class Challenge_2022_05_12 implements Challenge {
     link: 'https://www.youtube.com/watch?v=noAFs6XVS74',
     challenge:
       'Chess, but you have tunnel vision. You can only move the pieces (or pawns) that are CURRENTLY within a 3-tile range from what your opponent just moved.',
+    beaten: {
+      name: users.Emily.name,
+      depth: 1,
+    },
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, history }) => {
