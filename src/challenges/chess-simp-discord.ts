@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { getMoveCoord, getMovePiece } from '@/move'
+import { getMoveCoords, getMovePiece } from '@/move'
 import { legalMovesForPiece_slow } from '@/move/legal'
 import { Color, PieceEmpty, isBlackPiece, isPawn, isWhitePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
@@ -25,7 +25,7 @@ class Challenge_MustKeepMoving implements Challenge {
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board }) => {
     if (!this.chosenPiece) return true
-    if (getMoveCoord(move).from.equals(this.chosenPiece)) return true
+    if (getMoveCoords(move).from.equals(this.chosenPiece)) return true
     if (legalMovesForPiece_slow(board, this.chosenPiece).length === 0) return true
     return false
   }
@@ -37,7 +37,7 @@ class Challenge_MustKeepMoving implements Challenge {
   }) => {
     if (boardBeforeMove.side === Color.White) {
       // If we're moving a piece, we'll record it as the piece we're locking into.
-      this.chosenPiece = getMoveCoord(move).to
+      this.chosenPiece = getMoveCoords(move).to
     } else {
       // If the opponent captured our chosen piece, all pieces are unlocked.
       if (this.chosenPiece !== null && isBlackPiece(boardAfterMove.at(this.chosenPiece))) {

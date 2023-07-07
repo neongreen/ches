@@ -88,6 +88,8 @@ export class Board {
    */
   halfmoveClock = 0
 
+  fullMoveNumber = 1
+
   /**
    * Create a new board, or clone an existing one.
    *
@@ -106,6 +108,7 @@ export class Board {
       this.hash = board.hash
       this.irreversibleMoveClock = board.irreversibleMoveClock
       this.halfmoveClock = board.halfmoveClock
+      this.fullMoveNumber = board.fullMoveNumber
     } else {
       // We don't actually care about anything because `setFen` will overwrite everything, but things seem to be slower if we use {} etc.
       this.board = new Uint8Array(64)
@@ -264,7 +267,8 @@ export class Board {
     this.hash ^= zobristCastling(this.castlingRights)
 
     this.halfmoveClock = parseInt(halfmove, 10)
-    this.irreversibleMoveClock = 0
+    this.irreversibleMoveClock = 0 // FEN doesn't have this info
+    this.fullMoveNumber = parseInt(fullmove, 10)
     this.previousPositions = []
     this.previousPositionHashes = []
 
@@ -421,6 +425,9 @@ export class Board {
       this.previousPositionHashes.push(oldHash)
       this.irreversibleMoveClock++
     }
+
+    // The full move number is incremented after Black's move
+    if (this.side === Color.Black) this.fullMoveNumber++
 
     // Update the side to move
     this.side = this.side === Color.White ? Color.Black : Color.White

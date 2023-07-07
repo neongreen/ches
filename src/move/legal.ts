@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { getMoveCoord, isInCheck, Move, moveIsEqual } from '@/move'
+import { getMoveCoords, isInCheck, Move, moveIsEqual } from '@/move'
 import { isKing } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
@@ -67,5 +67,5 @@ export function legalMoves_slow(board: Board): Move[] {
  * Generate all legal moves for a certain piece. (Note: even less optimal than `legalMoves_slow`.)
  */
 export function legalMovesForPiece_slow(board: Board, coord: Coord): Move[] {
-  return legalMoves_slow(board).filter((move) => getMoveCoord(move).from.equals(coord))
+  return legalMoves_slow(board).filter((move) => getMoveCoords(move).from.equals(coord))
 }

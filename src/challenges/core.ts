@@ -67,5 +67,5 @@ export interface Challenge {
   highlightSquares?: (data: {
     board: Board
     history: { boardBeforeMove: Board; move: Move }[]
-  }) => { color: 'red' | 'blue'; coord: Coord }[]
+  }) => { coord: Coord; color: 'red' | 'blue'; text?: string }[]
 }

@@ -197,6 +197,10 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
       blue: 'rgba(82, 176, 220, 0.8)',
       red: 'rgba(235, 97, 80, 0.8)',
     },
+    highlightText: {
+      blue: '#52b0dc',
+      red: '#eb6150',
+    },
   }
 
   // Checkered board
@@ -207,7 +211,9 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
     p5.noStroke()
     for (const square of Board.allSquares()) {
       const light = (square.x + square.y) % 2 !== 0
-      p5.fill(light ? colors.light : colors.dark)
+      const squareColor: string = light ? colors.light : colors.dark
+      const contrastColor: string = light ? colors.dark : colors.light
+      p5.fill(squareColor)
       const xy = squareXY(p5, square)
       p5.rectMode(p5.CENTER)
       p5.square(xy.center.x, xy.center.y, DrawConstants(p5).CELL)
@@ -221,7 +227,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
       }
       if (square.y === 0) {
         p5.textAlign(p5.RIGHT, p5.BOTTOM)
-        p5.fill(light ? colors.dark : colors.light)
+        p5.fill(contrastColor)
         p5.text('abcdefgh'[square.x], xy.bottomRight.x - 3, xy.bottomRight.y - 3)
       }
       // Highlight if the challenge says so
@@ -229,6 +235,12 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
       if (highlight) {
         p5.fill(colors.highlight[highlight.color])
         p5.square(xy.center.x, xy.center.y, DrawConstants(p5).CELL)
+        if (highlight.text) {
+          p5.textSize(15)
+          p5.textAlign(p5.RIGHT, p5.TOP)
+          p5.fill('#444')
+          p5.text(highlight.text, xy.topRight.x - 3, xy.topRight.y + 3)
+        }
       }
     }
     p5.pop()

@@ -14,7 +14,7 @@ import {
 } from '@/piece'
 import { Board } from '@/board'
 import { isKingAttackedByColor } from '@/move/attacked'
-import { match } from 'ts-pattern'
+import { P, match } from 'ts-pattern'
 import { castlingMoves } from './move/pieces/king'
 
 export type Move =
@@ -178,11 +178,20 @@ export function translateToHumanMove(move: Move): { from: Coord; to: Coord } {
  *
  * Same as `translateToHumanMove`, but the semantics are different. `translateToHumanMove` corresponds to *display* - how the move looks on the board. `getMoveCoord` corresponds to *logic* - where a piece moved.
  */
-export function getMoveCoord(move: Move): { from: Coord; to: Coord } {
+export function getMoveCoords(move: Move): { from: Coord; to: Coord } {
   return match(move)
-    .with({ kind: 'normal' }, ({ from, to }) => ({ from, to }))
-    .with({ kind: 'enPassant' }, ({ from, to }) => ({ from, to }))
+    .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => ({ from, to }))
     .with({ kind: 'castling' }, ({ kingFrom, kingTo }) => ({ from: kingFrom, to: kingTo }))
+    .exhaustive()
+}
+
+/**
+ * Like `getMoveCoord`, but returns the `from` coordinates of all movers. (Both king and rook in case of castling.)
+ */
+export function getAllMovers(move: Move): Coord[] {
+  return match(move)
+    .with({ kind: P.union('normal', 'enPassant') }, ({ from }) => [from])
+    .with({ kind: 'castling' }, ({ kingFrom, rookFrom }) => [kingFrom, rookFrom])
     .exhaustive()
 }
 
@@ -210,15 +219,19 @@ export function isCapture(board: Board, move: Move): boolean {
 /**
  * Like `isCapture`, but returns the coordinates of the captured piece.
  */
-export function getCapture(board: Board, move: Move): { attacker: Coord; victim: Coord } | null {
+export function getCapture(
+  board: Board,
+  move: Move
+): { attacker: Coord; victim: Coord; newAttackerPosition: Coord } | null {
   return match(move)
     .with({ kind: 'normal' }, ({ from, to }) =>
-      board.isOccupied(to) === true ? { attacker: from, victim: to } : null
+      board.isOccupied(to) === true ? { attacker: from, victim: to, newAttackerPosition: to } : null
     )
     .with({ kind: 'castling' }, () => null)
-    .with({ kind: 'enPassant' }, ({ from }) => ({
+    .with({ kind: 'enPassant' }, ({ from, to }) => ({
       attacker: from,
       victim: board.enPassantTargetPawn()!,
+      newAttackerPosition: to,
     }))
     .exhaustive()
 }
