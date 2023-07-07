@@ -80,8 +80,8 @@ const _2022_01_29: Challenge = {
     link: 'https://www.youtube.com/watch?v=sEdZU-0oHdM',
     challenge: 'Chess, but if your pawn can move, it has to.',
     beaten: {
-      name: users.Emily.name,
-      depth: 2,
+      name: users.Mendax.name,
+      depth: 3,
     },
   },
   isMoveAllowed({ board, move }): boolean {
@@ -250,8 +250,8 @@ const _2021_12_04: Challenge = {
     link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
     challenge: 'You take when you can.',
     beaten: {
-      name: users.ChessSimpSimp.name,
-      depth: 2,
+      name: users.Mendax.name,
+      depth: 3,
     },
   },
   isMoveAllowed({ board, move }): boolean {
@@ -379,6 +379,10 @@ class Challenge_2022_02_10 implements Challenge {
     title: 'I Moved Pawns 100 Times',
     link: 'https://www.youtube.com/watch?v=lco2G0Ri-DM',
     challenge: 'If your opponent moves a piece, you move a pawn, and vice versa.',
+    beaten: {
+      name: users.Mendax.name,
+      depth: 1,
+    },
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
