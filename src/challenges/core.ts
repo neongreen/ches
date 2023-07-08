@@ -13,6 +13,7 @@ export type ChallengeMeta = {
   beaten?: {
     name: string
     depth: number
+    moves?: number
   }
 }
 

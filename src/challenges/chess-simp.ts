@@ -90,6 +90,7 @@ const _2022_01_29: Challenge = {
     beaten: {
       name: users.Mendax.name,
       depth: 3,
+      moves: 64,
     },
   },
   isMoveAllowed({ board, move }): boolean {
@@ -260,6 +261,7 @@ const _2021_12_04: Challenge = {
     beaten: {
       name: users.Mendax.name,
       depth: 3,
+      moves: 65,
     },
   },
   isMoveAllowed({ board, move }): boolean {
@@ -371,6 +373,7 @@ class Challenge_2022_09_19 implements Challenge {
     beaten: {
       name: users.Mendax.name,
       depth: 1,
+      moves: 33,
     },
   }
 
@@ -390,6 +393,7 @@ class Challenge_2022_02_10 implements Challenge {
     beaten: {
       name: users.Mendax.name,
       depth: 1,
+      moves: 12,
     },
   }
 
@@ -411,6 +415,7 @@ class Challenge_2022_05_31 implements Challenge {
     beaten: {
       name: users.RotomAppliance.name,
       depth: 3,
+      moves: 25,
     },
   }
 

@@ -61,6 +61,7 @@ const challenge_pawnObsession: Challenge = {
     beaten: {
       name: users.Mendax.name,
       depth: 4,
+      moves: 35,
     },
   },
   isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {

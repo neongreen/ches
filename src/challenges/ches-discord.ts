@@ -12,6 +12,7 @@ class Challenge_NoGoingBackwards implements Challenge {
     beaten: {
       name: users.RotomAppliance.name,
       depth: 3,
+      moves: 18,
     },
   }
 

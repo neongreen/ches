@@ -75,7 +75,8 @@ function RecordBadge(props: {
   return beaten ? (
     <Badge size={props.size} radius="sm" variant="filled" color={depthColors[beaten.depth]}>
       {props.recordPrefix && 'Record: '}
-      {beaten.name} @ depth={beaten.depth}
+      {beaten.name} | depth={beaten.depth}{' '}
+      {beaten.moves !== undefined ? `moves=${beaten.moves}` : ''}
     </Badge>
   ) : (
     <Badge size={props.size} radius="sm" variant="outline" color="gray">
