@@ -413,9 +413,9 @@ class Challenge_2022_05_31 implements Challenge {
     link: 'https://www.youtube.com/watch?v=KDPXaL9V7hY',
     challenge: 'Chess, but the only piece you can take is the piece your opponent had just moved.',
     beaten: {
-      name: users.RotomAppliance.name,
-      depth: 3,
-      moves: 25,
+      name: users.Mendax.name,
+      depth: 4,
+      moves: 44,
     },
   }
 
@@ -507,8 +507,9 @@ class Challenge_2022_05_12 implements Challenge {
     challenge:
       'Chess, but you have tunnel vision. You can only move the pieces (or pawns) that are CURRENTLY within a 3-tile range from what your opponent just moved.',
     beaten: {
-      name: users.Emily.name,
-      depth: 1,
+      name: users.Mendax.name,
+      depth: 2,
+      moves: 31,
     },
   }
 
