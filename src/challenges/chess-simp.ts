@@ -454,9 +454,9 @@ class Challenge_2023_01_09 implements Challenge {
     challenge:
       "Chess, but your pieces regret killing. After making a capture, they have to sit down and think about what they've done for 3 turns before they can move again.",
     beaten: {
-      name: users.Emily.name,
-      depth: 4,
-      moves: 57,
+      name: users.Mendax.name,
+      depth: 6,
+      moves: 56,
     },
   }
 
