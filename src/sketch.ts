@@ -174,7 +174,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
   }
 
   const makeMove = (move: Move) => {
-    if (isCapture(chess.board, move)) {
+    if (isCapture(move)) {
       sounds.capture.play()
     } else {
       sounds.move.play()

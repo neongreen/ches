@@ -1,24 +1,23 @@
-import { Coord } from '@/utils/coord'
-import {
-  MaybePiece,
-  pieceToLetter,
-  pieceType,
-  MaybePieceType,
-  pieceTypeToLetter,
-  Color,
-  isPawn,
-  PieceTypeEmpty,
-  PieceType,
-  PieceEmpty,
-  Piece,
-} from '@/piece'
 import { Board } from '@/board'
 import { isKingAttackedByColor } from '@/move/attacked'
+import {
+  Color,
+  MaybePiece,
+  Piece,
+  PieceEmpty,
+  PieceType,
+  PieceTypeEmpty,
+  isPawn,
+  pieceToLetter,
+  pieceType,
+  pieceTypeToLetter,
+} from '@/piece'
+import { Coord } from '@/utils/coord'
 import { P, match } from 'ts-pattern'
 import { castlingMoves } from './move/pieces/king'
 
 export type Move =
-  | { kind: 'normal'; from: Coord; to: Coord; promotion?: MaybePiece }
+  | { kind: 'normal'; from: Coord; to: Coord; promotion: Piece | null; capture: MaybePiece }
   | {
       kind: 'castling'
       kingFrom: Coord
@@ -30,6 +29,7 @@ export type Move =
       kind: 'enPassant'
       from: Coord
       to: Coord
+      capture: Piece
       // NB: we can never have a promotion on an en passant move
     }
 
@@ -75,14 +75,10 @@ export function notateMove(board: Board, move: Move): string {
   switch (move.kind) {
     case 'normal': {
       const pieceFrom = board.at(move.from)
-      const pieceTo = board.at(move.to)
       switch (pieceType(pieceFrom)) {
-        case PieceTypeEmpty: {
-          throw new Error('move.from is empty')
-        }
         case PieceType.Pawn: {
           let notation = ''
-          if (pieceTo !== PieceEmpty) notation += move.from.toAlgebraic().charAt(0) + 'x'
+          if (move.capture !== PieceEmpty) notation += move.from.toAlgebraic().charAt(0) + 'x'
           notation += move.to.toAlgebraic()
           if (move.promotion) notation += '=' + pieceToLetter(move.promotion).toUpperCase()
           return notation
@@ -90,7 +86,7 @@ export function notateMove(board: Board, move: Move): string {
         default: {
           return (
             pieceTypeToLetter(pieceType(pieceFrom)) +
-            (pieceTo === PieceEmpty ? '' : 'x') +
+            (move.capture ? 'x' : '') +
             move.to.toAlgebraic()
           )
         }
@@ -148,7 +144,13 @@ export function translateFromHumanMove(
     .when(
       () =>
         isPawn(piece) && board.enPassantTargetSquare && drag.to.equals(board.enPassantTargetSquare),
-      () => ({ kind: 'enPassant', from: drag.from, to: drag.to } satisfies Move)
+      () =>
+        ({
+          kind: 'enPassant',
+          from: drag.from,
+          to: drag.to,
+          capture: board.at(board.enPassantTargetPawn()!) as Piece,
+        } satisfies Move)
     )
     .otherwise(
       () =>
@@ -156,8 +158,13 @@ export function translateFromHumanMove(
           kind: 'normal',
           from: drag.from,
           to: drag.to,
-          ...(piece === Piece.WhitePawn && drag.to.y === 7 ? { promotion: Piece.WhiteQueen } : {}),
-          ...(piece === Piece.BlackPawn && drag.to.y === 0 ? { promotion: Piece.BlackQueen } : {}),
+          promotion:
+            piece === Piece.WhitePawn && drag.to.y === 7
+              ? Piece.WhiteQueen
+              : piece === Piece.BlackPawn && drag.to.y === 0
+              ? Piece.BlackQueen
+              : null,
+          capture: board.at(drag.to),
         } satisfies Move)
     )
 }
@@ -212,8 +219,8 @@ export function getMovePiece(board: Board, move: Move): MaybePiece {
 /**
  * Is the move a capture?
  */
-export function isCapture(board: Board, move: Move): boolean {
-  return getCapture(board, move) !== null
+export function isCapture(move: Move): boolean {
+  return 'capture' in move && move.capture !== PieceEmpty
 }
 
 /**
@@ -224,8 +231,8 @@ export function getCapture(
   move: Move
 ): { attacker: Coord; victim: Coord; newAttackerPosition: Coord } | null {
   return match(move)
-    .with({ kind: 'normal' }, ({ from, to }) =>
-      board.isOccupied(to) === true ? { attacker: from, victim: to, newAttackerPosition: to } : null
+    .with({ kind: 'normal' }, ({ from, to, capture }) =>
+      capture !== PieceEmpty ? { attacker: from, victim: to, newAttackerPosition: to } : null
     )
     .with({ kind: 'castling' }, () => null)
     .with({ kind: 'enPassant' }, ({ from, to }) => ({

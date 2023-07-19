@@ -51,7 +51,13 @@ export function kingMoves(board: Board, color: Color, coord: Coord): Move[] {
       if (x === 0 && y === 0) continue
       const target = coord.shift({ x, y })
       if (target.isValid() && pieceColor(board.at(target)) !== color) {
-        moves.push({ kind: 'normal', from: coord, to: target })
+        moves.push({
+          kind: 'normal',
+          from: coord,
+          to: target,
+          promotion: null,
+          capture: board.at(target),
+        })
       }
     }
   }

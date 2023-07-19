@@ -2,7 +2,15 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, MaybePiece, Piece, isBlackPiece, isWhitePiece, pieceColor } from '@/piece'
+import {
+  Color,
+  MaybePiece,
+  Piece,
+  PieceEmpty,
+  isBlackPiece,
+  isWhitePiece,
+  pieceColor,
+} from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 
@@ -23,23 +31,32 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           kind: 'normal',
           from: coord,
           to: dest,
-          ...(dest.y === 7 ? { promotion: Piece.WhiteQueen } : {}),
+          promotion: dest.y === 7 ? Piece.WhiteQueen : null,
+          capture: PieceEmpty,
         })
     }
 
     // going up 2 if empty && we are on the second rank
     if (coord.y === 1 && board.isEmpty(coord.n()) && board.isEmpty(coord.n().n())) {
-      moves.push({ kind: 'normal', from: coord, to: coord.n().n() })
+      moves.push({
+        kind: 'normal',
+        from: coord,
+        to: coord.n().n(),
+        promotion: null,
+        capture: PieceEmpty,
+      })
     }
 
     // captures if there's something to capture
     for (const dest of [coord.ne(), coord.nw()]) {
-      if (isBlackPiece(board.at(dest)))
+      const target = board.at(dest)
+      if (isBlackPiece(target))
         moves.push({
           kind: 'normal',
           from: coord,
           to: dest,
-          ...(dest.y === 7 ? { promotion: Piece.WhiteQueen } : {}),
+          promotion: dest.y === 7 ? Piece.WhiteQueen : null,
+          capture: target,
         })
     }
 
@@ -56,6 +73,7 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           kind: 'enPassant',
           from: coord,
           to: dest,
+          capture: Piece.BlackPawn,
         })
       }
     }
@@ -68,23 +86,32 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           kind: 'normal',
           from: coord,
           to: dest,
-          ...(dest.y === 0 ? { promotion: Piece.BlackQueen } : {}),
+          promotion: dest.y === 0 ? Piece.BlackQueen : null,
+          capture: PieceEmpty,
         })
     }
 
     // going down 2 if empty && we are on the seventh rank
     if (coord.y === 6 && board.isEmpty(coord.s()) && board.isEmpty(coord.s().s())) {
-      moves.push({ kind: 'normal', from: coord, to: coord.s().s() })
+      moves.push({
+        kind: 'normal',
+        from: coord,
+        to: coord.s().s(),
+        promotion: null,
+        capture: PieceEmpty,
+      })
     }
 
     // captures if there's something to capture
     for (const dest of [coord.se(), coord.sw()]) {
-      if (isWhitePiece(board.at(dest)))
+      const target = board.at(dest)
+      if (isWhitePiece(target))
         moves.push({
           kind: 'normal',
           from: coord,
           to: dest,
-          ...(dest.y === 0 ? { promotion: Piece.BlackQueen } : {}),
+          promotion: dest.y === 0 ? Piece.BlackQueen : null,
+          capture: target,
         })
     }
 
@@ -101,6 +128,7 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           kind: 'enPassant',
           from: coord,
           to: dest,
+          capture: Piece.WhitePawn,
         })
       }
     }

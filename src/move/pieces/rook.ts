@@ -2,7 +2,7 @@
 
 import { Board } from '@/board'
 import { Move } from '@/move'
-import { Color, MaybePiece, invertColor, pieceColor } from '@/piece'
+import { Color, MaybePiece, PieceEmpty, invertColor, pieceColor } from '@/piece'
 import { Coord } from '@/utils/coord'
 
 /**
@@ -19,11 +19,12 @@ export function rookMoves(board: Board, color: Color, coord: Coord): Move[] {
   for (let delta of deltas) {
     let xy = coord.shift(delta)
     while (board.isEmpty(xy)) {
-      moves.push({ kind: 'normal', from: coord, to: xy })
+      moves.push({ kind: 'normal', from: coord, to: xy, promotion: null, capture: PieceEmpty })
       xy = xy.shift(delta)
     }
-    if (pieceColor(board.at(xy)) === invertColor(color)) {
-      moves.push({ kind: 'normal', from: coord, to: xy })
+    const target = board.at(xy)
+    if (pieceColor(target) === invertColor(color)) {
+      moves.push({ kind: 'normal', from: coord, to: xy, promotion: null, capture: target })
     }
   }
   return moves

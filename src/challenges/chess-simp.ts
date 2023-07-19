@@ -265,7 +265,7 @@ const _2021_12_04: Challenge = {
     },
   },
   isMoveAllowed({ board, move }): boolean {
-    const captures = legalMoves_slow(board).filter((move) => isCapture(board, move))
+    const captures = legalMoves_slow(board).filter(isCapture)
     return captures.length === 0 || captures.some((x) => moveIsEqual(x, move))
   },
 }

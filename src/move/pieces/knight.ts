@@ -24,7 +24,13 @@ export function knightMoves(board: Board, color: Color, coord: Coord): Move[] {
   for (let delta of deltas) {
     const target = coord.shift(delta)
     if (target.isValid() && pieceColor(board.at(target)) !== color) {
-      moves.push({ kind: 'normal', from: coord, to: target })
+      moves.push({
+        kind: 'normal',
+        from: coord,
+        to: target,
+        promotion: null,
+        capture: board.at(target),
+      })
     }
   }
   return moves
