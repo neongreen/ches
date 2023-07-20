@@ -8,6 +8,9 @@ function signed(sign: boolean, x: number) {
   return sign ? x : -x
 }
 
+const PIECE_ENTERS = true
+const PIECE_LEAVES = false
+
 /** A node in the evaluation tree. Contains a board + extra info used for eval. */
 export class EvalNode {
   /**
@@ -40,7 +43,7 @@ export class EvalNode {
   /**
    * Things to do when a piece is lifted off, or put on the board. (Updates `material`, `development`, etc.)
    *
-   * @param sign Whether the piece is being added (`true`) or removed (`false`).
+   * @param sign Whether the piece is being added (`PIECE_ENTERS`) or removed (`PIECE_LEAVES`).
    */
   private countPiece(piece: Piece, coord: Coord, sign: boolean) {
     switch (pieceColor(piece)) {
@@ -79,7 +82,7 @@ export class EvalNode {
       for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
           const piece = board.unsafeAt(new Coord(x, y))
-          if (piece !== PieceEmpty) this.countPiece(piece, new Coord(x, y), true)
+          if (piece !== PieceEmpty) this.countPiece(piece, new Coord(x, y), PIECE_ENTERS)
         }
       }
     } else {
@@ -102,31 +105,27 @@ export class EvalNode {
       case 'normal':
         {
           const piece = this.board.at(move.from) as Piece // I swear it's not empty
-          const dest = this.board.at(move.to)
-          // The moved piece leaves the board, and, potentially promoted, enters the board
-          this.countPiece(piece, move.from, false)
-          this.countPiece(move.promotion || piece, move.to, true)
-          // If we have captured a piece, it leaves the board
-          if (dest !== PieceEmpty) this.countPiece(dest, move.to, false)
+          this.countPiece(piece, move.from, PIECE_LEAVES)
+          this.countPiece(move.promotion || piece, move.to, PIECE_ENTERS)
+          if (move.capture !== PieceEmpty) this.countPiece(move.capture, move.to, PIECE_LEAVES)
         }
         break
       case 'castling':
         {
           const king = this.board.at(move.kingFrom) as Piece
           const rook = this.board.at(move.rookFrom) as Piece
-          this.countPiece(king, move.kingFrom, false)
-          this.countPiece(rook, move.rookFrom, false)
-          this.countPiece(king, move.kingTo, true)
-          this.countPiece(rook, move.rookTo, true)
+          this.countPiece(king, move.kingFrom, PIECE_LEAVES)
+          this.countPiece(rook, move.rookFrom, PIECE_LEAVES)
+          this.countPiece(king, move.kingTo, PIECE_ENTERS)
+          this.countPiece(rook, move.rookTo, PIECE_ENTERS)
         }
         break
       case 'enPassant': {
         const pawn = this.board.at(move.from) as Piece
         const enPassantTargetPawn = this.board.enPassantTargetPawn()!
-        const capturedPawn = this.board.at(enPassantTargetPawn) as Piece
-        this.countPiece(pawn, move.from, false)
-        this.countPiece(pawn, move.to, true)
-        this.countPiece(capturedPawn, enPassantTargetPawn, false)
+        this.countPiece(pawn, move.from, PIECE_LEAVES)
+        this.countPiece(pawn, move.to, PIECE_ENTERS)
+        this.countPiece(move.capture, enPassantTargetPawn, PIECE_LEAVES)
       }
     }
 
