@@ -122,15 +122,46 @@ export class EvalNode {
         break
       case 'enPassant': {
         const pawn = this.board.at(move.from) as Piece
-        const enPassantTargetPawn = this.board.enPassantTargetPawn()!
         this.countPiece(pawn, move.from, PIECE_LEAVES)
         this.countPiece(pawn, move.to, PIECE_ENTERS)
-        this.countPiece(move.capture, enPassantTargetPawn, PIECE_LEAVES)
+        this.countPiece(move.capture, move.captureCoord, PIECE_LEAVES)
       }
     }
 
     if (newBoard) this.board = newBoard
     else this.board.executeMove(move)
+  }
+
+  unmakeMove() {
+    const move = this.board.unmakeMove()
+
+    // Now it's the same code as in `executeMove`, but with the signs flipped
+    switch (move.kind) {
+      case 'normal':
+        {
+          const piece = this.board.at(move.from) as Piece // I swear it's not empty
+          this.countPiece(piece, move.from, PIECE_ENTERS)
+          this.countPiece(move.promotion || piece, move.to, PIECE_LEAVES)
+          if (move.capture !== PieceEmpty) this.countPiece(move.capture, move.to, PIECE_ENTERS)
+        }
+        break
+      case 'castling':
+        {
+          const king = this.board.at(move.kingFrom) as Piece
+          const rook = this.board.at(move.rookFrom) as Piece
+          this.countPiece(king, move.kingFrom, PIECE_ENTERS)
+          this.countPiece(rook, move.rookFrom, PIECE_ENTERS)
+          this.countPiece(king, move.kingTo, PIECE_LEAVES)
+          this.countPiece(rook, move.rookTo, PIECE_LEAVES)
+        }
+        break
+      case 'enPassant': {
+        const pawn = this.board.at(move.from) as Piece
+        this.countPiece(pawn, move.from, PIECE_ENTERS)
+        this.countPiece(pawn, move.to, PIECE_LEAVES)
+        this.countPiece(move.capture, move.captureCoord, PIECE_ENTERS)
+      }
+    }
   }
 
   /**

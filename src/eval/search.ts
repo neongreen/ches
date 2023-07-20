@@ -2,13 +2,15 @@ import { Board } from '@/board'
 import { isInCheck, Move, moveIsEqual } from '@/move'
 import { isLegalMove } from '@/move/legal'
 import { quasiLegalMoves } from '@/move/quasiLegal'
-import { allPieceTypes, Color, MaybePiece, MaybePieceType, PieceEmpty, pieceType } from '@/piece'
+import { allPieceTypes, Color, PieceEmpty, pieceType } from '@/piece'
 import { Zobrist } from '@/zobrist'
-import _ from 'lodash'
+import { instanceToPlain } from 'class-transformer'
+import 'reflect-metadata'
 import { leafEvalNode } from './eval'
 import { pieceTypeValue } from './material'
 import { EvalNode } from './node'
 import { isMate, mateByBlack, mateByWhite, Score } from './score'
+import { diffString } from 'json-diff'
 
 type TranspositionTableEntry = {
   /** Board `state()` */
@@ -88,10 +90,15 @@ export class Search {
 
   /**
    * Does the transposition table contain an entry for the given board?
+   *
+   * Calculating the state might be expensive, so we'll only do it if we have to.
    */
-  private probeTransposition(hash: Zobrist, state: string): TranspositionTableEntry | undefined {
+  private probeTransposition(
+    hash: Zobrist,
+    state: () => string
+  ): TranspositionTableEntry | undefined {
     const entry = this.transpositionTable[hash & 0xffff]
-    if (entry && entry.state === state) return entry
+    if (entry && entry.state === state()) return entry
   }
 
   /**
@@ -142,11 +149,9 @@ export class Search {
     // Threefold repetition is a draw
     if (node.board.isThreefoldRepetition()) return { move: null, score: 0, line: [] }
 
-    const hash = node.board.hash
-    const state = node.board.state()
-
     // Check if we have seen this position before
-    const transpositionTableEntry = this.probeTransposition(hash, state)
+    const hash = node.board.hash
+    const transpositionTableEntry = this.probeTransposition(hash, () => node.board.state())
     if (transpositionTableEntry && transpositionTableEntry.depth >= depth) {
       return {
         move: transpositionTableEntry.goodMove,
@@ -175,13 +180,33 @@ export class Search {
       boardAfterMove.executeMove(move)
       if (!isLegalMove(node.board, boardAfterMove, move, { assumeQuasiLegal: true })) continue
 
+      // DEBUG: check if 'unmakeMove' isn't screwing things up
+      if (process.env.NODE_ENV === 'test') {
+        const nodeBeforeUnmake = node.clone()
+        node.executeMove(move, boardAfterMove.clone())
+        node.unmakeMove()
+        const nodeAfterUnmake = node.clone()
+        if (
+          JSON.stringify(instanceToPlain(nodeBeforeUnmake)) !==
+          JSON.stringify(instanceToPlain(nodeAfterUnmake))
+        ) {
+          console.debug(
+            diffString(instanceToPlain(nodeBeforeUnmake), instanceToPlain(nodeAfterUnmake))
+          )
+          console.debug('Board:' + '\n' + nodeBeforeUnmake.board.debugShow())
+          console.debug('Move:', move)
+          console.debug('Board after make-unmake:' + '\n' + nodeAfterUnmake.board.debugShow())
+          throw new Error('unmakeMove() failed')
+        }
+      }
+
       // Evaluate the move
-      const newNode = node.clone()
-      newNode.executeMove(move, boardAfterMove)
+      node.executeMove(move, boardAfterMove)
       const current =
         depth === 1
-          ? { score: leafEvalNode(newNode), line: [] }
-          : this.findBestMove(newNode, depth - 1, alpha, beta)
+          ? { score: leafEvalNode(node), line: [] }
+          : this.findBestMove(node, depth - 1, alpha, beta)
+      node.unmakeMove()
 
       if (node.board.side === Color.White) {
         if (current.score > best.score) best = { ...current, move }
@@ -222,7 +247,7 @@ export class Search {
     // Update the transposition table (only if depth>1 because we want to save memory)
     if (depth > 1)
       this.writeTransposition(hash, {
-        state,
+        state: node.board.state(),
         depth,
         goodMove: best.move,
         score: best.score,
@@ -242,7 +267,9 @@ export class Search {
     if (node.board.isThreefoldRepetition()) return { move: null, score: 0 }
 
     // Check if we have seen this position before
-    const transpositionTableEntry = this.probeTransposition(node.board.hash, node.board.state())
+    const transpositionTableEntry = this.probeTransposition(node.board.hash, () =>
+      node.board.state()
+    )
     if (transpositionTableEntry)
       return {
         move: transpositionTableEntry.goodMove && 'exists',

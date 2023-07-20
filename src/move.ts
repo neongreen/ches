@@ -30,6 +30,7 @@ export type Move =
       from: Coord
       to: Coord
       capture: Piece
+      captureCoord: Coord
       // NB: we can never have a promotion on an en passant move
     }
 
@@ -150,6 +151,7 @@ export function translateFromHumanMove(
           from: drag.from,
           to: drag.to,
           capture: board.at(board.enPassantTargetPawn()!) as Piece,
+          captureCoord: board.enPassantTargetPawn()!,
         } satisfies Move)
     )
     .otherwise(
@@ -227,7 +229,6 @@ export function isCapture(move: Move): boolean {
  * Like `isCapture`, but returns the coordinates of the captured piece.
  */
 export function getCapture(
-  board: Board,
   move: Move
 ): { attacker: Coord; victim: Coord; newAttackerPosition: Coord } | null {
   return match(move)
@@ -235,9 +236,9 @@ export function getCapture(
       capture !== PieceEmpty ? { attacker: from, victim: to, newAttackerPosition: to } : null
     )
     .with({ kind: 'castling' }, () => null)
-    .with({ kind: 'enPassant' }, ({ from, to }) => ({
+    .with({ kind: 'enPassant' }, ({ from, to, captureCoord }) => ({
       attacker: from,
-      victim: board.enPassantTargetPawn()!,
+      victim: captureCoord,
       newAttackerPosition: to,
     }))
     .exhaustive()

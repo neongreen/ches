@@ -177,11 +177,11 @@ class Challenge_2022_05_30 implements Challenge {
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
-    // If there are several pieces that are equally extended, you can take any of them (1:19). If you're not taking a piece, you can do whatever you want.
+    // If there are several pieces that are equally extended, you can take any of them (1:19 in the video). If you're not taking a piece, you can do whatever you want.
     const mostExtendedRow = this.mostExtendedRow(board)
     return match(move)
       .with({ kind: 'normal' }, ({ to }) => board.isEmpty(to) || to.y === mostExtendedRow)
-      .with({ kind: 'enPassant' }, () => board.enPassantTargetPawn()!.y === mostExtendedRow)
+      .with({ kind: 'enPassant' }, ({ captureCoord }) => captureCoord.y === mostExtendedRow)
       .with({ kind: 'castling' }, () => true)
       .exhaustive()
   }
@@ -247,7 +247,7 @@ const _2023_02_23: Challenge = {
   },
   isMoveAllowed({ board, move }): boolean {
     // Note: no idea about en passant, let's just say it's not allowed.
-    const capture = getCapture(board, move)
+    const capture = getCapture(move)
     return capture === null || capture.victim.y < capture.attacker.y
   },
 }
@@ -350,13 +350,13 @@ class Challenge_2023_04_01 implements Challenge {
   private minCaptureValue = 0
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
-    const capture = getCapture(board, move)
+    const capture = getCapture(move)
     if (!capture) return true
     return pieceValue(board.at(capture.victim)) >= this.minCaptureValue
   }
 
   recordMove: NonNullable<Challenge['recordMove']> = ({ boardBeforeMove, move }) => {
-    const capture = getCapture(boardBeforeMove, move)
+    const capture = getCapture(move)
     if (boardBeforeMove.side === Color.White && capture) {
       this.minCaptureValue = pieceValue(boardBeforeMove.at(capture.victim))
     }
@@ -378,7 +378,7 @@ class Challenge_2022_09_19 implements Challenge {
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
-    const capture = getCapture(board, move)
+    const capture = getCapture(move)
     const noPawnsLeft = board.pieces().every(({ piece }) => piece !== Piece.WhitePawn)
     return capture ? noPawnsLeft : true
   }
@@ -434,7 +434,7 @@ class Challenge_2022_05_31 implements Challenge {
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
     const allowedVictims = this.allowedVictims(history)
     if (!allowedVictims) return true
-    const capture = getCapture(board, move)
+    const capture = getCapture(move)
     if (!capture) return true
     return allowedVictims.some((victim) => victim.equals(capture.victim))
   }
@@ -467,7 +467,7 @@ class Challenge_2023_01_09 implements Challenge {
     boardBeforeMove,
     boardAfterMove,
   }) => {
-    const capture = getCapture(boardBeforeMove, move)
+    const capture = getCapture(move)
     // If it was our move and it was a capture, we need to update `murderers`. If a capture happens on move N, the piece will be immobilized on moves N+123, and free again on move N+4.
     if (boardBeforeMove.side === Color.White && capture) {
       this.murderers.push({

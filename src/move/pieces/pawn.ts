@@ -74,6 +74,7 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           from: coord,
           to: dest,
           capture: Piece.BlackPawn,
+          captureCoord: dest.s(),
         })
       }
     }
@@ -129,6 +130,7 @@ export function pawnMoves(board: Board, color: Color, coord: Coord): Move[] {
           from: coord,
           to: dest,
           capture: Piece.WhitePawn,
+          captureCoord: dest.n(),
         })
       }
     }

@@ -1,10 +1,24 @@
-import { Color, isPawn, letterToPiece, MaybePiece, Piece, PieceEmpty } from '@/piece'
+import {
+  Color,
+  isPawn,
+  letterToPiece,
+  makePiece,
+  MaybePiece,
+  Piece,
+  PieceEmpty,
+  pieceToLetter,
+  PieceType,
+} from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
 import { Zobrist, zobristCastling, zobristPiece, zobristWhiteToMove } from './zobrist'
 import { Castling, CastlingBitmask } from './utils/castling'
 
-/** Game state representation. Includes pieces, whose move it is, etc. */
+/**
+ * Game state representation. Includes pieces, whose move it is, etc.
+ *
+ * We store a `stack` variant of some of the internal variables — those are needed for undoing moves.
+ */
 export class Board {
   static dimensions = { width: 8, height: 8 }
 
@@ -37,6 +51,7 @@ export class Board {
    * Castling rights.
    */
   private castlingRights: CastlingBitmask
+  private castlingRightsStack: CastlingBitmask[]
 
   /** Is there a castling right for X? */
   hasCastling(x: Castling): boolean {
@@ -47,6 +62,7 @@ export class Board {
    * If the last move was a double pawn push, this is the "target square" for en passant captures - that is, the square behind the pawn that was pushed.
    */
   enPassantTargetSquare: Coord | null = null
+  private enPassantTargetSquareStack: (Coord | null)[]
 
   /**
    * The current position of the en passant pawn, if any.
@@ -63,23 +79,38 @@ export class Board {
   }
 
   /**
-   * Previous positions' `state()`s. Used to detect three-fold repetition.
-   *
-   * This array is cleared after each irreversible move (pawn moves, captures, castling).
+   * Move history.
    */
-  private previousPositions: string[] = []
+  moveHistory: Move[]
 
   /**
-   * Previous positions' hashes. This is kept in sync with `previousPositions`.
+   * Current position as a binary string.
+   *
+   * We don't care about the contents of the string as long as the following invariant holds: if two strings are the same, the positions are the same with respect to the three-fold repetition rule.
    */
-  private previousPositionHashes: Zobrist[] = []
+  state(): string {
+    return String.fromCharCode(
+      ...this.board,
+      this.side,
+      this.castlingRights,
+      this.enPassantTargetSquare ? this.enPassantTargetSquare.x + 1 : 0,
+      this.enPassantTargetSquare ? this.enPassantTargetSquare.y + 1 : 0
+    )
+  }
+
+  /**
+   * A hash of the position.
+   *
+   * If two hashes are different, the positions are different with respect to the three-fold repetition rule. However, collisions are possible. You'll need to check `state` as well to be sure.
+   */
+  hash: Zobrist
+  hashStack: Zobrist[]
 
   /**
    * THREEFOLD REPETITION: `irreversibleMoveClock` is the number of half-moves since the last irreversible move (pawn moves, captures, castling). If it's 0, the last move was irreversible.
-   *
-   * Invariant: this is also the length of `previousPositions`.
    */
   irreversibleMoveClock = 0
+  private irreversibleMoveClockStack: number[]
 
   /**
    * FIFTY-MOVE RULE: `halfmoveClock` is the number of half-moves since the last capture or pawn move. If it's 0, the last move was a capture or pawn move.
@@ -87,6 +118,7 @@ export class Board {
    * See https://www.chessprogramming.org/Halfmove_Clock
    */
   halfmoveClock = 0
+  private halfmoveClockStack: number[]
 
   fullMoveNumber = 1
 
@@ -103,12 +135,17 @@ export class Board {
       this.kings = { ...board.kings }
       this.castlingRights = board.castlingRights
       this.enPassantTargetSquare = board.enPassantTargetSquare
-      this.previousPositions = board.previousPositions.slice()
-      this.previousPositionHashes = board.previousPositionHashes.slice()
+      this.state = board.state
       this.hash = board.hash
       this.irreversibleMoveClock = board.irreversibleMoveClock
       this.halfmoveClock = board.halfmoveClock
       this.fullMoveNumber = board.fullMoveNumber
+      this.moveHistory = board.moveHistory.slice()
+      this.castlingRightsStack = board.castlingRightsStack.slice()
+      this.enPassantTargetSquareStack = board.enPassantTargetSquareStack.slice()
+      this.irreversibleMoveClockStack = board.irreversibleMoveClockStack.slice()
+      this.halfmoveClockStack = board.halfmoveClockStack.slice()
+      this.hashStack = board.hashStack.slice()
     } else {
       // We don't actually care about anything because `setFen` will overwrite everything, but things seem to be slower if we use {} etc.
       this.board = new Uint8Array(64)
@@ -116,6 +153,13 @@ export class Board {
       this.castlingRights = Castling.None
       this.kings = { white: new Coord(4, 0), black: new Coord(4, 7) }
       this.hash = 0
+      this.moveHistory = []
+      this.castlingRightsStack = []
+      this.enPassantTargetSquareStack = []
+      this.irreversibleMoveClockStack = []
+      this.halfmoveClockStack = []
+      this.hashStack = []
+
       this.setFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     }
   }
@@ -128,26 +172,18 @@ export class Board {
   }
 
   /**
-   * Return the position as a weird binary-ish string. We don't care about the contents of the string as long as the following invariant holds:
-   *
-   * if two strings are the same, the positions are the same with respect to the three-fold repetition rule.
+   * Print the board as a string with newlines etc.
    */
-  state(): string {
-    return String.fromCharCode(
-      ...this.board,
-      this.side,
-      this.castlingRights,
-      this.enPassantTargetSquare ? this.enPassantTargetSquare.x + 1 : 0,
-      this.enPassantTargetSquare ? this.enPassantTargetSquare.y + 1 : 0
-    )
+  debugShow(): string {
+    let str = ''
+    for (let y = 7; y >= 0; y--) {
+      for (let x = 0; x < 8; x++) {
+        str += pieceToLetter(this.unsafeAt(new Coord(x, y)))
+      }
+      str += '\n'
+    }
+    return str
   }
-
-  /**
-   * Stores a hash of the position.
-   *
-   * If two hashes are different, the positions are different with respect to the three-fold repetition rule. However, collisions are possible.
-   */
-  hash: Zobrist
 
   /**
    * Is the current position a three-fold repetition?
@@ -161,18 +197,33 @@ export class Board {
     // only one of them will be from the same side to move as the current side.)
     if (this.irreversibleMoveClock < 4) return false
 
-    // We start searching from the end, because it's more likely that the repetition is recent.
-    let count = 0
-    const currentState = this.state()
-    for (let i = this.previousPositionHashes.length - 1; i >= 0; i--) {
-      if (
-        this.previousPositionHashes[i] === this.hash &&
-        this.previousPositions[i] === currentState
-      )
-        count++
-      if (count >= 2) return true
+    // We search from the end, because it's more likely that the repetition is recent. We also need to search only as far as the last irreversible move.
+    let probabilisticResult = false
+    {
+      let count = 0
+      for (let i = 0; i < this.irreversibleMoveClock; i++) {
+        if (this.hashStack.at(-i - 1) === this.hash) count++
+        if (count >= 2) {
+          probabilisticResult = true
+          break
+        }
+      }
     }
-    return false
+    // If hashes didn't match, we know we don't have a threefold repetition.
+    if (!probabilisticResult) return false
+
+    // Otherwise we still need to check the actual positions, which is expensive. Let's do it.
+    {
+      let count = 0
+      const board = this.clone()
+      const state = this.state()
+      for (let i = 0; i < this.irreversibleMoveClock; i++) {
+        board.unmakeMove()
+        if (board.state() === state) count++
+        if (count >= 2) return true
+      }
+      return false
+    }
   }
 
   /**
@@ -192,6 +243,9 @@ export class Board {
    * Doesn't check if the coordinates are off the board.
    */
   unsafeAt(coord: Coord): MaybePiece {
+    if (process.env.NODE_ENV === 'test') {
+      if (!coord.isValid()) throw new Error(`Invalid coordinates: ${coord.toString()}`)
+    }
     return this.board[coord.y * 8 + coord.x]
   }
 
@@ -222,6 +276,18 @@ export class Board {
     this.board[coord.y * 8 + coord.x] = pieceNew
     if (pieceNew === Piece.WhiteKing) this.kings.white = coord
     if (pieceNew === Piece.BlackKing) this.kings.black = coord
+  }
+
+  /**
+   * Set the piece at coordinates (x, y).
+   *
+   * Doesn't update the hash or the kings position.
+   */
+  private unsafeSet(coord: Coord, piece: MaybePiece) {
+    if (process.env.NODE_ENV === 'test') {
+      if (!coord.isValid()) throw new Error(`Invalid coordinates: ${coord.toString()}`)
+    }
+    this.board[coord.y * 8 + coord.x] = piece
   }
 
   /**
@@ -269,8 +335,14 @@ export class Board {
     this.halfmoveClock = parseInt(halfmove, 10)
     this.irreversibleMoveClock = 0 // FEN doesn't have this info
     this.fullMoveNumber = parseInt(fullmove, 10)
-    this.previousPositions = []
-    this.previousPositionHashes = []
+
+    this.moveHistory = []
+
+    this.castlingRightsStack = []
+    this.enPassantTargetSquareStack = []
+    this.irreversibleMoveClockStack = []
+    this.halfmoveClockStack = []
+    this.hashStack = []
 
     this.board = new Uint8Array(64).fill(PieceEmpty)
     let rows = pieces.split('/')
@@ -297,14 +369,18 @@ export class Board {
    * Execute a move. Doesn't check if it's valid.
    */
   executeMove(move: Move) {
-    const oldHash = this.hash
-    const oldState = this.state()
-
     // We remember old castling rights so that later we can see if they have changed
     const oldCastlingRights = this.castlingRights
 
     // For the fifty-move rule
     let captureOrPawnMove = false
+
+    // Update all stacks
+    this.castlingRightsStack.push(this.castlingRights)
+    this.enPassantTargetSquareStack.push(this.enPassantTargetSquare)
+    this.irreversibleMoveClockStack.push(this.irreversibleMoveClock)
+    this.halfmoveClockStack.push(this.halfmoveClock)
+    this.hashStack.push(this.hash)
 
     switch (move.kind) {
       case 'normal':
@@ -388,20 +464,15 @@ export class Board {
         break
       case 'enPassant':
         {
-          const enPassantPawn = this.enPassantTargetPawn()
-          if (enPassantPawn === null)
-            throw new Error(
-              'We are trying to execute an en passant move, but there is no en passant pawn'
-            )
           this.enPassantTargetSquare = null
           if (this.side === Color.White) {
             this.replace(move.from, Piece.WhitePawn, PieceEmpty)
             this.replace(move.to, PieceEmpty, Piece.WhitePawn)
-            this.replace(enPassantPawn, Piece.BlackPawn, PieceEmpty)
+            this.replace(move.captureCoord, Piece.BlackPawn, PieceEmpty)
           } else {
             this.replace(move.from, Piece.BlackPawn, PieceEmpty)
             this.replace(move.to, PieceEmpty, Piece.BlackPawn)
-            this.replace(enPassantPawn, Piece.WhitePawn, PieceEmpty)
+            this.replace(move.captureCoord, Piece.WhitePawn, PieceEmpty)
           }
         }
         break
@@ -415,14 +486,10 @@ export class Board {
     if (captureOrPawnMove) this.halfmoveClock = 0
     else this.halfmoveClock++
 
-    // If the move was irreversible, reset the irreversible move clock; otherwise remember the position so that later we can check for threefold repetition
+    // If the move was irreversible, reset the irreversible move clock
     if (captureOrPawnMove || oldCastlingRights !== this.castlingRights) {
-      this.previousPositions = []
-      this.previousPositionHashes = []
       this.irreversibleMoveClock = 0
     } else {
-      this.previousPositions.push(oldState)
-      this.previousPositionHashes.push(oldHash)
       this.irreversibleMoveClock++
     }
 
@@ -432,5 +499,67 @@ export class Board {
     // Update the side to move
     this.side = this.side === Color.White ? Color.Black : Color.White
     this.hash ^= zobristWhiteToMove
+
+    this.moveHistory.push(move)
+  }
+
+  /**
+   * Fast "unmake move".
+   *
+   * @returns The move that was unmade.
+   */
+  unmakeMove() {
+    this.castlingRights = this.castlingRightsStack.pop()!
+    this.enPassantTargetSquare = this.enPassantTargetSquareStack.pop()!
+    this.irreversibleMoveClock = this.irreversibleMoveClockStack.pop()!
+    this.halfmoveClock = this.halfmoveClockStack.pop()!
+    this.hash = this.hashStack.pop()!
+
+    const move = this.moveHistory.pop()!
+
+    if (this.side === Color.White) this.fullMoveNumber--
+    this.side = this.side === Color.White ? Color.Black : Color.White
+
+    switch (move.kind) {
+      case 'normal':
+        {
+          const mover =
+            move.promotion === null ? this.unsafeAt(move.to) : makePiece(this.side, PieceType.Pawn)
+          this.unsafeSet(move.from, mover)
+          this.unsafeSet(move.to, move.capture)
+          if (mover === Piece.WhiteKing) this.kings.white = move.from
+          if (mover === Piece.BlackKing) this.kings.black = move.from
+        }
+        break
+      case 'enPassant':
+        {
+          const mover = this.unsafeAt(move.to)
+          this.unsafeSet(move.from, mover)
+          this.unsafeSet(move.captureCoord, move.capture)
+          // Note: when doing en passant, we are guaranteed that the target square is empty
+          this.unsafeSet(move.to, PieceEmpty)
+        }
+        break
+      case 'castling':
+        {
+          // Looking at the new (ie. old!) side already — that is, the side that made the `move` in question
+          if (this.side === Color.White) {
+            this.unsafeSet(move.kingFrom, Piece.WhiteKing)
+            this.unsafeSet(move.kingTo, PieceEmpty)
+            this.unsafeSet(move.rookFrom, Piece.WhiteRook)
+            this.unsafeSet(move.rookTo, PieceEmpty)
+            this.kings.white = move.kingFrom
+          } else {
+            this.unsafeSet(move.kingFrom, Piece.BlackKing)
+            this.unsafeSet(move.kingTo, PieceEmpty)
+            this.unsafeSet(move.rookFrom, Piece.BlackRook)
+            this.unsafeSet(move.rookTo, PieceEmpty)
+            this.kings.black = move.kingFrom
+          }
+        }
+        break
+    }
+
+    return move
   }
 }

@@ -32,6 +32,13 @@ yarn dev
 
 `chess` and `gameMethods` are available in the browser console. Just type it. You'll be pleasantly surprised.
 
+To test `unmakeMove`, run:
+
+```bash
+NODE_ENV=test yarn bench
+NODE_ENV=test yarn golden-games -s unrestricted
+```
+
 ### Typecheck and lint
 
 ```bash
