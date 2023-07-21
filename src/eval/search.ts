@@ -1,7 +1,7 @@
 import { Board } from '@/board'
 import { isInCheck, Move, moveIsEqual } from '@/move'
 import { isLegalMove } from '@/move/legal'
-import { quasiLegalMoves } from '@/move/quasiLegal'
+import { quasiLegalMoves } from '@/move/quasi-legal'
 import { allPieceTypes, Color, PieceEmpty, pieceType } from '@/piece'
 import { Zobrist } from '@/zobrist'
 import { instanceToPlain } from 'class-transformer'

@@ -12,7 +12,7 @@ import { Score, renderScore } from './eval/score'
 import { Search } from './eval/search'
 import { Move, isCapture, notateMove, translateFromHumanMove, translateToHumanMove } from './move'
 import { isLegalMove, isLegalMoveWithExecute, legalMoves_slow } from './move/legal'
-import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasiLegal'
+import { quasiLegalMoves, quasiLegalMovesFrom } from './move/quasi-legal'
 import { Color } from './piece'
 import { Coord } from './utils/coord'
 

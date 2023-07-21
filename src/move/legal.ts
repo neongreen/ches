@@ -3,7 +3,7 @@ import { getMoveCoords, isInCheck, Move, moveIsEqual } from '@/move'
 import { isKing } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
-import { quasiLegalMoves } from './quasiLegal'
+import { quasiLegalMoves } from './quasi-legal'
 
 /**
  * Exactly determines if a move is legal.
