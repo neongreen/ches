@@ -17,6 +17,7 @@ import { Coord } from '@/utils/coord'
 import { Board } from '@/board'
 import { pieceValue } from '@/eval/material'
 import { users } from './users'
+import { allConnected } from '@/utils/connected'
 
 const _2022_09_26: Challenge = {
   meta: {
@@ -567,6 +568,37 @@ class Challenge_2022_02_11 implements Challenge {
   }
 }
 
+class Challenge_2023_05_23 implements Challenge {
+  meta = {
+    uuid: '30366eaf-28ed-4d78-af5b-1fc05c544886',
+    title: 'Electric Chess',
+    link: 'https://www.youtube.com/watch?v=7YhDEIgfveU',
+    challenge:
+      "Chess, but there's electrical engineering. Your king is the battery. Your pieces+pawns cannot move unless they are connected along a chain to the king.",
+  }
+
+  private connectedPieces(board: Board): Coord[] {
+    return allConnected({
+      start: board.kings.white,
+      neighbors: (c) =>
+        [c.n(), c.s(), c.e(), c.w(), c.ne(), c.nw(), c.se(), c.sw()].filter(
+          (x) => x.isValid() && isWhitePiece(board.at(x))
+        ),
+      equals: (a, b) => a.equals(b),
+    })
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    const movers = getAllMovers(move)
+    const connected = this.connectedPieces(board)
+    return movers.every((mover) => connected.some((x) => x.equals(mover.from)))
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {
+    return this.connectedPieces(board).map((coord) => ({ coord, color: 'blue' }))
+  }
+}
+
 /**
  * All Chess Simp challenges.
  */
@@ -593,6 +625,7 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
         () => new Challenge_2022_05_12() as Challenge,
         () => _2022_05_24,
         () => new Challenge_2022_05_30() as Challenge,
+        () => new Challenge_2023_05_23() as Challenge,
         () => new Challenge_2022_05_31() as Challenge,
       ],
       // Jun 2022
