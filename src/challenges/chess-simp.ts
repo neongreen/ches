@@ -489,7 +489,7 @@ class Challenge_2023_01_09 implements Challenge {
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
     const isMurderer = (x: Coord) =>
       this.murderers.some(({ coord: murderer }) => x.equals(murderer))
-    return getAllMovers(move).every((mover) => !isMurderer(mover))
+    return getAllMovers(move).every((mover) => !isMurderer(mover.from))
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {
@@ -523,7 +523,7 @@ class Challenge_2022_05_12 implements Challenge {
     if (!lastMove) return true
     const justMoved: Coord = getMoveCoords(lastMove.move).to
     const movers = getAllMovers(move)
-    return movers.every((mover) => mover.kingDistance(justMoved) <= 3)
+    return movers.every((mover) => mover.from.kingDistance(justMoved) <= 3)
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history }) => {
@@ -533,6 +533,37 @@ class Challenge_2022_05_12 implements Challenge {
     return Board.allSquares()
       .filter((square) => square.kingDistance(justMoved) <= 3)
       .map((square) => ({ coord: square, color: 'lightYellow' }))
+  }
+}
+
+class Challenge_2022_02_11 implements Challenge {
+  meta = {
+    uuid: '466a483a-5db4-447e-96e4-0b2deb674ac6',
+    title: '8 Book Moves???',
+    link: 'https://www.youtube.com/watch?v=v0xSoAnUPlI',
+    challenge: "Chess, but you can't capture a piece (not pawn) the turn after it moves.",
+    beaten: {
+      name: users.Emily.name,
+      depth: 3,
+      moves: 27,
+    },
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, move }) => {
+    const lastMove = _.last(history)
+    if (!lastMove) return true
+    const capture = getCapture(move)
+    if (!capture || isPawn(capture.victimPiece)) return true
+    return !getAllMovers(lastMove.move).some((mover) => mover.to.equals(capture.victim))
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history, board }) => {
+    if (board.side !== Color.White) return []
+    const lastMove = _.last(history)
+    if (!lastMove) return []
+    return getAllMovers(lastMove.move)
+      .filter((mover) => !isPawn(board.at(mover.to)))
+      .map((mover) => ({ coord: mover.to, color: 'red' }))
   }
 }
 
@@ -549,7 +580,10 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       // Jan 2022
       [() => _2022_01_29],
       // Feb 2022
-      [() => new Challenge_2022_02_10() as Challenge],
+      [
+        () => new Challenge_2022_02_10() as Challenge,
+        () => new Challenge_2022_02_11() as Challenge,
+      ],
       // Mar 2022
       [() => new Challenge_2022_03_07() as Challenge, () => _2022_03_29],
       // Apr 2022

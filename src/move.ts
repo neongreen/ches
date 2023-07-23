@@ -195,12 +195,15 @@ export function getMoveCoords(move: Move): { from: Coord; to: Coord } {
 }
 
 /**
- * Like `getMoveCoord`, but returns the `from` coordinates of all movers. (Both king and rook in case of castling.)
+ * Like `getMoveCoord`, but for all pieces that moved. (Both king and rook in case of castling.)
  */
-export function getAllMovers(move: Move): Coord[] {
+export function getAllMovers(move: Move): { from: Coord; to: Coord }[] {
   return match(move)
-    .with({ kind: P.union('normal', 'enPassant') }, ({ from }) => [from])
-    .with({ kind: 'castling' }, ({ kingFrom, rookFrom }) => [kingFrom, rookFrom])
+    .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => [{ from, to }])
+    .with({ kind: 'castling' }, ({ kingFrom, kingTo, rookFrom, rookTo }) => [
+      { from: kingFrom, to: kingTo },
+      { from: rookFrom, to: rookTo },
+    ])
     .exhaustive()
 }
 
@@ -226,19 +229,22 @@ export function isCapture(move: Move): boolean {
 }
 
 /**
- * Like `isCapture`, but returns the coordinates of the captured piece.
+ * Like `isCapture`, but returns the captured piece and its coordinates.
  */
 export function getCapture(
   move: Move
-): { attacker: Coord; victim: Coord; newAttackerPosition: Coord } | null {
+): { attacker: Coord; victim: Coord; victimPiece: Piece; newAttackerPosition: Coord } | null {
   return match(move)
     .with({ kind: 'normal' }, ({ from, to, capture }) =>
-      capture !== PieceEmpty ? { attacker: from, victim: to, newAttackerPosition: to } : null
+      capture !== PieceEmpty
+        ? { attacker: from, victim: to, victimPiece: capture, newAttackerPosition: to }
+        : null
     )
     .with({ kind: 'castling' }, () => null)
-    .with({ kind: 'enPassant' }, ({ from, to, captureCoord }) => ({
+    .with({ kind: 'enPassant' }, ({ from, to, capture, captureCoord }) => ({
       attacker: from,
       victim: captureCoord,
+      victimPiece: capture,
       newAttackerPosition: to,
     }))
     .exhaustive()
