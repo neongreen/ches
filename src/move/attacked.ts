@@ -26,17 +26,8 @@ export function isKingAttackedByColor(board: Board, enemy: Color, target: Coord)
   }
 
   // Step 2: check if there's a knight that can attack the target square.
-  for (const shift of [
-    { x: 1, y: 2 },
-    { x: 2, y: 1 },
-    { x: -1, y: 2 },
-    { x: -2, y: 1 },
-    { x: 1, y: -2 },
-    { x: 2, y: -1 },
-    { x: -1, y: -2 },
-    { x: -2, y: -1 },
-  ]) {
-    if (board.at(target.shift(shift)) === enemyKnight) return true
+  for (const c of target.knightNeighbors()) {
+    if (board.at(c) === enemyKnight) return true
   }
 
   // Step 3: check if there's a rook or queen that can attack the target square.
@@ -84,17 +75,8 @@ export function isKingAttackedByColor(board: Board, enemy: Color, target: Coord)
   }
 
   // Step 5: check if there's a king that can attack the target square.
-  for (const dest of [
-    target.n(),
-    target.e(),
-    target.s(),
-    target.w(),
-    target.ne(),
-    target.se(),
-    target.sw(),
-    target.nw(),
-  ]) {
-    if (board.at(dest) === enemyKing) return true
+  for (const c of target.kingNeighbors()) {
+    if (board.at(c) === enemyKing) return true
   }
 
   return false

@@ -17,10 +17,7 @@ export class Challenge_2023_05_23 implements Challenge {
   private connectedPieces(board: Board): Coord[] {
     return allConnected({
       start: board.kings.white,
-      neighbors: (c) =>
-        [c.n(), c.s(), c.e(), c.w(), c.ne(), c.nw(), c.se(), c.sw()].filter(
-          (x) => x.isValid() && isWhitePiece(board.at(x))
-        ),
+      neighbors: (c) => c.kingNeighbors().filter((x) => x.isValid() && isWhitePiece(board.at(x))),
       equals: (a, b) => a.equals(b),
     })
   }

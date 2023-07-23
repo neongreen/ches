@@ -111,6 +111,33 @@ export class Coord {
   }
 
   /**
+   * Immediate neighbors, king-move-wise.
+   *
+   * Doesn't filter out out-of-bounds squares.
+   */
+  kingNeighbors(): Coord[] {
+    return [this.n(), this.s(), this.w(), this.e(), this.nw(), this.ne(), this.sw(), this.se()]
+  }
+
+  /**
+   * Immediate neighbors, knight-move-wise.
+   *
+   * Doesn't filter out out-of-bounds squares.
+   */
+  knightNeighbors(): Coord[] {
+    return [
+      this.shift({ x: 1, y: 2 }),
+      this.shift({ x: 2, y: 1 }),
+      this.shift({ x: -1, y: 2 }),
+      this.shift({ x: -2, y: 1 }),
+      this.shift({ x: 1, y: -2 }),
+      this.shift({ x: 2, y: -1 }),
+      this.shift({ x: -1, y: -2 }),
+      this.shift({ x: -2, y: -1 }),
+    ]
+  }
+
+  /**
    * https://en.wikipedia.org/wiki/Chebyshev_distance
    *
    * How many moves would a king need to make to get to the other square?
@@ -129,5 +156,12 @@ export class Coord {
     if (this.y === to.y) return Math.abs(this.x - to.x)
     if (Math.abs(this.x - to.x) === Math.abs(this.y - to.y)) return Math.abs(this.x - to.x)
     return null
+  }
+
+  /**
+   * Pythagorean distance (eg. knight is sqrt(5)).
+   */
+  pythagoreanDistance(to: Coord): number {
+    return Math.sqrt(Math.pow(this.x - to.x, 2) + Math.pow(this.y - to.y, 2))
   }
 }
