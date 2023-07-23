@@ -3,6 +3,7 @@ import { Challenge } from '../core'
 import { getMoveCoords, getMovePiece } from '@/move'
 import { Piece, isWhitePiece } from '@/piece'
 import { Board } from '@/board'
+import { legalMovesForPiece_slow } from '@/move/legal'
 
 export class Challenge_2022_07_18 implements Challenge {
   meta = {
@@ -46,15 +47,11 @@ export class Challenge_2022_07_18 implements Challenge {
     if (!lastMove) return []
     if (getMovePiece(lastMove.boardBeforeMove, lastMove.move) !== Piece.BlackQueen) return []
     const queenCoord = getMoveCoords(lastMove.move).to
-    const kingCoord = board.kings.white
-    return kingCoord
-      .kingNeighbors()
+    return legalMovesForPiece_slow(board, board.kings.white)
+      .map(getMoveCoords)
       .filter(
-        (coord) =>
-          coord.isValid() &&
-          !isWhitePiece(board.at(coord)) &&
-          queenCoord.pythagoreanDistance(coord) < queenCoord.pythagoreanDistance(kingCoord)
+        ({ from, to }) => queenCoord.pythagoreanDistance(to) < queenCoord.pythagoreanDistance(from)
       )
-      .map((coord) => ({ coord, color: 'blue' }))
+      .map(({ to }) => ({ coord: to, color: 'blue' }))
   }
 }
