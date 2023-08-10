@@ -4,6 +4,7 @@ import { getAllMovers } from '@/move'
 import { isWhitePiece } from '@/piece'
 import { allConnected } from '@/utils/connected'
 import { Coord } from '@/utils/coord'
+import { users } from '../users'
 
 export class Challenge_2023_05_23 implements Challenge {
   meta = {
@@ -12,6 +13,11 @@ export class Challenge_2023_05_23 implements Challenge {
     link: 'https://www.youtube.com/watch?v=7YhDEIgfveU',
     challenge:
       "Chess, but there's electrical engineering. Your king is the battery. Your pieces+pawns cannot move unless they are connected along a chain to the king.",
+    beaten: {
+      name: users.QuangBuiCP.name,
+      depth: 1,
+      moves: 17,
+    },
   }
 
   private connectedPieces(board: Board): Coord[] {

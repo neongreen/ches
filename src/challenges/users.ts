@@ -23,4 +23,8 @@ export const users = {
     name: 'RotomAppliance',
     notes: 'Patrick#6232, Ches Discord',
   },
+  QuangBuiCP: {
+    name: 'QuangBuiCP',
+    notes: '@quangbui, Simp Discord',
+  },
 }
