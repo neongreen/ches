@@ -14,9 +14,9 @@ export class Challenge_2023_05_23 implements Challenge {
     challenge:
       "Chess, but there's electrical engineering. Your king is the battery. Your pieces+pawns cannot move unless they are connected along a chain to the king.",
     beaten: {
-      name: users.QuangBuiCP.name,
-      depth: 1,
-      moves: 17,
+      name: users.fextivity.name,
+      depth: 2,
+      moves: 40,
     },
   }
 
