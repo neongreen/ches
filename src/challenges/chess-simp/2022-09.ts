@@ -38,9 +38,9 @@ export class Challenge_2022_09_19 implements Challenge {
     challenge:
       'Chess, but your pawns are plotting against you, you need to get rid of them before making any captures.',
     beaten: {
-      name: users.Mendax.name,
-      depth: 1,
-      moves: 33,
+      name: users.fextivity.name,
+      depth: 2,
+      moves: 22,
     },
   }
 
