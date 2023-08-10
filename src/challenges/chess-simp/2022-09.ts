@@ -12,8 +12,9 @@ export const _2022_09_26: Challenge = {
     challenge:
       'Chess, but your pieces (and pawns) are vampires. They cannot step into the light (squares).',
     beaten: {
-      name: users.Mendax.name,
-      depth: 1,
+      name: users.fextivity.name,
+      depth: 2,
+      moves: 41,
     },
   },
 

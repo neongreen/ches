@@ -25,6 +25,10 @@ export const users = {
   },
   QuangBuiCP: {
     name: 'QuangBuiCP',
-    notes: '@quangbui, Simp Discord',
+    notes: '@quangbui, Ches Discord',
+  },
+  fextivity: {
+    name: 'fextivity',
+    notes: '@fextivity, Ches Discord',
   },
 }
