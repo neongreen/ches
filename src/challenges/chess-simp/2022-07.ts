@@ -4,6 +4,7 @@ import { getMoveCoords, getMovePiece } from '@/move'
 import { Piece, isWhitePiece } from '@/piece'
 import { Board } from '@/board'
 import { legalMovesForPiece_slow } from '@/move/legal'
+import { users } from '../users'
 
 export class Challenge_2022_07_18 implements Challenge {
   meta = {
@@ -12,6 +13,11 @@ export class Challenge_2022_07_18 implements Challenge {
     link: 'https://www.youtube.com/watch?v=pQsTknAm604',
     challenge:
       'Ches, but every time your opponent moves their Queen, you move your King closer to their Queen.',
+    beaten: {
+      name: users.QuangBuiCP.name,
+      depth: 1,
+      moves: 6,
+    },
   }
 
   // At 1:18 in the video, Simp has just gone Ke7 and the queen is at e2:
