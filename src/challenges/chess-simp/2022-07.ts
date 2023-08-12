@@ -70,6 +70,11 @@ export class Challenge_2022_07_11 implements Challenge {
     link: 'https://www.youtube.com/watch?v=gNR9eO6V9yg',
     challenge:
       'Chess, but if an enemy piece (not pawn) touches your piece (not pawn), yours can never move ever again.',
+    beaten: {
+      name: users.fextivity.name,
+      depth: 2,
+      moves: 14,
+    },
   }
 
   private touchedPieces: Coord[] = []
