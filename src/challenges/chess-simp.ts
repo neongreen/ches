@@ -13,7 +13,7 @@ import {
   Challenge_2022_05_31,
 } from './chess-simp/2022-05'
 import { _2022_06_03 } from './chess-simp/2022-06'
-import { Challenge_2022_07_18 } from './chess-simp/2022-07'
+import { Challenge_2022_07_11, Challenge_2022_07_18 } from './chess-simp/2022-07'
 import { Challenge_2022_09_19, _2022_09_26 } from './chess-simp/2022-09'
 import { Challenge_2023_01_09 } from './chess-simp/2023-01'
 import { _2023_02_23 } from './chess-simp/2023-02'
@@ -48,7 +48,10 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
         () => new Challenge_2022_05_31() as Challenge,
       ],
       [() => _2022_06_03],
-      [() => new Challenge_2022_07_18() as Challenge],
+      [
+        () => new Challenge_2022_07_18() as Challenge,
+        () => new Challenge_2022_07_11() as Challenge,
+      ],
       [() => _2022_09_11, () => new Challenge_2022_09_19() as Challenge, () => _2022_09_26],
       [() => new Challenge_2023_01_09() as Challenge],
       [() => _2023_02_23],
