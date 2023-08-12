@@ -5,7 +5,7 @@ import { Challenge_2021_12_04 } from './chess-simp/2021-12'
 import { Challenge_2022_01_29 } from './chess-simp/2022-01'
 import { Challenge_2022_02_10, Challenge_2022_02_11 } from './chess-simp/2022-02'
 import { Challenge_2022_03_07, Challenge_2022_03_29 } from './chess-simp/2022-03'
-import { _2022_04_21, _2022_09_11 } from './chess-simp/2022-04'
+import { Challenge_2022_04_21, Challenge_2022_04_22 } from './chess-simp/2022-04'
 import {
   Challenge_2022_05_12,
   Challenge_2022_05_24,
@@ -14,7 +14,11 @@ import {
 } from './chess-simp/2022-05'
 import { _2022_06_03 } from './chess-simp/2022-06'
 import { Challenge_2022_07_11, Challenge_2022_07_18 } from './chess-simp/2022-07'
-import { Challenge_2022_09_19, _2022_09_26 } from './chess-simp/2022-09'
+import {
+  Challenge_2022_09_11,
+  Challenge_2022_09_19,
+  Challenge_2022_09_26,
+} from './chess-simp/2022-09'
 import { Challenge_2023_01_09 } from './chess-simp/2023-01'
 import { _2023_02_23 } from './chess-simp/2023-02'
 import { Challenge_2023_04_01 } from './chess-simp/2023-04'
@@ -39,7 +43,10 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
         () => new Challenge_2022_03_07() as Challenge,
         () => new Challenge_2022_03_29() as Challenge,
       ],
-      [() => _2022_04_21],
+      [
+        () => new Challenge_2022_04_21() as Challenge,
+        () => new Challenge_2022_04_22() as Challenge,
+      ],
       [
         () => new Challenge_2022_05_12() as Challenge,
         () => new Challenge_2022_05_24() as Challenge,
@@ -52,7 +59,11 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
         () => new Challenge_2022_07_18() as Challenge,
         () => new Challenge_2022_07_11() as Challenge,
       ],
-      [() => _2022_09_11, () => new Challenge_2022_09_19() as Challenge, () => _2022_09_26],
+      [
+        () => new Challenge_2022_09_11() as Challenge,
+        () => new Challenge_2022_09_19() as Challenge,
+        () => new Challenge_2022_09_26() as Challenge,
+      ],
       [() => new Challenge_2023_01_09() as Challenge],
       [() => _2023_02_23],
       [() => new Challenge_2023_04_01() as Challenge],
