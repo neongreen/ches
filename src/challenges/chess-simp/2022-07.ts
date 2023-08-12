@@ -15,8 +15,8 @@ export class Challenge_2022_07_18 implements Challenge {
       'Ches, but every time your opponent moves their Queen, you move your King closer to their Queen.',
     beaten: {
       name: users.fextivity.name,
-      depth: 2,
-      moves: 63,
+      depth: 3,
+      moves: 55,
     },
   }
 

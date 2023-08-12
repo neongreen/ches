@@ -10,9 +10,9 @@ export class Challenge_2021_12_04 implements Challenge {
     link: 'https://www.youtube.com/watch?v=gwKbZ_pNZ8M',
     challenge: 'You take when you can.',
     beaten: {
-      name: users.Mendax.name,
+      name: users.fextivity.name,
       depth: 3,
-      moves: 65,
+      moves: 56,
     },
   }
 
