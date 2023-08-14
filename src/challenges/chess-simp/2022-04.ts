@@ -34,8 +34,8 @@ export class Challenge_2022_04_22 implements Challenge {
       'Chess but you can only use half of the board, every 5 moves you have to switch to the other half.',
     beaten: {
       name: users.fextivity.name,
-      depth: 2,
-      moves: 27,
+      depth: 3,
+      moves: 64,
     },
   }
 
