@@ -6,17 +6,17 @@ import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 
 export class Challenge_2023_01_09 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: 'c0133088-29de-4eb6-982e-930b270457db',
     title: 'And Then They Commit That Crime Again',
     link: 'https://www.youtube.com/watch?v=LaRsmQqEOx8',
     challenge:
       "Chess, but your pieces regret killing. After making a capture, they have to sit down and think about what they've done for 3 turns before they can move again.",
-    beaten: {
-      name: users.Mendax.name,
-      depth: 6,
-      moves: 56,
-    },
+    records: new Map([
+      [users.ChessSimpSimp.name, { when: new Date('2023-07-16'), depth: 2, moves: 7 }],
+      [users.Emily.name, { when: new Date('2023-07-19'), depth: 4, moves: 57 }],
+      [users.Mendax.name, { when: new Date('2023-07-19'), depth: 6, moves: 56 }],
+    ]),
   }
 
   private murderers: { coord: Coord; unblockedOnMoveNumber: number }[] = []

@@ -8,15 +8,12 @@ import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 
 export class Challenge_2022_05_24 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: 'f2941f89-4412-448f-94f5-25f7c46dc29b',
     title: 'Slow And Steady',
     link: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
     challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
-    beaten: {
-      name: users.Emily.name,
-      depth: 3,
-    },
+    records: new Map([[users.Emily.name, { when: new Date('2023-06-23'), depth: 3 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
@@ -28,15 +25,12 @@ export class Challenge_2022_05_24 implements Challenge {
 }
 
 export class Challenge_2022_05_30 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '8491849c-db4c-4013-a21b-01b0e9203880',
     title: 'He Offered A Draw...',
     link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
     challenge: '100 rated chess but you can only take their most extended piece or pawn.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 4,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }]]),
   }
 
   private mostExtendedRow = (board: Board) => {
@@ -63,16 +57,15 @@ export class Challenge_2022_05_30 implements Challenge {
 }
 
 export class Challenge_2022_05_31 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '39efe131-5fb0-4294-b832-1d4d31a89f84',
     title: 'What If He Only Moves His King ??',
     link: 'https://www.youtube.com/watch?v=KDPXaL9V7hY',
     challenge: 'Chess, but the only piece you can take is the piece your opponent had just moved.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 4,
-      moves: 44,
-    },
+    records: new Map([
+      [users.RotomAppliance.name, { when: new Date('2023-07-07'), depth: 3, moves: 25 }],
+      [users.Mendax.name, { when: new Date('2023-07-08'), depth: 4, moves: 44 }],
+    ]),
   }
 
   private allowedVictims = (history: { move: Move; boardBeforeMove: Board }[]) => {
@@ -103,17 +96,13 @@ export class Challenge_2022_05_31 implements Challenge {
 }
 
 export class Challenge_2022_05_12 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: 'b1583d71-56eb-4a4f-871a-7ae6ca041ca8',
     title: 'This Is Not Cheating',
     link: 'https://www.youtube.com/watch?v=noAFs6XVS74',
     challenge:
       'Chess, but you have tunnel vision. You can only move the pieces (or pawns) that are CURRENTLY within a 3-tile range from what your opponent just moved.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 2,
-      moves: 31,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-08'), depth: 2, moves: 31 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, history }) => {

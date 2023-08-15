@@ -10,10 +10,7 @@ export const _2023_06_09: Challenge = {
     title: '🏳️‍🌈 Pride Chess',
     link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
     challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 4,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }]]),
   },
 
   isMoveAllowed({ board, move }): boolean {

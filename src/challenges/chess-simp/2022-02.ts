@@ -5,16 +5,12 @@ import { Color, isPawn } from '@/piece'
 import _ from 'lodash'
 
 export class Challenge_2022_02_10 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '934f5a6b-c5af-48b5-ac4f-bc4ba3cc3c31',
     title: 'I Moved Pawns 100 Times',
     link: 'https://www.youtube.com/watch?v=lco2G0Ri-DM',
     challenge: 'If your opponent moves a piece, you move a pawn, and vice versa.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 1,
-      moves: 12,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-07'), depth: 1, moves: 12 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
@@ -27,16 +23,12 @@ export class Challenge_2022_02_10 implements Challenge {
 }
 
 export class Challenge_2022_02_11 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '466a483a-5db4-447e-96e4-0b2deb674ac6',
     title: '8 Book Moves???',
     link: 'https://www.youtube.com/watch?v=v0xSoAnUPlI',
     challenge: "Chess, but you can't capture a piece (not pawn) the turn after it moves.",
-    beaten: {
-      name: users.Emily.name,
-      depth: 3,
-      moves: 27,
-    },
+    records: new Map([[users.Emily.name, { when: new Date('2023-07-23'), depth: 3, moves: 27 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, move }) => {

@@ -9,16 +9,13 @@ import { Challenge, ChallengeMeta } from './core'
 import { users } from './users'
 
 class Challenge_MustKeepMoving implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '5f747bf3-6819-482f-86bb-c82b181b8ac3',
     title: '[breadfeller] Must Keep Moving',
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122552015080403145',
     challenge:
       'Once you move a piece (or pawn), you must keep moving that piece (or pawn) until they can no longer move anymore or is captured.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 1,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-03'), depth: 1 }]]),
   }
 
   private chosenPiece: Coord | null = null
@@ -58,11 +55,10 @@ const challenge_pawnObsession: Challenge = {
     title: '[Alexey53] Emil Josef Diemer Wannabe',
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1085457075448057916',
     challenge: 'Your first 17 moves of the game must be consecutive pawn moves.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 4,
-      moves: 35,
-    },
+    records: new Map([
+      [users.RotomAppliance.name, { when: new Date('2023-07-06'), depth: 3, moves: 42 }],
+      [users.Mendax.name, { when: new Date('2023-07-06'), depth: 4, moves: 35 }],
+    ]),
   },
   isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {
     const isPawnMove = isPawn(getMovePiece(board, move))
@@ -77,10 +73,7 @@ const challenge_twoMovesMax: Challenge = {
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122275013119180840',
     challenge:
       "Chess, but you're short. You cannot make any long distance moves (2 squares max, like the king goes). Short castling is allowed.",
-    beaten: {
-      name: users.Mendax.name,
-      depth: 4,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }]]),
   },
   isMoveAllowed({ move }): boolean {
     return match(move)
@@ -100,16 +93,13 @@ const challenge_twoMovesMax: Challenge = {
 }
 
 class Challenge_Vampires implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '988d559d-5ad5-4f7e-9574-247c6e2aee2b',
     title: '[pinon_] Vampires',
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122440838719479808',
     challenge:
       'Chess, but all of your pieces (and pawns) are vampires. Anytime one of your pieces (or pawns) has a direct line of sight past your opponent’s edge of the board, they are hit by sunlight and turn to ash.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 3,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-06'), depth: 3 }]]),
   }
 
   private burnedPieces: Coord[] = []

@@ -13,10 +13,7 @@ export class Challenge_2022_04_21 implements Challenge {
     title: 'All Predictions Went Wrong',
     link: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
     challenge: 'Chess but you have to move your King if you can.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 3,
-    },
+    records: new Map([[users.Mendax.name, { when: new Date('2023-07-02'), depth: 3 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
@@ -32,11 +29,9 @@ export class Challenge_2022_04_22 implements Challenge {
     link: 'https://www.youtube.com/watch?v=N3hTb-Ifg0M',
     challenge:
       'Chess but you can only use half of the board, every 5 moves you have to switch to the other half.',
-    beaten: {
-      name: users.fextivity.name,
-      depth: 3,
-      moves: 64,
-    },
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-14'), depth: 3, moves: 64 }],
+    ]),
   }
 
   private allowedSide: 'kingside' | 'queenside' | 'any' = 'any'

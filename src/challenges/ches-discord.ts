@@ -4,16 +4,15 @@ import { users } from './users'
 import { Uuid } from '@/utils/uuid'
 
 class Challenge_NoGoingBackwards implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '094fb340-016d-4a25-bad8-4b985ce81bf7',
     title: `[${users.RotomAppliance.name}] Into Battle!`,
     link: 'https://discord.com/channels/1054591816105726003/1063831721524600854/1126625935295266966',
     challenge: 'You cannot move pieces (and pawns) backwards.',
-    beaten: {
-      name: users.Mendax.name,
-      depth: 4,
-      moves: 34,
-    },
+    records: new Map([
+      [users.RotomAppliance.name, { when: new Date('2023-07-06'), depth: 3, moves: 18 }],
+      [users.Mendax.name, { when: new Date('2023-07-16'), depth: 4, moves: 34 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {

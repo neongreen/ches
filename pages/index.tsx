@@ -1,5 +1,5 @@
 import { challengesList, challengesMap } from '@/challenges/all'
-import { Challenge } from '@/challenges/core'
+import { Challenge, Record, challengeWinner } from '@/challenges/core'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { notateMove } from '@/move'
 import { GameMethods, GameProps, sketch } from '@/sketch'
@@ -41,15 +41,12 @@ const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow',
 interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
   label: string
   description: string
-  beaten: Challenge['meta']['beaten'] | undefined
-  // Eg. for "Just chess" we don't want to show the record (we do but right now we don't)
-  // TODO: Wojtek's record is depth 3
-  showRecord?: boolean
+  records: Challenge['meta']['records'] | undefined
 }
 
 const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>(
   function ChallengeSelectItem(
-    { label, description, beaten, showRecord, ...others }: ChallengeItemProps,
+    { label, description, records, ...others }: ChallengeItemProps,
     ref
   ) {
     return (
@@ -59,7 +56,9 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
           <Text size="xs" opacity={0.65}>
             {description}
           </Text>
-          {showRecord && <RecordBadge size="sm" recordPrefix beaten={beaten} />}
+          {records !== undefined && (
+            <RecordBadge size="sm" recordPrefix winner={challengeWinner(records)} />
+          )}
         </Box>
       </div>
     )
@@ -69,14 +68,14 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
 function RecordBadge(props: {
   size: MantineSize
   recordPrefix?: boolean
-  beaten?: Challenge['meta']['beaten']
+  winner?: { name: string; record: Record }
 }) {
-  const { size, beaten } = props
-  return beaten ? (
-    <Badge size={props.size} radius="sm" variant="filled" color={depthColors[beaten.depth]}>
+  const { winner } = props
+  return winner ? (
+    <Badge size={props.size} radius="sm" variant="filled" color={depthColors[winner.record.depth]}>
       {props.recordPrefix && 'Record: '}
-      {beaten.name} | depth={beaten.depth}{' '}
-      {beaten.moves !== undefined ? `moves=${beaten.moves}` : ''}
+      {winner.name} | depth={winner.record.depth}{' '}
+      {winner.record.moves !== undefined ? `moves=${winner.record.moves}` : ''}
     </Badge>
   ) : (
     <Badge size={props.size} radius="sm" variant="outline" color="gray">
@@ -225,7 +224,7 @@ export default function Home() {
                   <tr key={challenge.meta.uuid}>
                     <td>{challenge.meta.title}</td>
                     <td>
-                      <RecordBadge size="sm" beaten={challenge.meta.beaten} />
+                      <RecordBadge size="sm" winner={challengeWinner(challenge.meta.records)} />
                     </td>
                   </tr>
                 ))}
@@ -393,15 +392,17 @@ export default function Home() {
                   })
                 }}
                 data={[
-                  { group: ' ', label: 'Just chess', showRecord: false, value: '-' },
-                  ...Array.from(challengesMap.values()).map((challenge) => ({
-                    group: challenge.group,
-                    label: challenge.meta.title,
-                    description: challenge.meta.challenge,
-                    showRecord: true,
-                    beaten: challenge.meta.beaten,
-                    value: challenge.meta.uuid,
-                  })),
+                  { group: ' ', label: 'Just chess', value: '-' },
+                  ...Array.from(challengesMap.values()).map(
+                    (challenge) =>
+                      ({
+                        group: challenge.group,
+                        label: challenge.meta.title,
+                        description: challenge.meta.challenge,
+                        records: challenge.meta.records,
+                        value: challenge.meta.uuid,
+                      } satisfies { group: string; value: string } & ChallengeItemProps)
+                  ),
                 ]}
               />
               {currentChallenge && (

@@ -12,10 +12,7 @@ export class Challenge_2022_09_11 implements Challenge {
     link: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
     challenge:
       'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
-    beaten: {
-      name: users.ManosSef.name,
-      depth: 1,
-    },
+    records: new Map([[users.ManosSef.name, { when: new Date('2023-07-02'), depth: 1 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
@@ -36,11 +33,10 @@ export class Challenge_2022_09_26 implements Challenge {
     link: 'https://www.youtube.com/watch?v=OSCDE_ebc1c',
     challenge:
       'Chess, but your pieces (and pawns) are vampires. They cannot step into the light (squares).',
-    beaten: {
-      name: users.fextivity.name,
-      depth: 2,
-      moves: 41,
-    },
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-02'), depth: 1 }],
+      [users.fextivity.name, { when: new Date('2023-08-10'), depth: 2, moves: 41 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
@@ -56,17 +52,16 @@ export class Challenge_2022_09_26 implements Challenge {
 }
 
 export class Challenge_2022_09_19 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: '52620ef2-a11c-4b1c-bb40-652a482ba724',
     title: 'The Entire Game Were BLUNDERS !!!',
     link: 'https://www.youtube.com/watch?v=TRkyi_i6EqY',
     challenge:
       'Chess, but your pawns are plotting against you, you need to get rid of them before making any captures.',
-    beaten: {
-      name: users.fextivity.name,
-      depth: 2,
-      moves: 22,
-    },
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-06'), depth: 1, moves: 33 }],
+      [users.fextivity.name, { when: new Date('2023-08-10'), depth: 2, moves: 22 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {

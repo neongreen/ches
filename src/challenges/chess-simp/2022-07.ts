@@ -8,17 +8,16 @@ import { users } from '../users'
 import { Coord } from '@/utils/coord'
 
 export class Challenge_2022_07_18 implements Challenge {
-  meta = {
+  meta: Challenge['meta'] = {
     uuid: 'a2d24a1c-9ed1-4a96-8479-3b0042b46f9e',
     title: 'King Simp Today',
     link: 'https://www.youtube.com/watch?v=pQsTknAm604',
     challenge:
       'Ches, but every time your opponent moves their Queen, you move your King closer to their Queen.',
-    beaten: {
-      name: users.fextivity.name,
-      depth: 3,
-      moves: 55,
-    },
+    records: new Map([
+      [users.QuangBuiCP.name, { when: new Date('2023-08-10'), depth: 1, moves: 6 }],
+      [users.fextivity.name, { when: new Date('2023-08-11'), depth: 3, moves: 55 }],
+    ]),
   }
 
   // At 1:18 in the video, Simp has just gone Ke7 and the queen is at e2:
@@ -70,11 +69,9 @@ export class Challenge_2022_07_11 implements Challenge {
     link: 'https://www.youtube.com/watch?v=gNR9eO6V9yg',
     challenge:
       'Chess, but if an enemy piece (not pawn) touches your piece (not pawn), yours can never move ever again.',
-    beaten: {
-      name: users.fextivity.name,
-      depth: 2,
-      moves: 14,
-    },
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-12'), depth: 2, moves: 14 }],
+    ]),
   }
 
   private touchedPieces: Coord[] = []

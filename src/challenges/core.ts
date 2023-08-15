@@ -2,6 +2,14 @@ import { Board } from '@/board'
 import { Move } from '@/move'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
+import _ from 'lodash'
+import * as R from 'ramda'
+
+export type Record = {
+  when: Date
+  depth: number
+  moves?: number
+}
 
 /** Metadata about a challenge. */
 export type ChallengeMeta = {
@@ -9,12 +17,50 @@ export type ChallengeMeta = {
   title: string
   link?: string
   challenge: string
-  /** The best player so far (challenge beaten at highest depth). */
-  beaten?: {
-    name: string
-    depth: number
-    moves?: number
+  /** Records per player */
+  records: Map<string, Record>
+}
+
+/**
+ * Create a leaderboard for a challenge. Each user gets points based on their position in the leaderboard. If two users have the same score, they get the same number of points.
+ */
+export function challengeLeaderboard(records: Map<string, Record>): Map<string, number> {
+  // Get all records, assuming no moves recorded = Infinity moves
+  const results: { user: string; when: Date; depth: number; moves: number }[] = Array.from(
+    records.entries()
+  ).map(([user, record]) => ({ user, ...record, moves: record.moves ?? Infinity }))
+
+  // Sort and then group equal records together
+  const sortedResults: { user: string; when: Date; depth: number; moves: number }[][] = R.groupWith(
+    (a, b) => a.depth === b.depth && a.moves === b.moves,
+    R.sortWith(
+      [R.descend(R.prop('depth')), R.ascend(R.prop('moves')), R.ascend(R.prop('when'))],
+      results
+    )
+  )
+
+  // Assign points to each group
+  let points = 100
+  const leaderboard = new Map<string, number>()
+  for (const group of sortedResults) {
+    for (const result of group) leaderboard.set(result.user, points)
+    points *= 0.9
   }
+
+  return leaderboard
+}
+
+/**
+ * Figure out who's the best player for a single challenge.
+ */
+export function challengeWinner(
+  records: Map<string, Record>
+): { name: string; record: Record } | undefined {
+  const winner = _.maxBy(
+    Array.from(challengeLeaderboard(records).entries()),
+    ([, points]) => points
+  )?.[0]
+  return winner ? { name: winner, record: records.get(winner)! } : undefined
 }
 
 /**
