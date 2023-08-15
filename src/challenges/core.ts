@@ -11,6 +11,26 @@ export type Record = {
   moves?: number
 }
 
+/**
+ * If you sort records with this comparator, best records will be on top.
+ */
+export function recordComparator(a: Record, b: Record): number {
+  // Sort by depth (higher = better), then by number of moves (lower = better), then by date (earlier = better)
+
+  if (a.depth > b.depth) return -1
+  if (a.depth < b.depth) return 1
+
+  const aMoves = a.moves ?? Infinity
+  const bMoves = b.moves ?? Infinity
+  if (aMoves < bMoves) return -1
+  if (aMoves > bMoves) return 1
+
+  if (a.when < b.when) return -1
+  if (a.when > b.when) return 1
+
+  return 0
+}
+
 /** Metadata about a challenge. */
 export type ChallengeMeta = {
   uuid: Uuid
@@ -25,18 +45,15 @@ export type ChallengeMeta = {
  * Create a leaderboard for a challenge. Each user gets points based on their position in the leaderboard. If two users have the same score, they get the same number of points.
  */
 export function challengeLeaderboard(records: Map<string, Record>): Map<string, number> {
-  // Get all records, assuming no moves recorded = Infinity moves
-  const results: { user: string; when: Date; depth: number; moves: number }[] = Array.from(
-    records.entries()
-  ).map(([user, record]) => ({ user, ...record, moves: record.moves ?? Infinity }))
+  // Get all records
+  const results: { user: string; record: Record }[] = Array.from(records.entries()).map(
+    ([user, record]) => ({ user, record })
+  )
 
   // Sort and then group equal records together
-  const sortedResults: { user: string; when: Date; depth: number; moves: number }[][] = R.groupWith(
-    (a, b) => a.depth === b.depth && a.moves === b.moves,
-    R.sortWith(
-      [R.descend(R.prop('depth')), R.ascend(R.prop('moves')), R.ascend(R.prop('when'))],
-      results
-    )
+  const sortedResults: { user: string; record: Record }[][] = R.groupWith(
+    (a, b) => a.record.depth === b.record.depth && a.record.moves === b.record.moves,
+    R.sort((a, b) => recordComparator(a.record, b.record), results)
   )
 
   // Assign points to each group

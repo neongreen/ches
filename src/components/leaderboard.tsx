@@ -1,12 +1,13 @@
 import { challengesList, challengesMap } from '@/challenges/all'
-import { challengeLeaderboard, challengeWinner } from '@/challenges/core'
+import { challengeLeaderboard, challengeWinner, recordComparator } from '@/challenges/core'
 import { users } from '@/challenges/users'
-import { Center, Modal, Table, Tabs, Title } from '@mantine/core'
+import { Box, Center, Modal, Table, Tabs, Title } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import _ from 'lodash'
 import * as R from 'ramda'
 import React from 'react'
 import { RecordBadge } from './recordBadge'
+import { Record } from '@/challenges/core'
 
 function LeaderboardCombined() {
   return (
@@ -35,7 +36,42 @@ function LeaderboardCombined() {
   )
 }
 
-function LeaderboardChallenge() {
+function LeaderboardCurrentChallenge(props: {
+  challenge: { title: string; records: Map<string, Record> }
+}) {
+  return (
+    <>
+      <Box mt="md" mb="sm" ml="xs">
+        <b>{props.challenge.title}</b>
+      </Box>
+      <Table mb="md">
+        <tbody>
+          {props.challenge.records.size === 0 ? (
+            <tr>
+              <td>
+                <i>Unbeaten</i>
+              </td>
+            </tr>
+          ) : (
+            R.sort(
+              (a, b) => recordComparator(a[1], b[1]),
+              Array.from(props.challenge.records.entries())
+            ).map(([name, record]) => (
+              <tr key={name}>
+                <td>{name}</td>
+                <td>
+                  <RecordBadge size="sm" winner={{ record }} />
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </Table>
+    </>
+  )
+}
+
+function LeaderboardAllChallenges() {
   // TODO: this should include "Just chess" and it should be implemented as just another challenge
   return (
     <Table>
@@ -70,7 +106,11 @@ function LeaderboardChallenge() {
   )
 }
 
-export function Leaderboard(props: { shown: boolean; close: () => void }) {
+export function Leaderboard(props: {
+  shown: boolean
+  close: () => void
+  currentChallenge: { title: string; records: Map<string, Record> }
+}) {
   const isMobile = useMediaQuery('(max-width: 500px)')
 
   return (
@@ -83,16 +123,21 @@ export function Leaderboard(props: { shown: boolean; close: () => void }) {
     >
       <Tabs defaultValue="combined">
         <Tabs.List>
-          <Tabs.Tab value="combined">Combined</Tabs.Tab>
-          <Tabs.Tab value="challenge">Per challenge</Tabs.Tab>
+          <Tabs.Tab value="combined">Points</Tabs.Tab>
+          <Tabs.Tab value="currentChallenge">This challenge</Tabs.Tab>
+          <Tabs.Tab value="allChallenges">All challenges</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="combined">
           <LeaderboardCombined />
         </Tabs.Panel>
 
-        <Tabs.Panel value="challenge">
-          <LeaderboardChallenge />
+        <Tabs.Panel value="currentChallenge">
+          <LeaderboardCurrentChallenge challenge={props.currentChallenge} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="allChallenges">
+          <LeaderboardAllChallenges />
         </Tabs.Panel>
       </Tabs>
     </Modal>

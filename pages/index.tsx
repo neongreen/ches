@@ -169,7 +169,13 @@ export default function Home() {
         />
       </NoSSR>
 
-      <Leaderboard shown={leaderboardShown} close={leaderboard.close} />
+      <Leaderboard
+        shown={leaderboardShown}
+        close={leaderboard.close}
+        currentChallenge={
+          currentChallengeRef.current?.meta || { title: 'Just chess', records: new Map() }
+        }
+      />
 
       <main className={styles.main}>
         <div ref={containerRef}>

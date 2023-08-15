@@ -4,13 +4,13 @@ import { Record } from '@/challenges/core'
 export function RecordBadge(props: {
   size: MantineSize
   recordPrefix?: boolean
-  winner?: { name: string; record: Record }
+  winner?: { name?: string; record: Record }
 }) {
   const { winner } = props
   return winner ? (
     <Badge size={props.size} radius="sm" variant="filled" color={depthColors[winner.record.depth]}>
       {props.recordPrefix && 'Record: '}
-      {winner.name} | depth={winner.record.depth}{' '}
+      {winner.name ? winner.name + ' |' : ''} depth={winner.record.depth}{' '}
       {winner.record.moves !== undefined ? `moves=${winner.record.moves}` : ''}
     </Badge>
   ) : (
