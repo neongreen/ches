@@ -16,6 +16,7 @@ export class Challenge_2023_05_23 implements Challenge {
     records: new Map([
       [users.QuangBuiCP.name, { when: new Date('2023-08-10'), depth: 1, moves: 17 }],
       [users.fextivity.name, { when: new Date('2023-08-10'), depth: 2, moves: 40 }],
+      [users.Emily.name, { when: new Date('2023-08-15'), depth: 3, moves: 73 }],
     ]),
   }
 
