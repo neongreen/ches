@@ -28,7 +28,10 @@ export class Challenge_2022_02_11 implements Challenge {
     title: '8 Book Moves???',
     link: 'https://www.youtube.com/watch?v=v0xSoAnUPlI',
     challenge: "Chess, but you can't capture a piece (not pawn) the turn after it moves.",
-    records: new Map([[users.Emily.name, { when: new Date('2023-07-23'), depth: 3, moves: 27 }]]),
+    records: new Map([
+      [users.Emily.name, { when: new Date('2023-07-23'), depth: 3, moves: 27 }],
+      [users.fextivity.name, { when: new Date('2023-08-15'), depth: 2, moves: 35 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, move }) => {
