@@ -1,5 +1,5 @@
 import { challengesList, challengesMap } from '@/challenges/all'
-import { Challenge, Record, challengeWinner } from '@/challenges/core'
+import { Challenge, Record, challengeLeaderboard, challengeWinner } from '@/challenges/core'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { notateMove } from '@/move'
 import { GameMethods, GameProps, sketch } from '@/sketch'
@@ -20,6 +20,7 @@ import {
   Slider,
   Stack,
   Table,
+  Tabs,
   Text,
   Title,
 } from '@mantine/core'
@@ -35,6 +36,8 @@ import { match } from 'ts-pattern'
 import styles from '../styles/index.module.scss'
 import { NextReactP5Wrapper } from '@p5-wrapper/next'
 import { P5CanvasInstance, SketchProps } from '@p5-wrapper/react'
+import { users } from '@/challenges/users'
+import * as R from 'ramda'
 
 const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
 
@@ -202,36 +205,75 @@ export default function Home() {
         sx={{ '.mantine-Modal-content': { maxHeight: isMobile ? '100dvh' : '90vh' } }}
         title={<Title>Leaderboard</Title>}
       >
-        {/* TODO: this should include "Just chess" and it should be implemented as just another challenge */}
-        <Table>
-          <thead>
-            <tr>
-              <th>Challenge</th>
-              <th>Record</th>
-            </tr>
-          </thead>
-          <tbody>
-            {challengesList.map((x, i) => (
-              <React.Fragment key={`group-${i}`}>
+        <Tabs defaultValue="combined">
+          <Tabs.List>
+            <Tabs.Tab value="combined">Combined</Tabs.Tab>
+            <Tabs.Tab value="challenge">Per challenge</Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="combined">
+            <Table>
+              <tbody>
+                {(() => {
+                  const players: Map<string, number> = new Map(
+                    _.values(users).map((x) => [x.name, 0])
+                  )
+                  for (const challenge of challengesMap.values()) {
+                    const points = challengeLeaderboard(challenge.meta.records)
+                    for (const [name, score] of points) {
+                      players.set(name, players.get(name)! + score)
+                    }
+                  }
+                  return R.sortWith(
+                    [R.descend(([, score]) => score)],
+                    Array.from(players.entries())
+                  ).map(
+                    ([name, score]) =>
+                      score > 0 && (
+                        <tr key={name}>
+                          <td>{name}</td>
+                          <td>{score}</td>
+                        </tr>
+                      )
+                  )
+                })()}
+              </tbody>
+            </Table>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="challenge">
+            {/* TODO: this should include "Just chess" and it should be implemented as just another challenge */}
+            <Table>
+              <thead>
                 <tr>
-                  <td colSpan={2}>
-                    <Center>
-                      <i>{x.group}</i>
-                    </Center>
-                  </td>
+                  <th>Challenge</th>
+                  <th>Record</th>
                 </tr>
-                {Array.from(x.list.values()).map((challenge) => (
-                  <tr key={challenge.meta.uuid}>
-                    <td>{challenge.meta.title}</td>
-                    <td>
-                      <RecordBadge size="sm" winner={challengeWinner(challenge.meta.records)} />
-                    </td>
-                  </tr>
+              </thead>
+              <tbody>
+                {challengesList.map((x, i) => (
+                  <React.Fragment key={`group-${i}`}>
+                    <tr>
+                      <td colSpan={2}>
+                        <Center>
+                          <i>{x.group}</i>
+                        </Center>
+                      </td>
+                    </tr>
+                    {Array.from(x.list.values()).map((challenge) => (
+                      <tr key={challenge.meta.uuid}>
+                        <td>{challenge.meta.title}</td>
+                        <td>
+                          <RecordBadge size="sm" winner={challengeWinner(challenge.meta.records)} />
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </Table>
+              </tbody>
+            </Table>
+          </Tabs.Panel>
+        </Tabs>
       </Modal>
 
       <main className={styles.main}>
