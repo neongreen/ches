@@ -1,6 +1,6 @@
 export const users = {
   Emily: {
-    name: 'Emily',
+    name: '🌸 Emily',
     notes: 'I made the game',
   },
   Mendax: {
