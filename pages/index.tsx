@@ -1,5 +1,6 @@
-import { challengesList, challengesMap } from '@/challenges/all'
-import { Challenge, Record, challengeLeaderboard, challengeWinner } from '@/challenges/core'
+import { challengesMap } from '@/challenges/all'
+import { Challenge, challengeWinner } from '@/challenges/core'
+import { Leaderboard } from '@/components/leaderboard'
 import { MAX_CHESSBOARD_WIDTH } from '@/draw/constants'
 import { notateMove } from '@/move'
 import { GameMethods, GameProps, sketch } from '@/sketch'
@@ -8,23 +9,19 @@ import { Uuid } from '@/utils/uuid'
 import {
   Accordion,
   Anchor,
-  Badge,
   Box,
   Button,
   Center,
   Checkbox,
   Group,
-  MantineSize,
-  Modal,
   Select,
   Slider,
   Stack,
-  Table,
-  Tabs,
   Text,
-  Title,
 } from '@mantine/core'
 import { useDisclosure, useElementSize, useMediaQuery } from '@mantine/hooks'
+import { NextReactP5Wrapper } from '@p5-wrapper/next'
+import { P5CanvasInstance, SketchProps } from '@p5-wrapper/react'
 import _ from 'lodash'
 import Head from 'next/head'
 import { useSearchParams } from 'next/navigation'
@@ -34,12 +31,7 @@ import CommandPalette from 'react-command-palette'
 import NoSSR from 'react-no-ssr'
 import { match } from 'ts-pattern'
 import styles from '../styles/index.module.scss'
-import { NextReactP5Wrapper } from '@p5-wrapper/next'
-import { P5CanvasInstance, SketchProps } from '@p5-wrapper/react'
-import { users } from '@/challenges/users'
-import * as R from 'ramda'
-
-const depthColors = ['', 'indigo', 'indigo', 'lime', 'lime', 'yellow', 'yellow', 'red']
+import { RecordBadge, depthColors } from '@/components/recordBadge'
 
 interface ChallengeItemProps extends React.ComponentPropsWithoutRef<'div'> {
   label: string
@@ -67,25 +59,6 @@ const ChallengeSelectItem = React.forwardRef<HTMLDivElement, ChallengeItemProps>
     )
   }
 )
-
-function RecordBadge(props: {
-  size: MantineSize
-  recordPrefix?: boolean
-  winner?: { name: string; record: Record }
-}) {
-  const { winner } = props
-  return winner ? (
-    <Badge size={props.size} radius="sm" variant="filled" color={depthColors[winner.record.depth]}>
-      {props.recordPrefix && 'Record: '}
-      {winner.name} | depth={winner.record.depth}{' '}
-      {winner.record.moves !== undefined ? `moves=${winner.record.moves}` : ''}
-    </Badge>
-  ) : (
-    <Badge size={props.size} radius="sm" variant="outline" color="gray">
-      Unbeaten
-    </Badge>
-  )
-}
 
 // I spent like 8 hours overall trying to do things properly with refs and failed. I'll just use window for now. See https://github.com/P5-wrapper/react/issues/258
 function gameMethods(): GameMethods | null {
@@ -139,8 +112,6 @@ export default function Home() {
   const { ref: containerRef, width, height } = useElementSize()
 
   const [leaderboardShown, leaderboard] = useDisclosure(false)
-
-  const isMobile = useMediaQuery('(max-width: 500px)')
 
   /** Recreate the current challenge and reset the game. */
   const resetGame = React.useCallback(
@@ -198,83 +169,7 @@ export default function Home() {
         />
       </NoSSR>
 
-      <Modal
-        fullScreen={isMobile}
-        opened={leaderboardShown}
-        onClose={leaderboard.close}
-        sx={{ '.mantine-Modal-content': { maxHeight: isMobile ? '100dvh' : '90vh' } }}
-        title={<Title>Leaderboard</Title>}
-      >
-        <Tabs defaultValue="combined">
-          <Tabs.List>
-            <Tabs.Tab value="combined">Combined</Tabs.Tab>
-            <Tabs.Tab value="challenge">Per challenge</Tabs.Tab>
-          </Tabs.List>
-
-          <Tabs.Panel value="combined">
-            <Table>
-              <tbody>
-                {(() => {
-                  const players: Map<string, number> = new Map(
-                    _.values(users).map((x) => [x.name, 0])
-                  )
-                  for (const challenge of challengesMap.values()) {
-                    const points = challengeLeaderboard(challenge.meta.records)
-                    for (const [name, score] of points) {
-                      players.set(name, players.get(name)! + score)
-                    }
-                  }
-                  return R.sortWith(
-                    [R.descend(([, score]) => score)],
-                    Array.from(players.entries())
-                  ).map(
-                    ([name, score]) =>
-                      score > 0 && (
-                        <tr key={name}>
-                          <td>{name}</td>
-                          <td>{score}</td>
-                        </tr>
-                      )
-                  )
-                })()}
-              </tbody>
-            </Table>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="challenge">
-            {/* TODO: this should include "Just chess" and it should be implemented as just another challenge */}
-            <Table>
-              <thead>
-                <tr>
-                  <th>Challenge</th>
-                  <th>Record</th>
-                </tr>
-              </thead>
-              <tbody>
-                {challengesList.map((x, i) => (
-                  <React.Fragment key={`group-${i}`}>
-                    <tr>
-                      <td colSpan={2}>
-                        <Center>
-                          <i>{x.group}</i>
-                        </Center>
-                      </td>
-                    </tr>
-                    {Array.from(x.list.values()).map((challenge) => (
-                      <tr key={challenge.meta.uuid}>
-                        <td>{challenge.meta.title}</td>
-                        <td>
-                          <RecordBadge size="sm" winner={challengeWinner(challenge.meta.records)} />
-                        </td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </Table>
-          </Tabs.Panel>
-        </Tabs>
-      </Modal>
+      <Leaderboard shown={leaderboardShown} close={leaderboard.close} />
 
       <main className={styles.main}>
         <div ref={containerRef}>
