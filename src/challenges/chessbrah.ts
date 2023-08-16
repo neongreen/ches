@@ -3,6 +3,7 @@ import { Challenge } from './core'
 import { getAllMovers } from '@/move'
 import { isPawn } from '@/piece'
 import { Uuid } from '@/utils/uuid'
+import { users } from './users'
 
 export class Challenge_NoFFile implements Challenge {
   meta: Challenge['meta'] = {
@@ -11,7 +12,7 @@ export class Challenge_NoFFile implements Challenge {
     link: 'https://www.youtube.com/watch?v=RS-Y8Xnu8yQ',
     challenge:
       'You hate the F-file. None of your pieces may enter the F-file. Pawns are okay though.',
-    records: new Map([]),
+    records: new Map([[users.Emily.name, { when: new Date('2023-08-16'), depth: 3, moves: 64 }]]),
   }
 
   highlightSquares: Challenge['highlightSquares'] = () => {
