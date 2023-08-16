@@ -57,8 +57,8 @@ export class Challenge_2022_04_22 implements Challenge {
     }
   }
 
-  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
-    return getAllMovers(move).every((mover) =>
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    return getAllMovers(board, move).every((mover) =>
       match(this.allowedSide)
         .with('any', () => true)
         .with('kingside', () => mover.from.x >= 4)

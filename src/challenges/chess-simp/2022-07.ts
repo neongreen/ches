@@ -102,7 +102,7 @@ export class Challenge_2022_07_11 implements Challenge {
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board }) => {
     if (board.side === Color.Black) return true
-    return getAllMovers(move).every((mover) =>
+    return getAllMovers(board, move).every((mover) =>
       this.touchedPieces.every((touched) => !touched.equals(mover.from))
     )
   }

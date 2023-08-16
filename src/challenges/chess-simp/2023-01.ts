@@ -45,10 +45,10 @@ export class Challenge_2023_01_09 implements Challenge {
     )
   }
 
-  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
     const isMurderer = (x: Coord) =>
       this.murderers.some(({ coord: murderer }) => x.equals(murderer))
-    return getAllMovers(move).every((mover) => !isMurderer(mover.from))
+    return getAllMovers(board, move).every((mover) => !isMurderer(mover.from))
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {

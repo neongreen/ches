@@ -196,14 +196,28 @@ export function getMoveCoords(move: Move): { from: Coord; to: Coord } {
 
 /**
  * Like `getMoveCoord`, but for all pieces that moved. (Both king and rook in case of castling.)
+ *
+ * In case of promotion, `pieceBefore` is the pawn and `pieceAfter` is the promoted piece.
  */
-export function getAllMovers(move: Move): { from: Coord; to: Coord }[] {
+export function getAllMovers(
+  board: Board,
+  move: Move
+): { from: Coord; to: Coord; pieceBefore: MaybePiece; pieceAfter: MaybePiece }[] {
   return match(move)
-    .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) => [{ from, to }])
-    .with({ kind: 'castling' }, ({ kingFrom, kingTo, rookFrom, rookTo }) => [
-      { from: kingFrom, to: kingTo },
-      { from: rookFrom, to: rookTo },
+    .with({ kind: 'normal' }, ({ from, to, promotion }) => [
+      { from, to, pieceBefore: board.at(from), pieceAfter: promotion ?? board.at(from) },
     ])
+    .with({ kind: 'enPassant' }, ({ from, to }) => [
+      { from, to, pieceBefore: board.at(from), pieceAfter: board.at(from) },
+    ])
+    .with({ kind: 'castling' }, ({ kingFrom, kingTo, rookFrom, rookTo }) => {
+      const king = board.at(kingFrom)
+      const rook = board.at(rookFrom)
+      return [
+        { from: kingFrom, to: kingTo, pieceBefore: king, pieceAfter: king },
+        { from: rookFrom, to: rookTo, pieceBefore: rook, pieceAfter: rook },
+      ]
+    })
     .exhaustive()
 }
 

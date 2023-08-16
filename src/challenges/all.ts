@@ -4,6 +4,7 @@ import { chessSimpChallenges } from './chess-simp'
 import { chessSimpDiscordChallenges } from './chess-simp-discord'
 import { Challenge, ChallengeMeta } from './core'
 import { chesDiscordChallenges } from './ches-discord'
+import { chessbrahChallenges } from './chessbrah'
 
 export const challengesList: {
   group: string
@@ -12,6 +13,7 @@ export const challengesList: {
   { group: '⭐️ Ches Discord', list: chesDiscordChallenges },
   { group: 'Chess Simp', list: chessSimpChallenges },
   { group: 'Chess Simp Discord', list: chessSimpDiscordChallenges },
+  { group: 'Chessbrah', list: chessbrahChallenges },
 ]
 
 export const challengesMap: Map<

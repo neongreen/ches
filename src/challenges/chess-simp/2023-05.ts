@@ -29,9 +29,8 @@ export class Challenge_2023_05_23 implements Challenge {
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
-    const movers = getAllMovers(move)
     const connected = this.connectedPieces(board)
-    return movers.every((mover) => connected.some((x) => x.equals(mover.from)))
+    return getAllMovers(board, move).every((mover) => connected.some((x) => x.equals(mover.from)))
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {

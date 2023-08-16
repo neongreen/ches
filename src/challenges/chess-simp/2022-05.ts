@@ -109,12 +109,11 @@ export class Challenge_2022_05_12 implements Challenge {
     records: new Map([[users.Mendax.name, { when: new Date('2023-07-08'), depth: 2, moves: 31 }]]),
   }
 
-  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, history }) => {
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move, history }) => {
     const lastMove = _.last(history)
     if (!lastMove) return true
     const justMoved: Coord = getMoveCoords(lastMove.move).to
-    const movers = getAllMovers(move)
-    return movers.every((mover) => mover.from.kingDistance(justMoved) <= 3)
+    return getAllMovers(board, move).every((mover) => mover.from.kingDistance(justMoved) <= 3)
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history }) => {

@@ -42,14 +42,16 @@ export class Challenge_2022_02_11 implements Challenge {
     if (!lastMove) return true
     const capture = getCapture(move)
     if (!capture || isPawn(capture.victimPiece)) return true
-    return !getAllMovers(lastMove.move).some((mover) => mover.to.equals(capture.victim))
+    return !getAllMovers(lastMove.boardBeforeMove, lastMove.move).some((mover) =>
+      mover.to.equals(capture.victim)
+    )
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history, board }) => {
     if (board.side !== Color.White) return []
     const lastMove = _.last(history)
     if (!lastMove) return []
-    return getAllMovers(lastMove.move)
+    return getAllMovers(lastMove.boardBeforeMove, lastMove.move)
       .filter((mover) => !isPawn(board.at(mover.to)))
       .map((mover) => ({ coord: mover.to, color: 'red' }))
   }
