@@ -10,7 +10,10 @@ export class Challenge_2022_02_10 implements Challenge {
     title: 'I Moved Pawns 100 Times',
     link: 'https://www.youtube.com/watch?v=lco2G0Ri-DM',
     challenge: 'If your opponent moves a piece, you move a pawn, and vice versa.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-07'), depth: 1, moves: 12 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-07'), depth: 1, moves: 12 }],
+      [users.Emily.name, { when: new Date('2023-08-16'), depth: 2, moves: 12 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
