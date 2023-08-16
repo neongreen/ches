@@ -8,7 +8,10 @@ export const _2023_02_23: Challenge = {
     title: 'Highest Voted Challenge EVER',
     link: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
     challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-06'), depth: 1 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-06'), depth: 1 }],
+      [users.Emily.name, { when: new Date('2023-08-16'), depth: 1, moves: 42 }],
+    ]),
   },
   isMoveAllowed({ move }): boolean {
     // Note: no idea about en passant, let's just say it's not allowed.
