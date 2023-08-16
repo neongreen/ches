@@ -30,7 +30,10 @@ export class Challenge_2022_05_30 implements Challenge {
     title: 'He Offered A Draw...',
     link: 'https://www.youtube.com/watch?v=kfxg5wGLVBw',
     challenge: '100 rated chess but you can only take their most extended piece or pawn.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }],
+      [users.fextivity.name, { when: new Date('2023-08-16'), depth: 2, moves: 44 }],
+    ]),
   }
 
   private mostExtendedRow = (board: Board) => {
@@ -65,6 +68,7 @@ export class Challenge_2022_05_31 implements Challenge {
     records: new Map([
       [users.RotomAppliance.name, { when: new Date('2023-07-07'), depth: 3, moves: 25 }],
       [users.Mendax.name, { when: new Date('2023-07-08'), depth: 4, moves: 44 }],
+      [users.fextivity.name, { when: new Date('2023-08-16'), depth: 2, moves: 19 }],
     ]),
   }
 
