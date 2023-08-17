@@ -14,7 +14,7 @@ export class Challenge_NoFFile implements Challenge {
       'You hate the F-file. None of your pieces may enter the F-file. Pawns are okay though.',
     records: new Map([
       [users.Emily.name, { when: new Date('2023-08-16'), depth: 3, moves: 64 }],
-      [users.fextivity.name, { when: new Date('2023-08-17'), depth: 2, moves: 43 }],
+      [users.fextivity.name, { when: new Date('2023-08-17'), depth: 3, moves: 54 }],
     ]),
   }
 
