@@ -10,7 +10,10 @@ export class Simp_2023_06_09 implements Challenge {
     title: '🏳️‍🌈 Pride Chess',
     link: 'https://www.youtube.com/watch?v=ZSlZrHFGzVU',
     challenge: 'Chess, but its Pride Month. All of your pieces (not pawns) must not move straight.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 2, moves: 6 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
