@@ -18,6 +18,7 @@ import {
   Challenge_2022_09_11,
   Challenge_2022_09_19,
   Challenge_2022_09_26,
+  Challenge_2022_09_29,
 } from './chess-simp/2022-09'
 import { Challenge_2023_01_09 } from './chess-simp/2023-01'
 import { _2023_02_23 } from './chess-simp/2023-02'
@@ -63,6 +64,7 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
         () => new Challenge_2022_09_11() as Challenge,
         () => new Challenge_2022_09_19() as Challenge,
         () => new Challenge_2022_09_26() as Challenge,
+        () => new Challenge_2022_09_29() as Challenge,
       ],
       [() => new Challenge_2023_01_09() as Challenge],
       [() => _2023_02_23],

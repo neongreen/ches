@@ -1,7 +1,8 @@
 import { Challenge } from '@/challenges/core'
 import { users } from '@/challenges/users'
-import { getCapture, getMovePiece } from '@/move'
-import { Piece, pieceType } from '@/piece'
+import { getAllMovers, getCapture, getMovePiece } from '@/move'
+import { Piece, isPawn, pieceType } from '@/piece'
+import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 
@@ -48,6 +49,42 @@ export class Challenge_2022_09_26 implements Challenge {
         ({ kingTo, rookTo }) => kingTo.color() === 'dark' && rookTo.color() === 'dark'
       )
       .exhaustive()
+  }
+}
+
+export class Challenge_2022_09_29 implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: 'd6006531-5a50-4c3b-b0f1-7d1927025f71',
+    title: 'Too Convenient',
+    link: 'https://www.youtube.com/watch?v=veXnLFejUd8',
+    challenge:
+      'Chess, but your pieces are afraid of landmines. They can only move to squares that have been walked on by your pawns.',
+    records: new Map([]),
+  }
+
+  // Pieces can also go back to their original positions (4:06 in the video) and to the initial pawn positions
+  private goodSquares: Coord[] = Array.from({ length: 8 }, (_, x) => [
+    new Coord(x, 0),
+    new Coord(x, 1),
+  ]).flat()
+
+  recordMove: Challenge['recordMove'] = ({ boardAfterMove }) => {
+    for (const { piece, coord } of boardAfterMove.pieces()) {
+      if (piece === Piece.WhitePawn && !this.goodSquares.some((c) => c.equals(coord))) {
+        this.goodSquares.push(coord)
+      }
+    }
+  }
+
+  highlightSquares: Challenge['highlightSquares'] = () => {
+    return this.goodSquares.map((coord) => ({ coord, color: 'lightYellow' }))
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    // Unclear from the video, but let's say promotion moves are allowed
+    return getAllMovers(board, move).every(
+      (mover) => isPawn(mover.pieceBefore) || this.goodSquares.some((c) => c.equals(mover.to))
+    )
   }
 }
 
