@@ -131,5 +131,5 @@ export interface Challenge {
   highlightSquares?: (data: {
     board: Board
     history: { boardBeforeMove: Board; move: Move }[]
-  }) => { coord: Coord; color: 'red' | 'blue' | 'lightYellow'; text?: string }[]
+  }) => { coord: Coord; color: 'red' | 'blue' | 'lightYellow' | 'lightRed'; text?: string }[]
 }

@@ -197,6 +197,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
       blue: 'rgba(82, 176, 220, 0.8)',
       red: 'rgba(235, 97, 80, 0.8)',
       lightYellow: 'rgba(235, 227, 80, 0.5)', // custom
+      lightRed: 'rgba(235, 97, 80, 0.5)', // custom
     },
   }
 

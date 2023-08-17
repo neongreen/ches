@@ -20,7 +20,7 @@ export class Challenge_NoFFile implements Challenge {
 
   highlightSquares: Challenge['highlightSquares'] = () => {
     return Array.from({ length: 8 }, (_, i) => {
-      return { color: 'lightYellow', coord: new Coord(5, i) }
+      return { color: 'lightRed', coord: new Coord(5, i) }
     })
   }
 
