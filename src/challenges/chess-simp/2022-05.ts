@@ -70,6 +70,7 @@ export class Simp_2022_05_31 implements Challenge {
       [users.RotomAppliance.name, { when: new Date('2023-07-07'), depth: 3, moves: 25 }],
       [users.Mendax.name, { when: new Date('2023-07-08'), depth: 4, moves: 44 }],
       [users.fextivity.name, { when: new Date('2023-08-16'), depth: 2, moves: 19 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 13 }],
     ]),
   }
 
