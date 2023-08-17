@@ -45,7 +45,10 @@ export class Simp_2022_03_29 implements Challenge {
     title: "I Don't Invade Anyone Today",
     link: 'https://www.youtube.com/watch?v=XQZFvszSddk',
     challenge: "Chess but your pawns and pieces can't cross the half-way line.",
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-02'), depth: 3 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-02'), depth: 3 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 38 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
