@@ -5,7 +5,7 @@ import { isWhitePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { P, match } from 'ts-pattern'
 
-export class Challenge_2022_03_07 implements Challenge {
+export class Simp_2022_03_07 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '7f577d60-083c-47fe-a335-3a4ee406f5c8',
     title: 'Such Torture',
@@ -39,7 +39,7 @@ export class Challenge_2022_03_07 implements Challenge {
   }
 }
 
-export class Challenge_2022_03_29 implements Challenge {
+export class Simp_2022_03_29 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '8f5b6f38-8426-430f-a2ce-698b401a43eb',
     title: "I Don't Invade Anyone Today",

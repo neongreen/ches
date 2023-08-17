@@ -6,7 +6,7 @@ import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 
-export class Challenge_2022_09_11 implements Challenge {
+export class Simp_2022_09_11 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '9b88d4dd-e1fe-4120-9792-c2ff15fd5920',
     title: 'I Have To Move The Same Piece As My Opponent Did',
@@ -27,7 +27,7 @@ export class Challenge_2022_09_11 implements Challenge {
   }
 }
 
-export class Challenge_2022_09_26 implements Challenge {
+export class Simp_2022_09_26 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '3b89e3e6-7551-4d8a-850f-9ac6d380011e',
     title: 'My Favorite Opening',
@@ -52,7 +52,7 @@ export class Challenge_2022_09_26 implements Challenge {
   }
 }
 
-export class Challenge_2022_09_29 implements Challenge {
+export class Simp_2022_09_29 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'd6006531-5a50-4c3b-b0f1-7d1927025f71',
     title: 'Too Convenient',
@@ -90,7 +90,7 @@ export class Challenge_2022_09_29 implements Challenge {
   }
 }
 
-export class Challenge_2022_09_19 implements Challenge {
+export class Simp_2022_09_19 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '52620ef2-a11c-4b1c-bb40-652a482ba724',
     title: 'The Entire Game Were BLUNDERS !!!',

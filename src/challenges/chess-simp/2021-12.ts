@@ -3,7 +3,7 @@ import { users } from '@/challenges/users'
 import { isCapture, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 
-export class Challenge_2021_12_04 implements Challenge {
+export class Simp_2021_12_04 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '983bb958-585c-4547-bb91-e88b6f84b9bd',
     title: 'Chess, But Capture Is Forced',

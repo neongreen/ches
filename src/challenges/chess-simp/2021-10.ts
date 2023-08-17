@@ -3,7 +3,7 @@ import { getCapture, getMovePiece } from '@/move'
 import { Piece } from '@/piece'
 import _ from 'lodash'
 
-export class Challenge_2021_10_16 implements Challenge {
+export class Simp_2021_10_16 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'cbd25aaa-a414-4248-a24e-58679c07588c',
     title: "Chess, But I'm A Real SIMP",

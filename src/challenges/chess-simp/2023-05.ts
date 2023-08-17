@@ -6,7 +6,7 @@ import { allConnected } from '@/utils/connected'
 import { Coord } from '@/utils/coord'
 import { users } from '../users'
 
-export class Challenge_2023_05_23 implements Challenge {
+export class Simp_2023_05_23 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '30366eaf-28ed-4d78-af5b-1fc05c544886',
     title: 'Electric Chess',

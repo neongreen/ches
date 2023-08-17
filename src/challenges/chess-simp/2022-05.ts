@@ -7,7 +7,7 @@ import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 
-export class Challenge_2022_05_24 implements Challenge {
+export class Simp_2022_05_24 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'f2941f89-4412-448f-94f5-25f7c46dc29b',
     title: 'Slow And Steady',
@@ -24,7 +24,7 @@ export class Challenge_2022_05_24 implements Challenge {
   }
 }
 
-export class Challenge_2022_05_30 implements Challenge {
+export class Simp_2022_05_30 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '8491849c-db4c-4013-a21b-01b0e9203880',
     title: 'He Offered A Draw...',
@@ -59,7 +59,7 @@ export class Challenge_2022_05_30 implements Challenge {
   }
 }
 
-export class Challenge_2022_05_31 implements Challenge {
+export class Simp_2022_05_31 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '39efe131-5fb0-4294-b832-1d4d31a89f84',
     title: 'What If He Only Moves His King ??',
@@ -99,7 +99,7 @@ export class Challenge_2022_05_31 implements Challenge {
   }
 }
 
-export class Challenge_2022_05_12 implements Challenge {
+export class Simp_2022_05_12 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'b1583d71-56eb-4a4f-871a-7ae6ca041ca8',
     title: 'This Is Not Cheating',

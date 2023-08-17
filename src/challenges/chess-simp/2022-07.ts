@@ -7,7 +7,7 @@ import { legalMovesForPiece_slow } from '@/move/legal'
 import { users } from '../users'
 import { Coord } from '@/utils/coord'
 
-export class Challenge_2022_07_18 implements Challenge {
+export class Simp_2022_07_18 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'a2d24a1c-9ed1-4a96-8479-3b0042b46f9e',
     title: 'King Simp Today',
@@ -62,7 +62,7 @@ export class Challenge_2022_07_18 implements Challenge {
   }
 }
 
-export class Challenge_2022_07_11 implements Challenge {
+export class Simp_2022_07_11 implements Challenge {
   meta: ChallengeMeta = {
     uuid: 'acd79149-c5f9-47e6-a778-780e631f7bd9',
     title: 'What Was I Doing??',

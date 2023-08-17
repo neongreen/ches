@@ -5,7 +5,7 @@ import { Color } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 
-export class Challenge_2023_01_09 implements Challenge {
+export class Simp_2023_01_09 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'c0133088-29de-4eb6-982e-930b270457db',
     title: 'And Then They Commit That Crime Again',

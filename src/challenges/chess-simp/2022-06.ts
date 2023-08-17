@@ -3,7 +3,7 @@ import { users } from '@/challenges/users'
 import { getCapture } from '@/move'
 import { P, match } from 'ts-pattern'
 
-export class Challenge_2022_06_03 implements Challenge {
+export class Simp_2022_06_03 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'd1a66d2b-6382-4037-9231-18f4b94cfdf8',
     title: "I Don't See Anything Wrong",
@@ -21,7 +21,7 @@ export class Challenge_2022_06_03 implements Challenge {
   }
 }
 
-export class Challenge_2022_06_23 implements Challenge {
+export class Simp_2022_06_23 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '6d7428cf-ae5c-4b3e-a8ee-e435fcf40bc4',
     title: 'Poor Pawn Got Blundered 10 Times',

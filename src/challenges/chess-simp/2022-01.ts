@@ -4,7 +4,7 @@ import { getMovePiece, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { isPawn } from '@/piece'
 
-export class Challenge_2022_01_29 implements Challenge {
+export class Simp_2022_01_29 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '1515dfc7-4ed7-444d-a8cb-ac6b35e699bd',
     title: 'Our Kings Almost Touched',

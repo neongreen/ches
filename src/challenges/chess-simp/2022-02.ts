@@ -4,7 +4,7 @@ import { getAllMovers, getCapture, getMovePiece } from '@/move'
 import { Color, isPawn } from '@/piece'
 import _ from 'lodash'
 
-export class Challenge_2022_02_10 implements Challenge {
+export class Simp_2022_02_10 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '934f5a6b-c5af-48b5-ac4f-bc4ba3cc3c31',
     title: 'I Moved Pawns 100 Times',
@@ -25,7 +25,7 @@ export class Challenge_2022_02_10 implements Challenge {
   }
 }
 
-export class Challenge_2022_02_11 implements Challenge {
+export class Simp_2022_02_11 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '466a483a-5db4-447e-96e4-0b2deb674ac6',
     title: '8 Book Moves???',

@@ -5,7 +5,7 @@ import { Color, isWhitePiece } from '@/piece'
 import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 
-export class Challenge_2021_08_17 implements Challenge {
+export class Simp_2021_08_17 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: 'ad9def81-d090-468d-91fb-58570ec87f39',
     title: 'Play On The Same File',

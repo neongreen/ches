@@ -7,7 +7,7 @@ import { Color, isKing, pieceType } from '@/piece'
 import _ from 'lodash'
 import { match } from 'ts-pattern'
 
-export class Challenge_2022_04_21 implements Challenge {
+export class Simp_2022_04_21 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '5101988d-c2c1-4585-96b7-06aa04d599fd',
     title: 'All Predictions Went Wrong',
@@ -22,7 +22,7 @@ export class Challenge_2022_04_21 implements Challenge {
   }
 }
 
-export class Challenge_2022_04_22 implements Challenge {
+export class Simp_2022_04_22 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '91fd101e-bd0e-47da-ab8e-a6fb7972a1a2',
     title: "It Was So Hard I Couldn't Breath",
