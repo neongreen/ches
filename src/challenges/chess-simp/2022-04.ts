@@ -1,10 +1,9 @@
 import { Board } from '@/board'
-import { Challenge, ChallengeMeta } from '@/challenges/core'
+import { Challenge } from '@/challenges/core'
 import { users } from '@/challenges/users'
 import { getAllMovers, getMoveCoords, getMovePiece, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { Color, isKing, pieceType } from '@/piece'
-import _ from 'lodash'
+import { Color, isKing } from '@/piece'
 import { match } from 'ts-pattern'
 
 export class Simp_2022_04_21 implements Challenge {
@@ -13,7 +12,10 @@ export class Simp_2022_04_21 implements Challenge {
     title: 'All Predictions Went Wrong',
     link: 'https://www.youtube.com/watch?v=ZY-TiAVv69I',
     challenge: 'Chess but you have to move your King if you can.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-02'), depth: 3 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-02'), depth: 3 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 2, moves: 48 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
