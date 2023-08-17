@@ -60,7 +60,7 @@ export class Challenge_2022_09_29 implements Challenge {
     challenge:
       'Chess, but your pieces are afraid of landmines. They can only move to squares that have been walked on by your pawns.',
     records: new Map([
-      [users.fextivity.name, { when: new Date('2023-08-17'), depth: 2, moves: 34 }],
+      [users.fextivity.name, { when: new Date('2023-08-17'), depth: 3, moves: 76 }],
     ]),
   }
 
