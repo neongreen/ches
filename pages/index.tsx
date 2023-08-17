@@ -165,6 +165,10 @@ export default function Home() {
               name: `Show best move: ${showBestMove ? 'disable' : 'enable'}`,
               command: () => setShowBestMove((x) => !x),
             },
+            {
+              name: 'Open leaderboard',
+              command: () => leaderboard.open(),
+            },
           ].map((x, i) => ({ ...x, id: i, color: '' }))}
         />
       </NoSSR>
