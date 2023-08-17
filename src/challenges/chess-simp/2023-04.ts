@@ -14,6 +14,7 @@ export class Simp_2023_04_01 implements Challenge {
     records: new Map([
       [users.ChessSimpSimp.name, { when: new Date('2023-07-04'), depth: 2, moves: 6 }],
       [users.Mendax.name, { when: new Date('2023-07-06'), depth: 3 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 2, moves: 6 }],
     ]),
   }
 
