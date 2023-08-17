@@ -125,3 +125,42 @@ export class Simp_2022_05_12 implements Challenge {
       .map((square) => ({ coord: square, color: 'lightYellow' }))
   }
 }
+
+export class Simp_2022_05_17 implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '38c6d49d-4517-4ca9-bee4-e9ccca5f68fe',
+    title: 'A Check Will Ruin Everything',
+    link: 'https://www.youtube.com/watch?v=3hXbiil9k5g',
+    challenge:
+      'Chess, but you must commit to a file for 2 turns. Only pieces and pawns that are currently inside that file can be moved.',
+    records: new Map([]),
+  }
+
+  private committedFile: number | null = null
+
+  highlightSquares: Challenge['highlightSquares'] = ({ board }) => {
+    return this.committedFile === null
+      ? []
+      : Array.from({ length: 8 }, (_, i) => ({
+          coord: new Coord(this.committedFile!, i),
+          color: 'lightYellow',
+        }))
+  }
+
+  recordMove: Challenge['recordMove'] = ({ boardBeforeMove, move }) => {
+    if (boardBeforeMove.side === Color.White) {
+      if (this.committedFile === null) {
+        const from = getMoveCoords(move).from
+        this.committedFile = from.x
+      } else {
+        this.committedFile = null
+      }
+    }
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    if (move.kind === 'castling') return false // never allowed!
+    if (this.committedFile === null) return true
+    return getAllMovers(board, move).every((mover) => mover.from.x === this.committedFile)
+  }
+}
