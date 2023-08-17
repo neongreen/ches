@@ -13,6 +13,7 @@ export class Simp_2021_12_04 implements Challenge {
       [users.ChessSimpSimp.name, { when: new Date('2023-06-29'), depth: 2 }],
       [users.Mendax.name, { when: new Date('2023-07-07'), depth: 3, moves: 65 }],
       [users.fextivity.name, { when: new Date('2023-08-11'), depth: 3, moves: 56 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 28 }],
     ]),
   }
 
