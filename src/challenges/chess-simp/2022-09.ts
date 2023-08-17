@@ -59,7 +59,9 @@ export class Challenge_2022_09_29 implements Challenge {
     link: 'https://www.youtube.com/watch?v=veXnLFejUd8',
     challenge:
       'Chess, but your pieces are afraid of landmines. They can only move to squares that have been walked on by your pawns.',
-    records: new Map([]),
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-17'), depth: 2, moves: 34 }],
+    ]),
   }
 
   // Pieces can also go back to their original positions (4:06 in the video) and to the initial pawn positions
