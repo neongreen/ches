@@ -28,7 +28,7 @@ export class Simp_2022_06_23 implements Challenge {
     link: 'https://www.youtube.com/watch?v=22D0RVwV-B0',
     challenge:
       'Chess, but your pieces need glasses. They can only capture if the target is right next to them.',
-    records: new Map([]),
+    records: new Map([[users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 13 }]]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
