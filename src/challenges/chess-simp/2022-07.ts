@@ -17,6 +17,7 @@ export class Simp_2022_07_18 implements Challenge {
     records: new Map([
       [users.QuangBuiCP.name, { when: new Date('2023-08-10'), depth: 1, moves: 6 }],
       [users.fextivity.name, { when: new Date('2023-08-11'), depth: 3, moves: 55 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 2, moves: 6 }],
     ]),
   }
 
