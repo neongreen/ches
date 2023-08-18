@@ -135,7 +135,9 @@ export class Simp_2022_05_17 implements Challenge {
     link: 'https://www.youtube.com/watch?v=3hXbiil9k5g',
     challenge:
       'Chess, but you must commit to a file for 2 turns. Only pieces and pawns that are currently inside that file can be moved.',
-    records: new Map([]),
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-18'), depth: 1, moves: 25 }],
+    ]),
   }
 
   private committedFile: number | null = null

@@ -11,7 +11,10 @@ export class Simp_2021_10_16 implements Challenge {
     link: 'https://www.youtube.com/watch?v=GLMMLc879Ho',
     challenge:
       'Chess, but you have to move your King everytime your opponent moves his Queen. Also, you cannot take his Queen.',
-    records: new Map([[users.Emily.name, { when: new Date('2023-08-18'), depth: 4, moves: 30 }]]),
+    records: new Map([
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 4, moves: 30 }],
+      [users.fextivity.name, { when: new Date('2023-08-18'), depth: 3, moves: 30 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move, history }) => {
