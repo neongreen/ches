@@ -26,7 +26,7 @@ function LeaderboardCombined() {
               score > 0 && (
                 <tr key={name}>
                   <td>{name}</td>
-                  <td>{score}</td>
+                  <td>{Number(score.toFixed(3))}</td>
                 </tr>
               )
           )

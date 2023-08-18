@@ -33,6 +33,7 @@ export class Simp_2022_04_22 implements Challenge {
       'Chess but you can only use half of the board, every 5 moves you have to switch to the other half.',
     records: new Map([
       [users.fextivity.name, { when: new Date('2023-08-14'), depth: 3, moves: 64 }],
+      [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 48 }],
     ]),
   }
 
