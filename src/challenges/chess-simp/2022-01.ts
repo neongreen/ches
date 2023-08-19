@@ -5,7 +5,6 @@ import { getMovePiece, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { Color, Piece, isPawn } from '@/piece'
 import { Coord } from '@/utils/coord'
-import { is } from 'ramda'
 
 export class Simp_2022_01_29 implements Challenge {
   meta: Challenge['meta'] = {

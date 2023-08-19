@@ -122,10 +122,13 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
           sounds.move.play()
         }
         state.makeMove(move)
+        vars.onHistoryChange([...state.chess.history])
         messageQueue.push({ type: 'updateBestMove' })
       })
       .with({ type: 'updateBestMove' }, () => {
-        state.updateBestMove({ searchDepth: vars.searchDepth })
+        state.updateBestMoveAndGameStatus({ searchDepth: vars.searchDepth })
+        vars.onStatusChange(state.chess.gameStatus.status)
+        vars.onBestMoveChange(state.chess.bestMove)
       })
       .with({ type: 'doNothing' }, () => {
         return
@@ -149,11 +152,6 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
     ) {
       messageQueue.push({ type: 'makeMove', move: state.chess.bestMove.move })
     }
-
-    // Alert the outside world
-    vars.onStatusChange(state.chess.gameStatus.status)
-    if (state.chess.bestMove) vars.onBestMoveChange(state.chess.bestMove)
-    vars.onHistoryChange([...state.chess.history])
 
     // Draw the current state of the game
     render(p5, state, vars)

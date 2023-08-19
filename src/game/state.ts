@@ -35,7 +35,7 @@ export class GameState {
   }
 
   /** Find the best move if we don't know it already */
-  updateBestMove(options: { searchDepth: number }) {
+  updateBestMoveAndGameStatus(options: { searchDepth: number }) {
     if (this.chess.bestMove === null) {
       const startTime = performance.now()
       const bestMove = this.chess.search.findBestMove(
