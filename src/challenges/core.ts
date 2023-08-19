@@ -121,6 +121,11 @@ export interface Challenge {
   }) => boolean
 
   /**
+   * This function can abruptly end the challenge if it's been lost.
+   */
+  isChallengeLost?: (data: { board: Board }) => { lost: boolean }
+
+  /**
    * This function will be called after any move has been made.
    */
   recordMove?: (data: { move: Move; boardBeforeMove: Board; boardAfterMove: Board }) => void

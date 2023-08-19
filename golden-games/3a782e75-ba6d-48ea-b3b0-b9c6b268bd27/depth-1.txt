@@ -1,0 +1,4 @@
+1. Nc3 +0.20
+... Nc6 0.00
+2. Nh3 +0.20
+Challenge lost - explicitly

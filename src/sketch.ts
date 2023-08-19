@@ -23,6 +23,8 @@ class Chess {
 
   challenge: Challenge | null = null
   isMoveAllowedByChallenge: (move: Move) => boolean = () => true
+  isChallengeLost = false
+  gameStatus: 'playing' | 'won' | 'lost' | 'draw' = 'playing'
 
   bestMove: {
     move: Move | null
@@ -37,7 +39,7 @@ class Chess {
   history: { boardBeforeMove: Board; move: Move }[] = []
 
   /**
-   * Make a challenge move decider, based on the current challenge.
+   * Make a challenge move decider, based on the current challenge and current history.
    *
    * You can use the returned function to quickly check if a move is allowed by the challenge. The returned function is only valid for the current state of the game.
    */
@@ -65,6 +67,7 @@ class Chess {
     this.history.push({ boardBeforeMove, move })
     this.challenge?.recordMove?.({ boardBeforeMove, boardAfterMove: this.board, move })
     this.isMoveAllowedByChallenge = this.makeChallengeMoveDecider()
+    this.isChallengeLost = this.challenge?.isChallengeLost?.({ board: this.board }).lost ?? false
   }
 
   constructor(options: { challenge: Challenge | null }) {
@@ -332,21 +335,42 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
     if (chess.bestMove) vars.onBestMoveChange(chess.bestMove)
 
-    if (chess.bestMove.move && chess.board.side === Color.Black && vars.autoPlayEnabled) {
+    const checkChallengeExplicitlyLost = () => {
+      if (chess.isChallengeLost) {
+        p5.fill('red')
+        p5.text('You lost the challenge.', 5, DrawConstants(p5).CELL * 8 + 14)
+        chess.gameStatus = 'lost'
+      }
+    }
+
+    if (
+      chess.bestMove.move &&
+      chess.board.side === Color.Black &&
+      vars.autoPlayEnabled &&
+      chess.gameStatus === 'playing'
+    ) {
       if (performance.now() - lastMoveTimestamp > AI_MOVE_DELAY) makeBestMove()
+      checkChallengeExplicitlyLost()
     } else {
       drawBestMove()
       // If the game is not over, show eval, otherwise show result
       const legalMoves = legalMoves_slow(chess.board)
       const legalMovesAfterChallenge = legalMoves.filter(chess.isMoveAllowedByChallenge)
+      checkChallengeExplicitlyLost()
       match('')
+        .when(
+          () => chess.gameStatus !== 'playing',
+          () => {
+            return
+          }
+        )
         // Game over, we won
         .when(
           () => chess.bestMove!.move === null && chess.bestMove!.score > 0,
           () => {
             p5.fill('green')
             p5.text('Checkmate. You won!', 5, DrawConstants(p5).CELL * 8 + 14)
-            vars.onStatusChange('won')
+            chess.gameStatus = 'won'
           }
         )
         // Game over, we lost
@@ -355,7 +379,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
           () => {
             p5.fill('red')
             p5.text('Checkmate. You lost.', 5, DrawConstants(p5).CELL * 8 + 14)
-            vars.onStatusChange('lost')
+            chess.gameStatus = 'lost'
           }
         )
         // Game over, draw
@@ -367,7 +391,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
               ? 'Draw by threefold repetition'
               : 'Draw'
             p5.text(text, 5, DrawConstants(p5).CELL * 8 + 14)
-            vars.onStatusChange('draw')
+            chess.gameStatus = 'draw'
           }
         )
         // There are moves but all of them are illegal challenge-wise
@@ -380,7 +404,7 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
               5,
               DrawConstants(p5).CELL * 8 + 14
             )
-            vars.onStatusChange('lost')
+            chess.gameStatus = 'lost'
           }
         )
         // The game goes on, show eval
@@ -392,9 +416,9 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
             5,
             DrawConstants(p5).CELL * 8 + 14
           )
-          vars.onStatusChange('playing')
         })
     }
+    vars.onStatusChange(chess.gameStatus)
 
     // if (audioStarted) {
     //   if (frameCount % 15 === 0) {

@@ -1,8 +1,11 @@
+import { Board } from '@/board'
 import { Challenge } from '@/challenges/core'
 import { users } from '@/challenges/users'
 import { getMovePiece, moveIsEqual } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
-import { isPawn } from '@/piece'
+import { Piece, isPawn } from '@/piece'
+import { Coord } from '@/utils/coord'
+import { is } from 'ramda'
 
 export class Simp_2022_01_29 implements Challenge {
   meta: Challenge['meta'] = {
@@ -21,5 +24,31 @@ export class Simp_2022_01_29 implements Challenge {
     // Note: per 3:02 in the video, if you're in check you can move a non-pawn (which is incidentally what this code already does.)
     const pawnMoves = legalMoves_slow(board).filter((move) => isPawn(getMovePiece(board, move)))
     return pawnMoves.length === 0 || pawnMoves.some((pawnMove) => moveIsEqual(pawnMove, move))
+  }
+}
+
+export class Simp_2022_01_21 implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '3a782e75-ba6d-48ea-b3b0-b9c6b268bd27',
+    title: 'This Is A Bit Too Aggressive',
+    link: 'https://www.youtube.com/watch?v=5yRrvhY_DEI',
+    challenge: 'Chess, but your Queen is always in the center. (Challenge starts from move 2.)',
+    records: new Map([]),
+  }
+
+  private isInCenter = (coord: Coord) =>
+    coord.x >= 2 && coord.x <= 5 && coord.y >= 2 && coord.y <= 5
+
+  isChallengeLost: Challenge['isChallengeLost'] = ({ board }) => {
+    const queens = board.pieces().filter((x) => x.piece === Piece.WhiteQueen)
+    return { lost: board.halfMoveNumber >= 4 && !queens.some((x) => this.isInCenter(x.coord)) }
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = () => true
+
+  highlightSquares: Challenge['highlightSquares'] = ({ board }) => {
+    return Board.allSquares()
+      .filter((coord) => this.isInCenter(coord))
+      .map((coord) => ({ coord, color: 'lightYellow' }))
   }
 }

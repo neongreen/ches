@@ -121,6 +121,7 @@ export class Board {
   private halfmoveClockStack: number[]
 
   fullMoveNumber = 1
+  halfMoveNumber = 1
 
   /**
    * Create a new board, or clone an existing one.
@@ -140,6 +141,7 @@ export class Board {
       this.irreversibleMoveClock = board.irreversibleMoveClock
       this.halfmoveClock = board.halfmoveClock
       this.fullMoveNumber = board.fullMoveNumber
+      this.halfMoveNumber = board.halfMoveNumber
       this.moveHistory = board.moveHistory.slice()
       this.castlingRightsStack = board.castlingRightsStack.slice()
       this.enPassantTargetSquareStack = board.enPassantTargetSquareStack.slice()
@@ -335,6 +337,8 @@ export class Board {
     this.halfmoveClock = parseInt(halfmove, 10)
     this.irreversibleMoveClock = 0 // FEN doesn't have this info
     this.fullMoveNumber = parseInt(fullmove, 10)
+    this.halfMoveNumber =
+      this.side === Color.White ? this.fullMoveNumber * 2 - 1 : this.fullMoveNumber * 2
 
     this.moveHistory = []
 
@@ -495,6 +499,7 @@ export class Board {
 
     // The full move number is incremented after Black's move
     if (this.side === Color.Black) this.fullMoveNumber++
+    this.halfMoveNumber++
 
     // Update the side to move
     this.side = this.side === Color.White ? Color.Black : Color.White
@@ -518,6 +523,7 @@ export class Board {
     const move = this.moveHistory.pop()!
 
     if (this.side === Color.White) this.fullMoveNumber--
+    this.halfMoveNumber--
     this.side = this.side === Color.White ? Color.Black : Color.White
 
     switch (move.kind) {

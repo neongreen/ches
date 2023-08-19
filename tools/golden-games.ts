@@ -36,6 +36,7 @@ const scenarios = [
     id: 'unrestricted',
     create: () => ({
       isMoveAllowed: () => true,
+      isChallengeLost: () => ({ lost: false }),
       recordMove: () => {
         return
       },
@@ -98,7 +99,10 @@ for (const scenario of scenarios) {
         best = search.findBestMove(new EvalNode(board), depth)
       }
       // Now that we've found the best move (or null, meaning game over), we can proceed.
-      if (best.move === null) {
+      if (challenge?.isChallengeLost?.({ board }).lost ?? false) {
+        game.push({ result: 'Challenge lost - explicitly' })
+        break
+      } else if (best.move === null) {
         game.push({
           result: match(best)
             .with(

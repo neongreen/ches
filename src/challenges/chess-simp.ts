@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { Simp_2021_08_17 } from './chess-simp/2021-08'
 import { Simp_2021_10_16 } from './chess-simp/2021-10'
 import { Simp_2021_12_04 } from './chess-simp/2021-12'
-import { Simp_2022_01_29 } from './chess-simp/2022-01'
+import { Simp_2022_01_21, Simp_2022_01_29 } from './chess-simp/2022-01'
 import { Simp_2022_02_10, Simp_2022_02_11 } from './chess-simp/2022-02'
 import { Simp_2022_03_07, Simp_2022_03_29 } from './chess-simp/2022-03'
 import { Simp_2022_04_21, Simp_2022_04_22 } from './chess-simp/2022-04'
@@ -38,7 +38,7 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       [() => new Simp_2021_08_17() as Challenge],
       [() => new Simp_2021_10_16() as Challenge],
       [() => new Simp_2021_12_04() as Challenge],
-      [() => new Simp_2022_01_29() as Challenge],
+      [() => new Simp_2022_01_29() as Challenge, () => new Simp_2022_01_21() as Challenge],
       [() => new Simp_2022_02_10() as Challenge, () => new Simp_2022_02_11() as Challenge],
       [() => new Simp_2022_03_07() as Challenge, () => new Simp_2022_03_29() as Challenge],
       [() => new Simp_2022_04_21() as Challenge, () => new Simp_2022_04_22() as Challenge],
