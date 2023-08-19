@@ -82,9 +82,6 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
       src: ['/assets/sounds/chess-blitz-sfx/piece-capture.mp3'],
       volume: 0.4,
     }),
-    silence: new Howl({
-      src: ['/assets/sounds/silence.mp3'],
-    }),
   }
 
   /** Is the mouse hovering over a specific square? */
@@ -171,9 +168,6 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
   // If we are touching a piece when the mouse is pressed, start dragging it
   p5.mousePressed = () => {
-    // Play any sound to enable audio on iOS
-    sounds.silence.play()
-
     if (!vars.controlsEnabled) return
 
     // if (!audioStarted) {
