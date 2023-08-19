@@ -10,7 +10,7 @@ export class Simp_2021_10_22 implements Challenge {
     uuid: '8c0bd7f7-01be-4862-842f-4ad43c3ffb01',
     title: 'If A King Moves, The Video Ends',
     link: 'https://www.youtube.com/watch?v=3_AGsjT_dVI',
-    challenge: 'If a king moves, the video ends (casling also counts).',
+    challenge: 'If a king moves, the video ends (castling also counts).',
     records: new Map([]),
   }
 
