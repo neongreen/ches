@@ -99,7 +99,11 @@ class Challenge_Vampires implements Challenge {
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122440838719479808',
     challenge:
       'Chess, but all of your pieces (and pawns) are vampires. Anytime one of your pieces (or pawns) has a direct line of sight past your opponent’s edge of the board, they are hit by sunlight and turn to ash.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-06'), depth: 3 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-06'), depth: 3 }],
+      [users.fextivity.name, { when: new Date('2023-08-19'), depth: 2, moves: 7 }],
+      [users.Emily.name, { when: new Date('2023-08-19'), depth: 2, moves: 6 }],
+    ]),
   }
 
   private burnedPieces: Coord[] = []
