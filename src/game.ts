@@ -171,6 +171,9 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
   // If we are touching a piece when the mouse is pressed, start dragging it
   p5.mousePressed = () => {
+    // Play any sound to enable audio on iOS
+    sounds.silence.play()
+
     if (!vars.controlsEnabled) return
 
     // if (!audioStarted) {
@@ -189,9 +192,6 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
   p5.mouseReleased = () => {
     if (!vars.controlsEnabled) return
-
-    // Play any sound to enable audio on iOS
-    sounds.silence.play()
 
     if (state.dragged !== null) {
       let dest: Coord | null = Board.allSquares().find(isTouching) ?? null
