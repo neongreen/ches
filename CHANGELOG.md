@@ -1,5 +1,7 @@
 # Yet unannounced in Chess Simp Discord
 
+# Already announced
+
 * Aug 19, 2023: New challenge: Chess Simp — "If A King Moves, The Video Ends"
 * Aug 19, 2023: New challenge: Chess Simp — "This Is A Bit Too Aggressive"
 * Aug 19, 2023: Ability to check if the challenge is explicitly lost
