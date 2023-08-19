@@ -1,8 +1,30 @@
 import { Challenge } from '@/challenges/core'
 import { getCapture, getMovePiece } from '@/move'
-import { Piece } from '@/piece'
+import { Piece, isKing } from '@/piece'
 import _ from 'lodash'
 import { users } from '../users'
+import { Coord } from '@/utils/coord'
+
+export class Simp_2021_10_22 implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '8c0bd7f7-01be-4862-842f-4ad43c3ffb01',
+    title: 'If A King Moves, The Video Ends',
+    link: 'https://www.youtube.com/watch?v=3_AGsjT_dVI',
+    challenge: 'If a king moves, the video ends (casling also counts).',
+    records: new Map([]),
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
+    const piece = getMovePiece(board, move)
+    return !isKing(piece)
+  }
+
+  isChallengeLost: Challenge['isChallengeLost'] = ({ board }) => {
+    const whiteKingMoved = !board.kings.white.equals(new Coord(4, 0))
+    const blackKingMoved = !board.kings.black.equals(new Coord(4, 7))
+    return { lost: whiteKingMoved || blackKingMoved }
+  }
+}
 
 export class Simp_2021_10_16 implements Challenge {
   meta: Challenge['meta'] = {
