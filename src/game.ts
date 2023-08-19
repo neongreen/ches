@@ -76,15 +76,14 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
   const sounds = {
     move: new Howl({
-      src: [
-        '/assets/sounds/30764__el_boss__chess-puzzle-blitz-sfx/546119__el_boss__piece-placement.mp3',
-      ],
+      src: ['/assets/sounds/chess-blitz-sfx/piece-placement.mp3'],
     }),
     capture: new Howl({
-      src: [
-        '/assets/sounds/30764__el_boss__chess-puzzle-blitz-sfx/546120__el_boss__piece-capture.mp3',
-      ],
+      src: ['/assets/sounds/chess-blitz-sfx/piece-capture.mp3'],
       volume: 0.4,
+    }),
+    silence: new Howl({
+      src: ['/assets/sounds/silence.mp3'],
     }),
   }
 
@@ -190,6 +189,9 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
   p5.mouseReleased = () => {
     if (!vars.controlsEnabled) return
+
+    // Play any sound to enable audio on iOS
+    sounds.silence.play()
 
     if (state.dragged !== null) {
       let dest: Coord | null = Board.allSquares().find(isTouching) ?? null
