@@ -35,6 +35,7 @@ export class Simp_2022_01_21 implements Challenge {
     challenge: 'Chess, but your Queen is always in the center. (Challenge starts from move 2.)',
     records: new Map([
       [users.fextivity.name, { when: new Date('2023-08-19'), depth: 2, moves: 29 }],
+      [users.Emily.name, { when: new Date('2023-08-19'), depth: 3, moves: 50 }],
     ]),
   }
 
