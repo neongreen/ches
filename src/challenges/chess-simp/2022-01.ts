@@ -33,7 +33,9 @@ export class Simp_2022_01_21 implements Challenge {
     title: 'This Is A Bit Too Aggressive',
     link: 'https://www.youtube.com/watch?v=5yRrvhY_DEI',
     challenge: 'Chess, but your Queen is always in the center. (Challenge starts from move 2.)',
-    records: new Map([]),
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-19'), depth: 2, moves: 29 }],
+    ]),
   }
 
   private isInCenter = (coord: Coord) =>
