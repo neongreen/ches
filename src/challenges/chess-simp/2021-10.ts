@@ -11,7 +11,9 @@ export class Simp_2021_10_22 implements Challenge {
     title: 'If A King Moves, The Video Ends',
     link: 'https://www.youtube.com/watch?v=3_AGsjT_dVI',
     challenge: 'If a king moves, the video ends (castling also counts).',
-    records: new Map([]),
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-20'), depth: 2, moves: 6 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
