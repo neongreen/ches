@@ -36,7 +36,7 @@ To test `unmakeMove`, run:
 
 ```bash
 NODE_ENV=test yarn bench
-NODE_ENV=test yarn golden-games -s unrestricted
+NODE_ENV=test yarn golden -s unrestricted
 ```
 
 ### Typecheck and lint
@@ -52,9 +52,9 @@ Useful to check that a refactoring didn't change anything (the engine is determi
 ```bash
 # Needs to be run from the root!
 
-yarn golden-games    # regenerate all
+yarn golden    # regenerate all
 
-yarn golden-games -s <uuid1> -s <uuid2> ... # regenerate specific challenges
+yarn golden -s <uuid1> -s <uuid2> ... # regenerate specific challenges
 ```
 
 ### Can't push huge Git objects

@@ -1,5 +1,7 @@
 # Yet unannounced in Chess Simp Discord
 
+* Aug 20, 2023: New challenge: Chess Simp — "That Was Frustrating"
+
 # Already announced
 
 * Aug 19, 2023: New challenge: Chess Simp — "If A King Moves, The Video Ends"

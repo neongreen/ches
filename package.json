@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit && echo '\u001b[32m✔ Typecheck OK\u001b[0m' && next lint",
-    "golden-games": "FILE=$(mktemp); touch $FILE; esbuild tools/golden-games.ts --bundle --platform=node --minify --define:process.env.NODE_ENV=\\\"${NODE_ENV:-production}\\\" > $FILE; node $FILE",
+    "golden": "FILE=$(mktemp); touch $FILE; esbuild tools/golden.ts --bundle --platform=node --minify --define:process.env.NODE_ENV=\\\"${NODE_ENV:-production}\\\" > $FILE; node $FILE",
     "bench": "FILE=$(mktemp); touch $FILE; esbuild tools/bench.ts --bundle --platform=node --minify --define:process.env.NODE_ENV=\\\"${NODE_ENV:-production}\\\" > $FILE; node $FILE"
   },
   "dependencies": {

@@ -14,7 +14,7 @@ import {
   Simp_2022_05_30,
   Simp_2022_05_31,
 } from './chess-simp/2022-05'
-import { Simp_2022_06_03, Simp_2022_06_23 } from './chess-simp/2022-06'
+import { Simp_2022_06_03, Simp_2022_06_21, Simp_2022_06_23 } from './chess-simp/2022-06'
 import { Simp_2022_07_11, Simp_2022_07_18 } from './chess-simp/2022-07'
 import {
   Simp_2022_09_11,
@@ -49,7 +49,11 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
         () => new Simp_2022_05_30() as Challenge,
         () => new Simp_2022_05_31() as Challenge,
       ],
-      [() => new Simp_2022_06_03() as Challenge, () => new Simp_2022_06_23() as Challenge],
+      [
+        () => new Simp_2022_06_03() as Challenge,
+        () => new Simp_2022_06_21() as Challenge,
+        () => new Simp_2022_06_23() as Challenge,
+      ],
       [() => new Simp_2022_07_18() as Challenge, () => new Simp_2022_07_11() as Challenge],
       [
         () => new Simp_2022_09_11() as Challenge,
