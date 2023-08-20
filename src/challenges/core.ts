@@ -14,8 +14,8 @@ export type Record = {
 /**
  * If you sort records with this comparator, best records will be on top.
  */
-export function recordComparator(a: Record, b: Record): number {
-  // Sort by depth (higher = better), then by number of moves (lower = better), then by date (earlier = better)
+export function compareRecords(a: Record, b: Record, options: { considerDate: boolean }): number {
+  // Sort by depth (higher = better), then by number of moves (lower = better)
 
   if (a.depth > b.depth) return -1
   if (a.depth < b.depth) return 1
@@ -25,8 +25,10 @@ export function recordComparator(a: Record, b: Record): number {
   if (aMoves < bMoves) return -1
   if (aMoves > bMoves) return 1
 
-  if (a.when < b.when) return -1
-  if (a.when > b.when) return 1
+  if (options.considerDate) {
+    if (a.when < b.when) return -1
+    if (a.when > b.when) return 1
+  }
 
   return 0
 }
@@ -52,8 +54,8 @@ export function challengeLeaderboard(records: Map<string, Record>): Map<string, 
 
   // Sort and then group equal records together
   const sortedResults: { user: string; record: Record }[][] = R.groupWith(
-    (a, b) => a.record.depth === b.record.depth && a.record.moves === b.record.moves,
-    R.sort((a, b) => recordComparator(a.record, b.record), results)
+    (a, b) => compareRecords(a.record, b.record, { considerDate: false }) === 0,
+    R.sort((a, b) => compareRecords(a.record, b.record, { considerDate: true }), results)
   )
 
   // Assign points to each group

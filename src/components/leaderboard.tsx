@@ -1,5 +1,5 @@
 import { challengesList, challengesMap } from '@/challenges/all'
-import { challengeLeaderboard, challengeWinner, recordComparator } from '@/challenges/core'
+import { challengeLeaderboard, challengeWinner, compareRecords } from '@/challenges/core'
 import { users } from '@/challenges/users'
 import { Box, Center, Modal, Table, Tabs, Title } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
@@ -54,7 +54,7 @@ function LeaderboardCurrentChallenge(props: {
             </tr>
           ) : (
             R.sort(
-              (a, b) => recordComparator(a[1], b[1]),
+              (a, b) => compareRecords(a[1], b[1], { considerDate: true }),
               Array.from(props.challenge.records.entries())
             ).map(([name, record]) => (
               <tr key={name}>

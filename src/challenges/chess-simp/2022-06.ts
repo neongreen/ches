@@ -51,7 +51,9 @@ export class Simp_2022_06_21 implements Challenge {
     link: 'https://www.youtube.com/watch?v=wb9JmQMOG7U',
     challenge:
       'Chess, but if your piece (not pawn) can get directly behind the enemy piece (not pawn), it has to.',
-    records: new Map([]),
+    records: new Map([
+      [users.fextivity.name, { when: new Date('2023-08-20'), depth: 2, moves: 6 }],
+    ]),
   }
 
   private movesBehind(board: Board) {
