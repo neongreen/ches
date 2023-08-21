@@ -13,7 +13,10 @@ export class Simp_2022_05_24 implements Challenge {
     title: 'Slow And Steady',
     link: 'https://www.youtube.com/watch?v=VwH-Gqzfpos',
     challenge: 'Chess, but you can only move pieces (and pawns) one square at a time.',
-    records: new Map([[users.Emily.name, { when: new Date('2023-06-23'), depth: 3 }]]),
+    records: new Map([
+      [users.Emily.name, { when: new Date('2023-06-23'), depth: 3 }],
+      [users.fextivity.name, { when: new Date('2023-08-21'), depth: 2, moves: 62 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
