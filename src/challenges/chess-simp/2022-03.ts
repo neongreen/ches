@@ -12,7 +12,10 @@ export class Simp_2022_03_07 implements Challenge {
     link: 'https://www.youtube.com/watch?v=IfeUGBXaOUk',
     challenge:
       'Chess, but your king is a commander, you can only move something if your king can see it.',
-    records: new Map([[users.Emily.name, { when: new Date('2023-06-24'), depth: 2 }]]),
+    records: new Map([
+      [users.Emily.name, { when: new Date('2023-06-24'), depth: 2 }],
+      [users.fextivity.name, { when: new Date('2023-08-21'), depth: 1, moves: 65 }],
+    ]),
   }
 
   private kingSees = (data: { board: Board; square: Coord }) => {
