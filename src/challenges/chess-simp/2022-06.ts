@@ -13,7 +13,10 @@ export class Simp_2022_06_03 implements Challenge {
     link: 'https://www.youtube.com/watch?v=uc4gT029pNA',
     challenge:
       'Chess, but your pieces (and pawns) are always right. You cannot move them leftward.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-02'), depth: 2 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-02'), depth: 2 }],
+      [users.fextivity.name, { when: new Date('2023-08-22'), depth: 1, moves: 17 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {

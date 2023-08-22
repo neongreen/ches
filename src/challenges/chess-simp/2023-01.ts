@@ -16,6 +16,7 @@ export class Simp_2023_01_09 implements Challenge {
       [users.ChessSimpSimp.name, { when: new Date('2023-07-16'), depth: 2, moves: 7 }],
       [users.Emily.name, { when: new Date('2023-07-19'), depth: 4, moves: 57 }],
       [users.Mendax.name, { when: new Date('2023-07-19'), depth: 6, moves: 56 }],
+      [users.fextivity.name, { when: new Date('2023-08-22'), depth: 3, moves: 63 }],
     ]),
   }
 
