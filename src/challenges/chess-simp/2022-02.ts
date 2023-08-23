@@ -11,7 +11,7 @@ export class Simp_2022_02_10 implements Challenge {
     link: 'https://www.youtube.com/watch?v=lco2G0Ri-DM',
     challenge: 'If your opponent moves a piece, you move a pawn, and vice versa.',
     records: new Map([
-      [users.Mendax.name, { when: new Date('2023-07-07'), depth: 1, moves: 12 }],
+      [users.Mendax.name, { when: new Date('2023-08-23'), depth: 2, moves: 10 }],
       [users.Emily.name, { when: new Date('2023-08-16'), depth: 2, moves: 12 }],
       [users.fextivity.name, { when: new Date('2023-08-20'), depth: 1, moves: 31 }],
     ]),
