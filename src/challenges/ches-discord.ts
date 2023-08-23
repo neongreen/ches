@@ -11,7 +11,7 @@ class Challenge_NoGoingBackwards implements Challenge {
     challenge: 'You cannot move pieces (and pawns) backwards.',
     records: new Map([
       [users.RotomAppliance.name, { when: new Date('2023-07-06'), depth: 3, moves: 18 }],
-      [users.Mendax.name, { when: new Date('2023-07-16'), depth: 4, moves: 34 }],
+      [users.Mendax.name, { when: new Date('2023-08-23'), depth: 4, moves: 27 }],
       [users.fextivity.name, { when: new Date('2023-08-15'), depth: 4, moves: 26 }],
       [users.Emily.name, { when: new Date('2023-08-16'), depth: 4, moves: 28 }],
     ]),
