@@ -72,7 +72,7 @@ export class Simp_2022_07_11 implements Challenge {
       'Chess, but if an enemy piece (not pawn) touches your piece (not pawn), yours can never move ever again.',
     records: new Map([
       [users.fextivity.name, { when: new Date('2023-08-12'), depth: 2, moves: 14 }],
-      [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 6 }],
+      [users.Emily.name, { when: new Date('2023-08-23'), depth: 2, moves: 5 }],
     ]),
   }
 
