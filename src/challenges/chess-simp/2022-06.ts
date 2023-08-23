@@ -35,7 +35,7 @@ export class Simp_2022_06_23 implements Challenge {
     challenge:
       'Chess, but your pieces need glasses. They can only capture if the target is right next to them.',
     records: new Map([
-      [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 13 }],
+      [users.Emily.name, { when: new Date('2023-08-23'), depth: 3, moves: 42 }],
       [users.fextivity.name, { when: new Date('2023-08-18'), depth: 2, moves: 46 }],
     ]),
   }
