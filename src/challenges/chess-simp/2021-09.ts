@@ -10,7 +10,10 @@ export class Simp_2021_09_04 implements Challenge {
     title: 'Alternate Between Moving Pawns & Pieces',
     link: 'https://www.youtube.com/watch?v=t0afNybQAcA',
     challenge: 'Chess but you have to alternate between moving a pawn and a piece.',
-    records: new Map([[users.Emily.name, { when: new Date('2023-08-26'), depth: 2, moves: 6 }]]),
+    records: new Map([
+      [users.Emily.name, { when: new Date('2023-08-26'), depth: 2, moves: 6 }],
+      [users.Mendax.name, { when: new Date('2023-08-26'), depth: 2, moves: 6 }],
+    ]),
   }
 
   private allowed: 'pawn' | 'piece' | null = null
