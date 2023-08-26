@@ -1,5 +1,6 @@
 # Yet unannounced in Chess Simp Discord
 
+* Aug 26, 2023: New challenge: Chess Simp — "Alternate Between Moving Pawns & Pieces"
 * Aug 20, 2023: New challenge: Chess Simp — "That Was Frustrating"
 
 # Already announced

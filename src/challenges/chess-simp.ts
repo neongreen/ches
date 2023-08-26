@@ -28,6 +28,7 @@ import { Simp_2023_04_01 } from './chess-simp/2023-04'
 import { Simp_2023_05_23 } from './chess-simp/2023-05'
 import { Simp_2023_06_09 } from './chess-simp/2023-06'
 import { Challenge, ChallengeMeta } from './core'
+import { Simp_2021_09_04 } from './chess-simp/2021-09'
 
 /**
  * All Chess Simp challenges.
@@ -36,6 +37,7 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
   new Map(
     _.concat(
       [() => new Simp_2021_08_17() as Challenge],
+      [() => new Simp_2021_09_04() as Challenge],
       [() => new Simp_2021_10_16() as Challenge, () => new Simp_2021_10_22() as Challenge],
       [() => new Simp_2021_12_04() as Challenge],
       [() => new Simp_2022_01_29() as Challenge, () => new Simp_2022_01_21() as Challenge],
