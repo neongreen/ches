@@ -140,6 +140,7 @@ export class Simp_2022_05_17 implements Challenge {
       'Chess, but you must commit to a file for 2 turns. Only pieces and pawns that are currently inside that file can be moved.',
     records: new Map([
       [users.fextivity.name, { when: new Date('2023-08-18'), depth: 1, moves: 25 }],
+      [users.Mendax.name, { when: new Date('2023-08-25'), depth: 2, moves: 16 }],
     ]),
   }
 
