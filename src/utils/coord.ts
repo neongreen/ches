@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 /**
  * Coordinates of a square on the chess board.
  *
@@ -10,6 +12,11 @@ export class Coord {
   constructor(x: number, y: number) {
     this.x = x
     this.y = y
+  }
+
+  /** Generate all possible coords in a rectangle. */
+  static range2(width: number, height: number): Coord[] {
+    return _.range(width).flatMap((x) => _.range(height).map((y) => new Coord(x, y)))
   }
 
   /** Is the coordinate valid? */

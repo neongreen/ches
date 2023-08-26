@@ -15,22 +15,26 @@ import { Zobrist, zobristCastling, zobristPiece, zobristWhiteToMove } from './zo
 import { Castling, CastlingBitmask } from './utils/castling'
 
 /**
+ * An interface for board-like objects.
+ */
+export interface Position {
+  dimensions: { width: number; height: number }
+  allSquares: Coord[]
+  side: Color
+  at: (coord: Coord) => MaybePiece
+  isEmpty: (coord: Coord) => boolean | undefined
+  isOccupied: (coord: Coord) => boolean | undefined
+}
+
+/**
  * Game state representation. Includes pieces, whose move it is, etc.
  *
  * We store a `stack` variant of some of the internal variables — those are needed for undoing moves.
  */
-export class Board {
-  static dimensions = { width: 8, height: 8 }
+export class Board implements Position {
+  dimensions = { width: 8, height: 8 }
 
-  static allSquares = () => {
-    const squares: Coord[] = []
-    for (let x = 0; x < Board.dimensions.width; x++) {
-      for (let y = 0; y < Board.dimensions.height; y++) {
-        squares.push(new Coord(x, y))
-      }
-    }
-    return squares
-  }
+  allSquares = Coord.range2(this.dimensions.width, this.dimensions.height)
 
   /**
    * The board as a 8x8 array.
@@ -240,7 +244,8 @@ export class Board {
     return this.board[coord.y * 8 + coord.x]
   }
 
-  /** Return the piece at coordinates (x, y).
+  /**
+   * Return the piece at coordinates (x, y).
    *
    * Doesn't check if the coordinates are off the board.
    */

@@ -115,6 +115,25 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
   const processMessage = (message: GameMessage) => {
     console.debug('Processing message', message)
     match(message)
+      .with({ type: 'handleHumanMove' }, ({ moveIntent }) => {
+        const pieces = state.piecesAfterPremoves()
+        // If this is a white piece move, we can either execute it immediately or add it to the premove queue.
+
+        //
+        // If it's white's move, just make the move (if it's allowed)
+        const move = translateFromHumanMove(state.chess.board, moveIntent)
+        if (move) {
+          let boardAfterMove = state.chess.board.clone()
+          boardAfterMove.executeMove(move)
+          const isLegal = isLegalMove(state.chess.board, boardAfterMove, move)
+          const isAllowedByChallenge =
+            state.chess.board.side === Color.Black || state.chess.isMoveAllowedByChallenge(move)
+          if (isLegal && isAllowedByChallenge) {
+            messageQueue.push({ type: 'makeMove', move })
+          }
+        }
+      })
+
       .with({ type: 'makeMove' }, ({ move }) => {
         if (isCapture(move)) {
           sounds.capture.play()
@@ -125,14 +144,17 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
         vars.onHistoryChange([...state.chess.history])
         messageQueue.push({ type: 'updateBestMove' })
       })
+
       .with({ type: 'updateBestMove' }, () => {
         state.updateBestMoveAndGameStatus({ searchDepth: vars.searchDepth })
         vars.onStatusChange(state.chess.gameStatus.status)
         vars.onBestMoveChange(state.chess.bestMove)
       })
+
       .with({ type: 'doNothing' }, () => {
         return
       })
+
       .exhaustive()
   }
 
@@ -155,50 +177,24 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
     // Draw the current state of the game
     render(p5, state, vars)
-
-    // if (audioStarted) {
-    //   if (frameCount % 15 === 0) {
-    //     synth.play('C3', beatPattern[beat % beatPattern.length], 0, 0.1)
-    //     beat++
-    //   }
-    // }
   }
 
   // If we are touching a piece when the mouse is pressed, start dragging it
   p5.mousePressed = () => {
     if (!vars.controlsEnabled) return
-
-    // if (!audioStarted) {
-    //   userStartAudio()
-    //   audioStarted = true
-    // }
-
-    state.dragged = null
-    for (const square of Board.allSquares()) {
-      if (isTouching(square) && state.chess.board.isOccupied(square)) {
-        state.dragged = square
-        return
-      }
-    }
+    state.dragged =
+      Board.allSquares().find((c) => isTouching(c) && state.chess.board.isOccupied(c)) ?? null
   }
 
   p5.mouseReleased = () => {
     if (!vars.controlsEnabled) return
-
     if (state.dragged !== null) {
-      let dest: Coord | null = Board.allSquares().find(isTouching) ?? null
+      let dest = Board.allSquares().find(isTouching) ?? null
       if (dest) {
-        const move = translateFromHumanMove(state.chess.board, { from: state.dragged, to: dest })
-        if (move) {
-          let boardAfterMove = state.chess.board.clone()
-          boardAfterMove.executeMove(move)
-          const isLegal = isLegalMove(state.chess.board, boardAfterMove, move)
-          const isAllowedByChallenge =
-            state.chess.board.side === Color.Black || state.chess.isMoveAllowedByChallenge(move)
-          if (isLegal && isAllowedByChallenge) {
-            messageQueue.push({ type: 'makeMove', move })
-          }
-        }
+        messageQueue.push({
+          type: 'handleHumanMove',
+          moveIntent: { from: state.dragged, to: dest },
+        })
       }
       state.dragged = null
     }
@@ -206,7 +202,6 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
 
   p5.keyPressed = () => {
     if (!vars.controlsEnabled) return
-
     if (p5.key === ' ') {
       if (state.chess.bestMove?.move)
         messageQueue.push({ type: 'makeMove', move: state.chess.bestMove.move })
@@ -241,13 +236,3 @@ function stopTouchScrolling(canvas: Element) {
     { passive: false }
   )
 }
-
-// let beat = 0
-// const beatPattern = [
-//   ...[12, 7, 6, 5, 6, 5, 4, 3],
-//   ...[20, 7, 6, 5, 6, 5, 4, 3],
-//   ...[12, 7, 6, 5, 6, 5, 4, 3],
-//   ...[32, 7, 6, 5, 6, 5, 4, 3],
-// ].map((x) => Math.log2(x) / 5)
-
-// let audioStarted = false

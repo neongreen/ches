@@ -1,13 +1,19 @@
 import { Challenge } from '@/challenges/core'
 import { Move } from '@/move'
 import { Chess } from './chess'
+import { Coord } from '@/utils/coord'
 
 /**
  * Like events in Elm.
  */
 export type GameMessage =
+  // Any human move, either for black or for white, potentially resulting in a premove
+  | { type: 'handleHumanMove'; moveIntent: { from: Coord; to: Coord } }
+  // A move has been decided and now has to be applied to the chess state
   | { type: 'makeMove'; move: Move }
+  // An ask to recalculate the best move
   | { type: 'updateBestMove' }
+  // Skip
   | { type: 'doNothing' }
 
 /**
