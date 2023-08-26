@@ -37,6 +37,7 @@ export class Simp_2022_06_23 implements Challenge {
     records: new Map([
       [users.Emily.name, { when: new Date('2023-08-23'), depth: 3, moves: 42 }],
       [users.fextivity.name, { when: new Date('2023-08-18'), depth: 2, moves: 46 }],
+      [users.Mendax.name, { when: new Date('2023-08-26'), depth: 4, moves: 39 }],
     ]),
   }
 
@@ -56,6 +57,7 @@ export class Simp_2022_06_21 implements Challenge {
       'Chess, but if your piece (not pawn) can get directly behind the enemy piece (not pawn), it has to.',
     records: new Map([
       [users.fextivity.name, { when: new Date('2023-08-20'), depth: 2, moves: 6 }],
+      [users.Mendax.name, { when: new Date('2023-08-26'), depth: 3, moves: 65 }],
     ]),
   }
 
