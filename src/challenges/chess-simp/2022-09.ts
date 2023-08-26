@@ -13,7 +13,10 @@ export class Simp_2022_09_11 implements Challenge {
     link: 'https://www.youtube.com/watch?v=jAkBGHEptQQ',
     challenge:
       'Chess, but you have to move the same piece (or pawn) as your opponent did last move.',
-    records: new Map([[users.ManosSef.name, { when: new Date('2023-07-02'), depth: 1 }]]),
+    records: new Map([
+      [users.ManosSef.name, { when: new Date('2023-07-02'), depth: 1 }],
+      [users.Mendax.name, { when: new Date('2023-08-26'), depth: 1, moves: 37 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
