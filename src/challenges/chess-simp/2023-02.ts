@@ -9,7 +9,7 @@ export class Simp_2023_02_23 implements Challenge {
     link: 'https://www.youtube.com/watch?v=_bVyt4Who_E',
     challenge: "Chess, but you're horny. You can only take enemy pieces (or pawns) from behind.",
     records: new Map([
-      [users.Mendax.name, { when: new Date('2023-07-06'), depth: 1 }],
+      [users.Mendax.name, { when: new Date('2023-08-27'), depth: 1, moves: 31 }],
       [users.Emily.name, { when: new Date('2023-08-16'), depth: 1, moves: 42 }],
       [users.fextivity.name, { when: new Date('2023-08-23'), depth: 1, moves: 39 }],
     ]),
