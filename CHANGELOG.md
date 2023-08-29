@@ -1,6 +1,5 @@
 # Yet unannounced in Chess Simp Discord
 
-
 # Already announced
 
 * Aug 29, 2023: New challenge: Chess Simp Discord — "Alphabetical"
