@@ -72,8 +72,9 @@ yarn set version latest
 ### Upgrading TypeScript
 
 ```bash
+yarn set version latest
 yarn add -D typescript
 yarn dlx @yarnpkg/sdks vscode
 ```
 
-Then "Select TypeScript version" in VSCode.
+Then "Select TypeScript version" in VSCode (in a TS file buffer).
