@@ -8,7 +8,7 @@ import { P, match } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
 import { users } from './users'
 
-class Challenge_MustKeepMoving implements Challenge {
+class SimpDiscord_MustKeepMoving implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '5f747bf3-6819-482f-86bb-c82b181b8ac3',
     title: '[breadfeller] Must Keep Moving',
@@ -27,12 +27,8 @@ class Challenge_MustKeepMoving implements Challenge {
     return false
   }
 
-  recordMove: NonNullable<Challenge['recordMove']> = ({
-    move,
-    boardBeforeMove,
-    boardAfterMove,
-  }) => {
-    if (boardBeforeMove.side === Color.White) {
+  recordMove: NonNullable<Challenge['recordMove']> = ({ move, side, boardAfterMove }) => {
+    if (side === Color.White) {
       // If we're moving a piece, we'll record it as the piece we're locking into.
       this.chosenPiece = getMoveCoords(move).to
     } else {
@@ -49,7 +45,7 @@ class Challenge_MustKeepMoving implements Challenge {
   }
 }
 
-const challenge_pawnObsession: Challenge = {
+const simpDiscord_pawnObsession: Challenge = {
   meta: {
     uuid: 'c80df7ae-47c4-43a7-ac0f-7c0da4d206cc',
     title: '[Alexey53] Emil Josef Diemer Wannabe',
@@ -66,7 +62,7 @@ const challenge_pawnObsession: Challenge = {
   },
 }
 
-const challenge_twoMovesMax: Challenge = {
+const simpDiscord_twoMovesMax: Challenge = {
   meta: {
     uuid: 'bd58184f-990e-4cc3-9c73-5fb28cc9f95b',
     title: "[Cheftic] You're Short",
@@ -95,7 +91,7 @@ const challenge_twoMovesMax: Challenge = {
   },
 }
 
-class Challenge_Vampires implements Challenge {
+class SimpDiscord_Vampires implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '988d559d-5ad5-4f7e-9574-247c6e2aee2b',
     title: '[pinon_] Vampires',
@@ -153,10 +149,10 @@ export const chessSimpDiscordChallenges: Map<
   { meta: ChallengeMeta; create: () => Challenge }
 > = new Map(
   [
-    () => new Challenge_MustKeepMoving(),
-    () => challenge_pawnObsession,
-    () => challenge_twoMovesMax,
-    () => new Challenge_Vampires(),
+    () => new SimpDiscord_MustKeepMoving(),
+    () => simpDiscord_pawnObsession,
+    () => simpDiscord_twoMovesMax,
+    () => new SimpDiscord_Vampires(),
   ].map((challengeFn) => [
     challengeFn().meta.uuid,
     { meta: challengeFn().meta, create: challengeFn },

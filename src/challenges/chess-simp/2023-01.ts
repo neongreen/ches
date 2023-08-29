@@ -24,19 +24,20 @@ export class Simp_2023_01_09 implements Challenge {
 
   recordMove: NonNullable<Challenge['recordMove']> = ({
     move,
+    side,
     boardBeforeMove,
     boardAfterMove,
   }) => {
     const capture = getCapture(move)
     // If it was our move and it was a capture, we need to update `murderers`. If a capture happens on move N, the piece will be immobilized on moves N+123, and free again on move N+4.
-    if (boardBeforeMove.side === Color.White && capture) {
+    if (side === Color.White && capture) {
       this.murderers.push({
         coord: capture.newAttackerPosition,
         unblockedOnMoveNumber: boardBeforeMove.fullMoveNumber + 4,
       })
     }
     // If our piece was captured, we have to remove it from `murderers`.
-    if (boardBeforeMove.side === Color.Black && capture) {
+    if (side === Color.Black && capture) {
       this.murderers = _.reject(this.murderers, (x) => x.coord.equals(capture.victim))
     }
     // Finally, some pieces might become free now.

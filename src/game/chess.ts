@@ -58,7 +58,13 @@ export class Chess {
     this.board.executeMove(move)
     this.bestMove = null
     this.history.push({ boardBeforeMove, move })
-    this.challenge?.recordMove?.({ boardBeforeMove, boardAfterMove: this.board, move })
+    this.challenge?.recordMove?.({
+      move,
+      side: boardBeforeMove.side,
+      boardBeforeMove,
+      boardAfterMove: this.board,
+      history: this.history,
+    })
     this.isMoveAllowedByChallenge = this.makeChallengeMoveDecider()
   }
 

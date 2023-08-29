@@ -12,6 +12,14 @@ export class Coord {
     this.y = y
   }
 
+  static squaresInColumn(x: number): Coord[] {
+    return Array.from({ length: 8 }, (_, y) => new Coord(x, y))
+  }
+
+  static squaresInRow(y: number): Coord[] {
+    return Array.from({ length: 8 }, (_, x) => new Coord(x, y))
+  }
+
   /** Is the coordinate valid? */
   isValid() {
     return this.x >= 0 && this.x <= 7 && this.y >= 0 && this.y <= 7

@@ -156,8 +156,8 @@ export class Simp_2022_05_17 implements Challenge {
         }))
   }
 
-  recordMove: Challenge['recordMove'] = ({ boardBeforeMove, move }) => {
-    if (boardBeforeMove.side === Color.White) {
+  recordMove: Challenge['recordMove'] = ({ side, move }) => {
+    if (side === Color.White) {
       if (this.committedFile === null) {
         const from = getMoveCoords(move).from
         this.committedFile = from.x

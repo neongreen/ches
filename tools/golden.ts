@@ -119,7 +119,13 @@ for (const scenario of scenarios) {
         game.push({ move, boardBeforeMove, score: best.score })
         board.executeMove(move)
         history.push({ boardBeforeMove, move })
-        challenge.recordMove?.({ move, boardBeforeMove, boardAfterMove: board })
+        challenge.recordMove?.({
+          move,
+          side: boardBeforeMove.side,
+          boardBeforeMove,
+          boardAfterMove: board,
+          history,
+        })
       }
     }
     writeFileSync(

@@ -1,5 +1,6 @@
 import { Board } from '@/board'
 import { Move } from '@/move'
+import { Color } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
@@ -130,7 +131,14 @@ export interface Challenge {
   /**
    * This function will be called after any move has been made.
    */
-  recordMove?: (data: { move: Move; boardBeforeMove: Board; boardAfterMove: Board }) => void
+  recordMove?: (data: {
+    move: Move
+    side: Color
+    boardBeforeMove: Board
+    boardAfterMove: Board
+    // History including the last move
+    history: { boardBeforeMove: Board; move: Move }[]
+  }) => void
 
   /**
    * Should any squares on the board be highlighted?

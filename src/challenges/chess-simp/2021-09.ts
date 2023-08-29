@@ -27,8 +27,8 @@ export class Simp_2021_09_04 implements Challenge {
       .exhaustive()
   }
 
-  recordMove: Challenge['recordMove'] = ({ boardBeforeMove, move }) => {
-    if (boardBeforeMove.side === Color.White) {
+  recordMove: Challenge['recordMove'] = ({ side, boardBeforeMove, move }) => {
+    if (side === Color.White) {
       const mover = getMovePiece(boardBeforeMove, move)
       this.allowed = isPawn(mover) ? 'piece' : 'pawn'
     }

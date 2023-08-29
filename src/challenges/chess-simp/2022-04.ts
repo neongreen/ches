@@ -41,13 +41,13 @@ export class Simp_2022_04_22 implements Challenge {
 
   private allowedSide: 'kingside' | 'queenside' | 'any' = 'any'
 
-  recordMove: Challenge['recordMove'] = ({ move, boardBeforeMove, boardAfterMove }) => {
+  recordMove: Challenge['recordMove'] = ({ move, boardBeforeMove, side }) => {
     // If it's the first ever move, we determine the side
-    if (boardBeforeMove.fullMoveNumber === 1 && boardBeforeMove.side === Color.White) {
+    if (boardBeforeMove.fullMoveNumber === 1 && side === Color.White) {
       this.allowedSide = getMoveCoords(move).from.x < 4 ? 'queenside' : 'kingside'
     }
     // If it was black's move 5, 10, 15, etc, we have to switch sides
-    if (boardBeforeMove.side === Color.Black && boardBeforeMove.fullMoveNumber % 5 === 0) {
+    if (side === Color.Black && boardBeforeMove.fullMoveNumber % 5 === 0) {
       match(this.allowedSide)
         .with('any', () => {
           throw new Error('impossible: after the first move the side should be determined')

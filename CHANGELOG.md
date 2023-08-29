@@ -7,7 +7,7 @@
 
 * Aug 19, 2023: New challenge: Chess Simp — "If A King Moves, The Video Ends"
 * Aug 19, 2023: New challenge: Chess Simp — "This Is A Bit Too Aggressive"
-* Aug 19, 2023: Ability to check if the challenge is explicitly lost
+* Aug 19, 2023: Internal: challenge method to signal that the challenge is explicitly lost
 * Aug 18, 2023: "Open leaderboard" palette command
 * Aug 17, 2023: New challenge: Chess Simp — "A Check Will Ruin Everything"
 * Aug 17, 2023: New challenge: Chess Simp — "Poor Pawn Got Blundered 10 Times"

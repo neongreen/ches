@@ -26,9 +26,9 @@ export class Simp_2023_04_01 implements Challenge {
     return pieceValue(board.at(capture.victim)) >= this.minCaptureValue
   }
 
-  recordMove: NonNullable<Challenge['recordMove']> = ({ boardBeforeMove, move }) => {
+  recordMove: NonNullable<Challenge['recordMove']> = ({ side, boardBeforeMove, move }) => {
     const capture = getCapture(move)
-    if (boardBeforeMove.side === Color.White && capture) {
+    if (side === Color.White && capture) {
       this.minCaptureValue = pieceValue(boardBeforeMove.at(capture.victim))
     }
   }
