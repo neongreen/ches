@@ -1,11 +1,11 @@
 # Yet unannounced in Chess Simp Discord
 
-* Aug 29, 2023: New challenge: Chess Simp Discord — "Alphabetical"
-* Aug 26, 2023: New challenge: Chess Simp — "Alternate Between Moving Pawns & Pieces"
-* Aug 20, 2023: New challenge: Chess Simp — "That Was Frustrating"
 
 # Already announced
 
+* Aug 29, 2023: New challenge: Chess Simp Discord — "Alphabetical"
+* Aug 26, 2023: New challenge: Chess Simp — "Alternate Between Moving Pawns & Pieces"
+* Aug 20, 2023: New challenge: Chess Simp — "That Was Frustrating"
 * Aug 19, 2023: New challenge: Chess Simp — "If A King Moves, The Video Ends"
 * Aug 19, 2023: New challenge: Chess Simp — "This Is A Bit Too Aggressive"
 * Aug 19, 2023: Internal: challenge method to signal that the challenge is explicitly lost
