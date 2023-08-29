@@ -141,6 +141,37 @@ class SimpDiscord_Vampires implements Challenge {
   }
 }
 
+class SimpDiscord_Alphabetical implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '900c4b64-0795-44ae-a272-1dbb8b218a55',
+    title: '[nakkisalsa] Alphabetical',
+    challenge:
+      'Chess, but you must move in alphabetical file order (move a piece on A file, then B file and so forth, looping back around after H). Castling is a king move.',
+    link: 'https://discord.com/channels/866701779155419206/884667730891010048/1146177472073830563',
+    records: new Map([]),
+  }
+
+  private allowedFile = 0
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move }) => {
+    return getMoveCoords(move).from.x === this.allowedFile
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = () => {
+    return Coord.squaresInColumn(this.allowedFile).map((coord) => ({
+      coord,
+      color: 'lightYellow',
+    }))
+  }
+
+  recordMove: NonNullable<Challenge['recordMove']> = ({ side }) => {
+    // We want to shift allowedFile only after the opponent has moved. Feels nicer.
+    if (side === Color.Black) {
+      this.allowedFile = (this.allowedFile + 1) % Board.dimensions.width
+    }
+  }
+}
+
 /**
  * Challenges from the #video-suggestion channel on the Chess Simp Discord: https://discord.com/channels/866701779155419206/884667730891010048
  */
@@ -153,6 +184,7 @@ export const chessSimpDiscordChallenges: Map<
     () => simpDiscord_pawnObsession,
     () => simpDiscord_twoMovesMax,
     () => new SimpDiscord_Vampires(),
+    () => new SimpDiscord_Alphabetical(),
   ].map((challengeFn) => [
     challengeFn().meta.uuid,
     { meta: challengeFn().meta, create: challengeFn },
