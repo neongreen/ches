@@ -13,6 +13,7 @@ export class Simp_2021_09_04 implements Challenge {
     records: new Map([
       [users.Emily.name, { when: new Date('2023-08-26'), depth: 2, moves: 6 }],
       [users.Mendax.name, { when: new Date('2023-08-26'), depth: 2, moves: 6 }],
+      [users.Arnout.name, { when: new Date('2023-08-30'), depth: 2, moves: 8 }],
     ]),
   }
 
