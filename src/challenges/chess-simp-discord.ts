@@ -54,7 +54,6 @@ const simpDiscord_pawnObsession: Challenge = {
     records: new Map([
       [users.RotomAppliance.name, { when: new Date('2023-07-06'), depth: 3, moves: 42 }],
       [users.Mendax.name, { when: new Date('2023-07-06'), depth: 4, moves: 35 }],
-      [users.Arnout.name, { when: new Date('2023-08-30'), depth: 1, moves: 7 }],
     ]),
   },
   isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {
