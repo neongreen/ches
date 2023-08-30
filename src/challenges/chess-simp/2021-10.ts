@@ -15,6 +15,7 @@ export class Simp_2021_10_22 implements Challenge {
       [users.fextivity.name, { when: new Date('2023-08-20'), depth: 2, moves: 6 }],
       [users.Emily.name, { when: new Date('2023-08-26'), depth: 2, moves: 5 }],
       [users.Mendax.name, { when: new Date('2023-08-23'), depth: 2, moves: 5 }],
+      [users.Arnout.name, { when: new Date('2023-08-30'), depth: 2, moves: 6 }],
     ]),
   }
 
