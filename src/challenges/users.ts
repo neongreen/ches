@@ -31,4 +31,8 @@ export const users = {
     name: 'fextivity',
     notes: '@fextivity, Ches Discord',
   },
+  Arnout: {
+    name: 'Arnout',
+    notes: 'Arnout#2313, Ches Discord',
+  },
 }
