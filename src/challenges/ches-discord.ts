@@ -14,7 +14,7 @@ class Challenge_NoGoingBackwards implements Challenge {
       [users.Mendax.name, { when: new Date('2023-08-25'), depth: 5, moves: 54 }],
       [users.fextivity.name, { when: new Date('2023-08-15'), depth: 4, moves: 26 }],
       [users.Emily.name, { when: new Date('2023-08-16'), depth: 4, moves: 28 }],
-      [users.Arnout.name, { when: new Date('2023-08-30'), depth: 2, moves: 11 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 3, moves: 44 }],
     ]),
   }
 

@@ -16,6 +16,7 @@ export class Simp_2022_09_11 implements Challenge {
     records: new Map([
       [users.ManosSef.name, { when: new Date('2023-07-02'), depth: 1 }],
       [users.Mendax.name, { when: new Date('2023-08-26'), depth: 1, moves: 37 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 15 }],
     ]),
   }
 
