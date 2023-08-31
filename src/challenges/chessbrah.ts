@@ -16,6 +16,7 @@ export class Challenge_NoFFile implements Challenge {
       [users.Emily.name, { when: new Date('2023-08-16'), depth: 3, moves: 64 }],
       [users.fextivity.name, { when: new Date('2023-08-17'), depth: 3, moves: 54 }],
       [users.Mendax.name, { when: new Date('2023-08-27'), depth: 4, moves: 52 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 4, moves: 28 }],
     ]),
   }
 

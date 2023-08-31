@@ -15,7 +15,10 @@ class SimpDiscord_MustKeepMoving implements Challenge {
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1122552015080403145',
     challenge:
       'Once you move a piece (or pawn), you must keep moving that piece (or pawn) until they can no longer move anymore or is captured.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-03'), depth: 1 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-03'), depth: 1 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 39 }],
+    ]),
   }
 
   private chosenPiece: Coord | null = null
@@ -54,6 +57,7 @@ const simpDiscord_pawnObsession: Challenge = {
     records: new Map([
       [users.RotomAppliance.name, { when: new Date('2023-07-06'), depth: 3, moves: 42 }],
       [users.Mendax.name, { when: new Date('2023-07-06'), depth: 4, moves: 35 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 34 }],
     ]),
   },
   isMoveAllowed({ currentFullMoveNumber, move, board }): boolean {
