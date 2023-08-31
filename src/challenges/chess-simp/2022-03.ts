@@ -16,6 +16,7 @@ export class Simp_2022_03_07 implements Challenge {
       [users.Emily.name, { when: new Date('2023-06-24'), depth: 2 }],
       [users.fextivity.name, { when: new Date('2023-08-21'), depth: 1, moves: 65 }],
       [users.Mendax.name, { when: new Date('2023-08-25'), depth: 2, moves: 9 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 79 }],
     ]),
   }
 
@@ -53,6 +54,7 @@ export class Simp_2022_03_29 implements Challenge {
       [users.Mendax.name, { when: new Date('2023-07-02'), depth: 3 }],
       [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 38 }],
       [users.fextivity.name, { when: new Date('2023-08-21'), depth: 1, moves: 31 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 24 }],
     ]),
   }
 

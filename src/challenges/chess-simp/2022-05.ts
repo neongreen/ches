@@ -17,6 +17,7 @@ export class Simp_2022_05_24 implements Challenge {
       [users.Emily.name, { when: new Date('2023-06-23'), depth: 3 }],
       [users.fextivity.name, { when: new Date('2023-08-21'), depth: 2, moves: 62 }],
       [users.Mendax.name, { when: new Date('2023-08-26'), depth: 2, moves: 70 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 39 }],
     ]),
   }
 
@@ -38,6 +39,7 @@ export class Simp_2022_05_30 implements Challenge {
       [users.Mendax.name, { when: new Date('2023-07-05'), depth: 4 }],
       [users.fextivity.name, { when: new Date('2023-08-16'), depth: 2, moves: 44 }],
       [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 25 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 53 }],
     ]),
   }
 
@@ -75,6 +77,7 @@ export class Simp_2022_05_31 implements Challenge {
       [users.Mendax.name, { when: new Date('2023-07-08'), depth: 4, moves: 44 }],
       [users.fextivity.name, { when: new Date('2023-08-16'), depth: 2, moves: 19 }],
       [users.Emily.name, { when: new Date('2023-08-18'), depth: 1, moves: 13 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 11 }],
     ]),
   }
 
@@ -112,7 +115,10 @@ export class Simp_2022_05_12 implements Challenge {
     link: 'https://www.youtube.com/watch?v=noAFs6XVS74',
     challenge:
       'Chess, but you have tunnel vision. You can only move the pieces (or pawns) that are CURRENTLY within a 3-tile range from what your opponent just moved.',
-    records: new Map([[users.Mendax.name, { when: new Date('2023-07-08'), depth: 2, moves: 31 }]]),
+    records: new Map([
+      [users.Mendax.name, { when: new Date('2023-07-08'), depth: 2, moves: 31 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 13 }],
+    ]),
   }
 
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move, history }) => {
@@ -142,6 +148,7 @@ export class Simp_2022_05_17 implements Challenge {
     records: new Map([
       [users.fextivity.name, { when: new Date('2023-08-18'), depth: 1, moves: 25 }],
       [users.Mendax.name, { when: new Date('2023-08-25'), depth: 2, moves: 16 }],
+      [users.Arnout.name, { when: new Date('2023-08-31'), depth: 1, moves: 23 }],
     ]),
   }
 
