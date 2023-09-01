@@ -152,7 +152,7 @@ class SimpDiscord_Alphabetical implements Challenge {
     challenge:
       'Chess, but you must move in alphabetical file order (move a piece on A file, then B file and so forth, looping back around after H). Castling is a king move.',
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1146177472073830563',
-    records: new Map([]),
+    records: new Map([[users.Mendax.name, { when: new Date('2023-09-01'), depth: 2, moves: 12 }]]),
   }
 
   private allowedFile = 0
