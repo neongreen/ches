@@ -53,6 +53,7 @@ export class Simp_2021_08_31 implements Challenge {
   meta: Challenge['meta'] = {
     uuid: '2b68e7eb-24fe-43f0-a675-7e914566403a',
     title: 'Odd Numbered Rank',
+    link: 'https://www.youtube.com/watch?v=PDB2miuFEIY',
     challenge: 'If a piece (or a pawn) is captured on an uneven numbered rank, the video ends.',
     records: new Map([]),
   }

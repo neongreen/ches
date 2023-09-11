@@ -38,7 +38,7 @@ export function compareRecords(a: Record, b: Record, options: { considerDate: bo
 export type ChallengeMeta = {
   uuid: Uuid
   title: string
-  link?: string
+  link: string | null
   challenge: string
   /** Records per player */
   records: Map<string, Record>

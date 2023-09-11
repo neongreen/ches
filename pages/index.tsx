@@ -356,9 +356,11 @@ export default function Home() {
               {currentChallenge && (
                 <Text size="sm" mt="xs">
                   <i>{currentChallenge.meta.challenge}</i>{' '}
-                  <Anchor href={currentChallenge.meta.link} target="_blank" rel="noreferrer">
-                    <b>[Link]</b>
-                  </Anchor>
+                  {currentChallenge.meta.link && (
+                    <Anchor href={currentChallenge.meta.link} target="_blank" rel="noreferrer">
+                      <b>[Link]</b>
+                    </Anchor>
+                  )}
                 </Text>
               )}
             </div>
