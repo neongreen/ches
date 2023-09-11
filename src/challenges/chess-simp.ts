@@ -1,6 +1,6 @@
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
-import { Simp_2021_08_17 } from './chess-simp/2021-08'
+import { Simp_2021_08_17, Simp_2021_08_31 } from './chess-simp/2021-08'
 import { Simp_2021_10_16, Simp_2021_10_22 } from './chess-simp/2021-10'
 import { Simp_2021_12_04 } from './chess-simp/2021-12'
 import { Simp_2022_01_21, Simp_2022_01_29 } from './chess-simp/2022-01'
@@ -36,7 +36,7 @@ import { Simp_2021_09_04 } from './chess-simp/2021-09'
 export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () => Challenge }> =
   new Map(
     _.concat(
-      [() => new Simp_2021_08_17() as Challenge],
+      [() => new Simp_2021_08_17() as Challenge, () => new Simp_2021_08_31() as Challenge],
       [() => new Simp_2021_09_04() as Challenge],
       [() => new Simp_2021_10_16() as Challenge, () => new Simp_2021_10_22() as Challenge],
       [() => new Simp_2021_12_04() as Challenge],

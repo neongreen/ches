@@ -1,5 +1,7 @@
 # Yet unannounced in Chess Simp Discord
 
+* Sep 11, 2023: New Challenge: Chess Simp — "Odd Numbered Rank"
+
 # Already announced
 
 * Aug 29, 2023: New challenge: Chess Simp Discord — "Alphabetical"

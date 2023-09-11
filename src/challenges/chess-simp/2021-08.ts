@@ -1,7 +1,8 @@
 import { Board } from '@/board'
-import { Challenge } from '@/challenges/core'
-import { Move, getMoveCoords } from '@/move'
+import { Challenge, ChallengeMeta } from '@/challenges/core'
+import { Move, getCapture, getMoveCoords } from '@/move'
 import { Color, isWhitePiece } from '@/piece'
+import { Coord } from '@/utils/coord'
 import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 
@@ -45,5 +46,38 @@ export class Simp_2021_08_17 implements Challenge {
           isWhitePiece(board.at(square)) && this.isColumnAllowed({ column: square.x, history })
       )
       .map((square) => ({ coord: square, color: 'blue' }))
+  }
+}
+
+export class Simp_2021_08_31 implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '2b68e7eb-24fe-43f0-a675-7e914566403a',
+    title: 'Odd Numbered Rank',
+    challenge: 'If a piece (or a pawn) is captured on an uneven numbered rank, the video ends.',
+    records: new Map([]),
+  }
+
+  private bad = (coord: Coord) => coord.y % 2 === 0
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ board }) => {
+    return Board.allSquares()
+      .filter(this.bad)
+      .map((coord) => ({ coord, color: 'lightRed' }))
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board }) => {
+    const capture = getCapture(move)
+    return !(capture && this.bad(capture.victim))
+  }
+
+  isChallengeLost: NonNullable<Challenge['isChallengeLost']> = ({ board }) => {
+    const lastMove = _.last(board.moveHistory)
+    if (!lastMove) return { lost: false }
+    const capture = getCapture(lastMove)
+    if (capture && this.bad(capture.victim)) {
+      return { lost: true }
+    } else {
+      return { lost: false }
+    }
   }
 }
