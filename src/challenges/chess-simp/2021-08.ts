@@ -56,7 +56,7 @@ export class Simp_2021_08_31 implements Challenge {
     title: 'Odd Numbered Rank',
     link: 'https://www.youtube.com/watch?v=PDB2miuFEIY',
     challenge: 'If a piece (or a pawn) is captured on an uneven numbered rank, the video ends.',
-    records: new Map([[users.Arnout.name, { when: new Date('2023-09-11'), depth: 1, moves: 42 }]]),
+    records: new Map([[users.Arnout.name, { when: new Date('2023-09-11'), depth: 3, moves: 71 }]]),
   }
 
   private bad = (coord: Coord) => coord.y % 2 === 0
