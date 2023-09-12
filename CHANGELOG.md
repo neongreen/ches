@@ -1,11 +1,10 @@
 # Yet unannounced in Chess Simp Discord
 
+# Already announced
+
 * Sep 12, 2023: New challenge: Chess Simp — "The Unending Cycle of Revenge"
 * Sep 12, 2023: Internal: keeping track of piece identity
 * Sep 11, 2023: New challenge: Chess Simp — "Odd Numbered Rank"
-
-# Already announced
-
 * Aug 29, 2023: New challenge: Chess Simp Discord — "Alphabetical"
 * Aug 26, 2023: New challenge: Chess Simp — "Alternate Between Moving Pawns & Pieces"
 * Aug 20, 2023: New challenge: Chess Simp — "That Was Frustrating"
