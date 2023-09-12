@@ -25,7 +25,7 @@ export class Simp_2022_09_11 implements Challenge {
     const lastMove = _.last(history)
     return (
       lastMove === undefined ||
-      pieceType(getMovePiece(lastMove.boardBeforeMove, lastMove.move)) ===
+      pieceType(getMovePiece(lastMove.beforeMove.board, lastMove.move)) ===
         pieceType(getMovePiece(board, move))
     )
   }

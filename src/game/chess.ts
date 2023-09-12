@@ -2,6 +2,8 @@ import { Board } from '@/board'
 import { Challenge } from '@/challenges/core'
 import { Score } from '@/eval/score'
 import { Search } from '@/eval/search'
+import { HistoryItem } from '@/history'
+import { Identity } from '@/identity'
 import { Move } from '@/move'
 import { legalMoves_slow } from '@/move/legal'
 import { Color } from '@/piece'
@@ -29,7 +31,9 @@ export class Chess {
     line: Move[]
   } | null = null
 
-  history: { boardBeforeMove: Board; move: Move }[] = []
+  history: HistoryItem[] = []
+
+  identity: Identity = new Identity(this.board)
 
   /**
    * Make a challenge move decider, based on the current challenge and current history.
@@ -43,6 +47,7 @@ export class Chess {
       currentFullMoveNumber: Math.floor(this.history.length / 2) + 1,
       currentHalfMoveNumber: this.history.length + 1,
       history: this.history,
+      identity: this.identity,
       board: this.board,
     }
     return (move: Move) => challenge.isMoveAllowed({ ...obj, move })
@@ -54,14 +59,16 @@ export class Chess {
 
   /** Make a move (assuming it's already been checked for legality) */
   makeMove(move: Move) {
-    const boardBeforeMove = this.board.clone()
+    const beforeMove = { board: this.board.clone(), identity: this.identity.clone() }
+    this.identity.makeMove(this.board, move)
     this.board.executeMove(move)
+    const afterMove = { board: this.board.clone(), identity: this.identity.clone() }
     this.bestMove = null
-    this.history.push({ boardBeforeMove, move })
+    this.history.push({ move, beforeMove, afterMove })
     this.challenge?.recordMove?.({
       move,
-      side: boardBeforeMove.side,
-      boardBeforeMove,
+      side: beforeMove.board.side,
+      boardBeforeMove: beforeMove.board,
       boardAfterMove: this.board,
       history: this.history,
     })

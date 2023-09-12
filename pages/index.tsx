@@ -205,7 +205,7 @@ export default function Home() {
             >
               {(() => {
                 const chunked = _.chunk(
-                  history.map(({ move, boardBeforeMove }) => notateMove(boardBeforeMove, move)),
+                  history.map(({ move, beforeMove }) => notateMove(beforeMove.board, move)),
                   2
                 )
                 if (chunked.length === 0)

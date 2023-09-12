@@ -51,7 +51,7 @@ export class Simp_2021_10_16 implements Challenge {
     const lastMove = _.last(history)
     if (
       lastMove &&
-      getMovePiece(lastMove.boardBeforeMove, lastMove.move) === Piece.BlackQueen &&
+      getMovePiece(lastMove.beforeMove.board, lastMove.move) === Piece.BlackQueen &&
       getMovePiece(board, move) !== Piece.WhiteKing
     )
       return false
@@ -67,7 +67,7 @@ export class Simp_2021_10_16 implements Challenge {
   highlightSquares: Challenge['highlightSquares'] = ({ board, history }) => {
     // Highlight the king, if it has to be moved
     const lastMove = _.last(history)
-    if (lastMove && getMovePiece(lastMove.boardBeforeMove, lastMove.move) === Piece.BlackQueen) {
+    if (lastMove && getMovePiece(lastMove.beforeMove.board, lastMove.move) === Piece.BlackQueen) {
       return [{ coord: board.kings.white, color: 'blue' }]
     } else {
       return []

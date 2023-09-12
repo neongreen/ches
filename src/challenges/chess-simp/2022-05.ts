@@ -1,6 +1,7 @@
 import { Board } from '@/board'
 import { Challenge } from '@/challenges/core'
 import { users } from '@/challenges/users'
+import { HistoryItem } from '@/history'
 import { Move, getAllMovers, getCapture, getMoveCoords } from '@/move'
 import { Color, isBlackPiece, isKing } from '@/piece'
 import { Coord } from '@/utils/coord'
@@ -81,13 +82,13 @@ export class Simp_2022_05_31 implements Challenge {
     ]),
   }
 
-  private allowedVictims = (history: { move: Move; boardBeforeMove: Board }[]) => {
+  private allowedVictims = (history: HistoryItem[]) => {
     const lastMove = _.last(history)
     if (!lastMove) return null
     // Note: kings can't ever be captured so we take care not to return them
     return match(lastMove.move)
       .with({ kind: P.union('normal', 'enPassant') }, ({ from, to }) =>
-        isKing(lastMove.boardBeforeMove.at(from)) ? [] : [to]
+        isKing(lastMove.beforeMove.board.at(from)) ? [] : [to]
       )
       .with({ kind: 'castling' }, ({ rookTo }) => [rookTo])
       .exhaustive()
@@ -129,7 +130,7 @@ export class Simp_2022_05_12 implements Challenge {
   }
 
   highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ history }) => {
-    const lastBlackMove = _.findLast(history, (x) => x.boardBeforeMove.side === Color.Black)
+    const lastBlackMove = _.findLast(history, (x) => x.beforeMove.board.side === Color.Black)
     if (!lastBlackMove) return []
     const justMoved: Coord = getMoveCoords(lastBlackMove.move).to
     return Board.allSquares()

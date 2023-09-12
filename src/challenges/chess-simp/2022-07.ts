@@ -39,7 +39,7 @@ export class Simp_2022_07_18 implements Challenge {
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move, history }) => {
     const lastMove = _.last(history)
     if (!lastMove) return true
-    if (getMovePiece(lastMove.boardBeforeMove, lastMove.move) !== Piece.BlackQueen) return true
+    if (getMovePiece(lastMove.beforeMove.board, lastMove.move) !== Piece.BlackQueen) return true
     const queenCoord = getMoveCoords(lastMove.move).to
     const { from, to } = getMoveCoords(move)
     const mover = getMovePiece(board, move)
@@ -53,7 +53,7 @@ export class Simp_2022_07_18 implements Challenge {
   highlightSquares: Challenge['highlightSquares'] = ({ board, history }) => {
     const lastMove = _.last(history)
     if (!lastMove) return []
-    if (getMovePiece(lastMove.boardBeforeMove, lastMove.move) !== Piece.BlackQueen) return []
+    if (getMovePiece(lastMove.beforeMove.board, lastMove.move) !== Piece.BlackQueen) return []
     const queenCoord = getMoveCoords(lastMove.move).to
     return legalMovesForPiece_slow(board, board.kings.white)
       .map(getMoveCoords)

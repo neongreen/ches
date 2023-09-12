@@ -1,4 +1,6 @@
 import { Board } from '@/board'
+import { HistoryItem } from '@/history'
+import { Identity } from '@/identity'
 import { Move } from '@/move'
 import { Color } from '@/piece'
 import { Coord } from '@/utils/coord'
@@ -109,22 +111,16 @@ export interface Challenge {
      * This will be 1 for the first move, 2 for the second move, etc.
      */
     currentHalfMoveNumber: number
-    /**
-     * History of all past moves.
-     */
-    history: { boardBeforeMove: Board; move: Move }[]
-    /**
-     * Current state of the board.
-     */
+    history: HistoryItem[]
+    identity: Identity
     board: Board
-    /**
-     * The move the human is attempting to perform.
-     */
     move: Move
   }) => boolean
 
   /**
    * This function can abruptly end the challenge if it's been lost.
+   *
+   * It is called after each move.
    */
   isChallengeLost?: (data: { board: Board }) => { lost: boolean }
 
@@ -137,7 +133,7 @@ export interface Challenge {
     boardBeforeMove: Board
     boardAfterMove: Board
     // History including the last move
-    history: { boardBeforeMove: Board; move: Move }[]
+    history: HistoryItem[]
   }) => void
 
   /**
@@ -145,6 +141,7 @@ export interface Challenge {
    */
   highlightSquares?: (data: {
     board: Board
-    history: { boardBeforeMove: Board; move: Move }[]
+    identity: Identity
+    history: HistoryItem[]
   }) => { coord: Coord; color: 'red' | 'blue' | 'lightYellow' | 'lightRed'; text?: string }[]
 }

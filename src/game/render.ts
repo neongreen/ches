@@ -31,6 +31,7 @@ export function render(
     const highlights =
       state.chess.challenge?.highlightSquares?.({
         board: state.chess.board,
+        identity: state.chess.identity,
         history: state.chess.history,
       }) ?? []
     p5.push()

@@ -17,6 +17,8 @@ import { legalMoves_slow } from '@/move/legal'
 import _ from 'lodash'
 import { parseArgs } from 'node:util'
 import { P, match } from 'ts-pattern'
+import { Identity } from '@/identity'
+import { HistoryItem } from '@/history'
 
 const args = parseArgs({
   args: process.argv.slice(2),
@@ -63,7 +65,8 @@ for (const scenario of scenarios) {
     mkdirSync(path.dirname(filename), { recursive: true })
     const board = new Board()
     const game: ({ boardBeforeMove: Board; move: Move; score: Score } | { result: string })[] = []
-    const history: { boardBeforeMove: Board; move: Move }[] = []
+    const history: HistoryItem[] = []
+    const identity = new Identity(board)
     const search = new Search()
     while (true) {
       const currentFullMoveNumber = Math.floor(history.length / 2) + 1
@@ -79,7 +82,7 @@ for (const scenario of scenarios) {
         } else {
           // The game is still going; since `search` can't rank moves,  we have to generate all possible legal moves allowed by the challenge, and ask for their eval.
           const decider = (() => {
-            const obj = { currentFullMoveNumber, currentHalfMoveNumber, history, board }
+            const obj = { currentFullMoveNumber, currentHalfMoveNumber, history, identity, board }
             return (move: Move) => challenge.isMoveAllowed({ ...obj, move }) ?? true
           })()
           const moves = legalMoves_slow(board)
@@ -114,15 +117,17 @@ for (const scenario of scenarios) {
         })
         break
       } else {
-        const boardBeforeMove = board.clone()
+        const beforeMove = { board: board.clone(), identity: identity.clone() }
         const move = best.move
-        game.push({ move, boardBeforeMove, score: best.score })
+        game.push({ move, boardBeforeMove: beforeMove.board, score: best.score })
+        identity.makeMove(board, move)
         board.executeMove(move)
-        history.push({ boardBeforeMove, move })
+        const afterMove = { board: board.clone(), identity: identity.clone() }
+        history.push({ move, beforeMove, afterMove })
         challenge.recordMove?.({
           move,
-          side: boardBeforeMove.side,
-          boardBeforeMove,
+          side: beforeMove.board.side,
+          boardBeforeMove: beforeMove.board,
           boardAfterMove: board,
           history,
         })

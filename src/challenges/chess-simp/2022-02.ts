@@ -21,7 +21,7 @@ export class Simp_2022_02_10 implements Challenge {
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ history, board, move }) => {
     const lastMove = _.last(history)
     if (!lastMove) return true
-    const lastMoveIsPawn = isPawn(getMovePiece(lastMove.boardBeforeMove, lastMove.move))
+    const lastMoveIsPawn = isPawn(getMovePiece(lastMove.beforeMove.board, lastMove.move))
     const currentMoveIsPawn = isPawn(getMovePiece(board, move))
     return lastMoveIsPawn !== currentMoveIsPawn
   }
@@ -46,7 +46,7 @@ export class Simp_2022_02_11 implements Challenge {
     if (!lastMove) return true
     const capture = getCapture(move)
     if (!capture || isPawn(capture.victimPiece)) return true
-    return !getAllMovers(lastMove.boardBeforeMove, lastMove.move).some((mover) =>
+    return !getAllMovers(lastMove.beforeMove.board, lastMove.move).some((mover) =>
       mover.to.equals(capture.victim)
     )
   }
@@ -55,7 +55,7 @@ export class Simp_2022_02_11 implements Challenge {
     if (board.side !== Color.White) return []
     const lastMove = _.last(history)
     if (!lastMove) return []
-    return getAllMovers(lastMove.boardBeforeMove, lastMove.move)
+    return getAllMovers(lastMove.beforeMove.board, lastMove.move)
       .filter((mover) => !isPawn(board.at(mover.to)))
       .map((mover) => ({ coord: mover.to, color: 'red' }))
   }
