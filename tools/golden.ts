@@ -102,7 +102,7 @@ for (const scenario of scenarios) {
         best = search.findBestMove(new EvalNode(board), depth)
       }
       // Now that we've found the best move (or null, meaning game over), we can proceed.
-      if (challenge?.isChallengeLost?.({ board }).lost ?? false) {
+      if (challenge?.isChallengeLost?.({ board, history }).lost ?? false) {
         game.push({ result: 'Challenge lost - explicitly' })
         break
       } else if (best.move === null) {

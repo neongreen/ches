@@ -122,7 +122,7 @@ export interface Challenge {
    *
    * It is called after each move.
    */
-  isChallengeLost?: (data: { board: Board }) => { lost: boolean }
+  isChallengeLost?: (data: { board: Board; history: HistoryItem[] }) => { lost: boolean }
 
   /**
    * This function will be called after any move has been made.

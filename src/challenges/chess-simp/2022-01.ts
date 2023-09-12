@@ -44,7 +44,7 @@ export class Simp_2022_01_21 implements Challenge {
   private isInCenter = (coord: Coord) =>
     coord.x >= 2 && coord.x <= 5 && coord.y >= 2 && coord.y <= 5
 
-  isChallengeLost: NonNullable<Challenge['isChallengeLost']> = ({ board }) => {
+  isChallengeLost = ({ board }: { board: Board }) => {
     const queens = board.pieces().filter((x) => x.piece === Piece.WhiteQueen)
     return { lost: board.halfMoveNumber >= 4 && !queens.some((x) => this.isInCenter(x.coord)) }
   }

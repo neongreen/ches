@@ -1,9 +1,10 @@
 import { Board } from '@/board'
-import { getMoveCoords, getMovePiece } from '@/move'
+import { getCapture, getMoveCoords, getMovePiece } from '@/move'
 import { legalMovesForPiece_slow } from '@/move/legal'
-import { Color, PieceEmpty, isBlackPiece, isPawn, isWhitePiece } from '@/piece'
+import { Color, isBlackPiece, isPawn, isWhitePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
+import _ from 'lodash'
 import { P, match } from 'ts-pattern'
 import { Challenge, ChallengeMeta } from './core'
 import { users } from './users'
@@ -179,6 +180,61 @@ class SimpDiscord_Alphabetical implements Challenge {
   }
 }
 
+class SimpDiscord_UnendingCycleOfRevenge implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: 'd437f726-11f3-4bc4-82ba-3f792a64221b',
+    title: '[museofsalzburg] The Unending Cycle of Revenge',
+    link: 'https://discord.com/channels/866701779155419206/884667730891010048/1148964785791176704',
+    challenge:
+      "Chess, but it's the unending cycle of revenge. Whenever a piece or pawn is captured, the capturer must be the next piece captured.",
+    records: new Map([]),
+  }
+
+  // Ids of all capturing pieces in the order they did captures.
+  private allCapturers: number[] = []
+  // Ids of all captured pieces in the order they were captured.
+  private allVictims: number[] = []
+
+  recordMove: NonNullable<Challenge['recordMove']> = ({ history }) => {
+    const lastMove = _.last(history)!
+    const capture = getCapture(lastMove.move)
+    if (capture) {
+      this.allCapturers.push(lastMove.beforeMove.identity.getByCoord(capture.attacker)!.id)
+      this.allVictims.push(lastMove.beforeMove.identity.getByCoord(capture.victim)!.id)
+    }
+  }
+
+  highlightSquares: NonNullable<Challenge['highlightSquares']> = ({ identity }) => {
+    // Highlight the last capturer's position
+    const lastCapturer = _.last(this.allCapturers)
+    if (lastCapturer === undefined) return []
+    return [
+      {
+        coord: identity.getById(lastCapturer)!.coord,
+        color: 'lightYellow',
+      },
+    ]
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, identity }) => {
+    // You are only allowed to capture the last capturer, unless there were no captures before.
+    const lastCapturerId = _.last(this.allCapturers)
+    if (lastCapturerId === undefined) return true
+    const capture = getCapture(move)
+    if (!capture) return true
+    return lastCapturerId === identity.getByCoord(capture.victim)!.id
+  }
+
+  isChallengeLost: NonNullable<Challenge['isChallengeLost']> = ({ history }) => {
+    // The last victim must always be the second-to-last capturer, unless there is only one victim
+    const lastVictimId = this.allVictims[this.allVictims.length - 1]
+    const secondToLastCapturerId = this.allCapturers[this.allCapturers.length - 2]
+    if (lastVictimId === undefined) return { lost: false }
+    if (this.allVictims.length === 1) return { lost: false }
+    return { lost: lastVictimId !== secondToLastCapturerId }
+  }
+}
+
 /**
  * Challenges from the #video-suggestion channel on the Chess Simp Discord: https://discord.com/channels/866701779155419206/884667730891010048
  */
@@ -192,6 +248,7 @@ export const chessSimpDiscordChallenges: Map<
     () => simpDiscord_twoMovesMax,
     () => new SimpDiscord_Vampires(),
     () => new SimpDiscord_Alphabetical(),
+    () => new SimpDiscord_UnendingCycleOfRevenge(),
   ].map((challengeFn) => [
     challengeFn().meta.uuid,
     { meta: challengeFn().meta, create: challengeFn },

@@ -81,7 +81,10 @@ export class Chess {
 
     const legalMoves = legalMoves_slow(this.board)
     const legalMovesAfterChallenge = legalMoves.filter(this.isMoveAllowedByChallenge)
-    if (this.challenge?.isChallengeLost?.({ board: this.board }).lost ?? false) {
+    if (
+      this.challenge?.isChallengeLost?.({ board: this.board, history: this.history }).lost ??
+      false
+    ) {
       this.gameStatus = { status: 'lost', reason: 'challengeFailed' }
     } else if (this.bestMove.move === null && this.bestMove.score > 0) {
       this.gameStatus = { status: 'won', reason: 'checkmate' }
