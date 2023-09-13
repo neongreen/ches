@@ -187,7 +187,7 @@ class SimpDiscord_UnendingCycleOfRevenge implements Challenge {
     link: 'https://discord.com/channels/866701779155419206/884667730891010048/1148964785791176704',
     challenge:
       "Chess, but it's the unending cycle of revenge. Whenever a piece or pawn is captured, the capturer must be the next piece captured.",
-    records: new Map([]),
+    records: new Map([[users.Mendax.name, { when: new Date('2023-09-13'), depth: 2, moves: 8 }]]),
   }
 
   // Ids of all capturing pieces in the order they did captures.
