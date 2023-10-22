@@ -172,4 +172,19 @@ export class Coord {
   pythagoreanDistance(to: Coord): number {
     return Math.sqrt(Math.pow(this.x - to.x, 2) + Math.pow(this.y - to.y, 2))
   }
+
+  /**
+   * Are two squares on the same diagonal?
+   */
+  isSameDiagonal(to: Coord): boolean {
+    return this.x - this.y === to.x - to.y || this.x + this.y === to.x + to.y
+  }
+
+  isSameRow(to: Coord): boolean {
+    return this.y === to.y
+  }
+
+  isSameColumn(to: Coord): boolean {
+    return this.x === to.x
+  }
 }
