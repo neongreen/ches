@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { getMoveCoords, isInCheck, Move, moveIsEqual } from '@/move'
+import { getMoveCoords, isInCheck, isInCheckAfterOpponentsMove, Move, moveIsEqual } from '@/move'
 import { isKing } from '@/piece'
 import { Coord } from '@/utils/coord'
 import _ from 'lodash'
@@ -31,7 +31,16 @@ export function isLegalMove(
   }
 
   // The side to move must not be in check after the move
-  if (isInCheck(boardAfterMove, boardBeforeMove.side)) return false
+  const inCheck = isInCheck(boardAfterMove, boardBeforeMove.side)
+  if (process.env.NODE_ENV === 'test') {
+    // Testing that isInCheckAfterOpponentsMove === isInCheck
+    const inCheck2 = isInCheckAfterOpponentsMove(boardAfterMove, move)
+    if (inCheck !== inCheck2)
+      throw new Error(
+        `isInCheck returned ${inCheck}, but isInCheckAfterOpponentsMove returned ${inCheck2}`
+      )
+  }
+  if (inCheck) return false
 
   // If we can't rely on the move being quasi-legal (e.g. when we are checking a move that a human player wants to make), we can simply check if the move is in the list of quasi-legal moves. We don't have to worry about speed here and we already know that the move passes all legality checks *except* for actually being a quasi-legal move.
   if (!optAssumeQuasiLegal) {
