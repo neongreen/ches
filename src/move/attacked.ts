@@ -1,6 +1,51 @@
 import { Board } from '@/board'
-import { MaybePiece, MaybePieceType, Color, makePiece, Piece, PieceType, PieceEmpty } from '@/piece'
+import { Color, Piece, PieceEmpty, PieceType, makePiece, pieceColor, pieceType } from '@/piece'
 import { Coord } from '@/utils/coord'
+
+/**
+ * Determine if a king is attacked by a specific piece on a specific square.
+ */
+export function isKingAttackedByPiece(board: Board, attacker: Coord) {
+  const attackerPiece = board.at(attacker)
+  if (attackerPiece === PieceEmpty) return false
+  const attackerColor = pieceColor(attackerPiece)
+  const kingCoord = attackerColor === Color.White ? board.kings.black : board.kings.white
+  switch (pieceType(attackerPiece)) {
+    case PieceType.Pawn: {
+      if (attackerColor === Color.White) {
+        return attacker.ne().equals(kingCoord) || attacker.nw().equals(kingCoord)
+      } else {
+        return attacker.se().equals(kingCoord) || attacker.sw().equals(kingCoord)
+      }
+    }
+    case PieceType.Knight: {
+      const deltaX = Math.abs(attacker.x - kingCoord.x)
+      const deltaY = Math.abs(attacker.y - kingCoord.y)
+      return (deltaX === 1 && deltaY === 2) || (deltaX === 2 && deltaY === 1)
+    }
+    case PieceType.Bishop: {
+      if (!attacker.isSameDiagonal(kingCoord)) return false
+      return attacker.pathTo(kingCoord, 'exclusive').every((c) => board.unsafeIsEmpty(c))
+    }
+    case PieceType.Rook: {
+      if (!attacker.isSameRow(kingCoord) && !attacker.isSameColumn(kingCoord)) return false
+      return attacker.pathTo(kingCoord, 'exclusive').every((c) => board.unsafeIsEmpty(c))
+    }
+    case PieceType.Queen: {
+      if (
+        !attacker.isSameRow(kingCoord) &&
+        !attacker.isSameColumn(kingCoord) &&
+        !attacker.isSameDiagonal(kingCoord)
+      )
+        return false
+      return attacker.pathTo(kingCoord, 'exclusive').every((c) => board.unsafeIsEmpty(c))
+    }
+    case PieceType.King: {
+      // This should never happen because the last move is assumed to have been legal.
+      throw new Error('A king cannot attack another king.')
+    }
+  }
+}
 
 /**
  * Determine if a king would be attacked by pieces of a certain color, if the king was standing on that square.
