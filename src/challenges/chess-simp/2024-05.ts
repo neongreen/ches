@@ -18,7 +18,11 @@ export class Simp_2024_05_01 implements Challenge {
   isMoveAllowed: Challenge['isMoveAllowed'] = ({ board, move }) => {
     // For all pieces that moved: if the piece is not a pawn, check that the piece landed above a non-empty square.
     return getAllMovers(board, move).every(
-      ({ pieceBefore, to }) => isPawn(pieceBefore) || board.at(to.s()) !== PieceEmpty
+      ({ pieceBefore, from, to }) =>
+        // Pawns are always ok (this also handles the very tricky case of en passant where idk what the right answer is otherwise)
+        isPawn(pieceBefore) ||
+        // For pieces, we can check the square in the board before the move, *but* pieces can never move north
+        (!to.s().equals(from) && board.at(to.s()) !== PieceEmpty)
     )
   }
 }
