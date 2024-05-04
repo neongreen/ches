@@ -1,6 +1,7 @@
 import { Uuid } from '@/utils/uuid'
 import _ from 'lodash'
 import { Simp_2021_08_17, Simp_2021_08_31 } from './chess-simp/2021-08'
+import { Simp_2021_09_04 } from './chess-simp/2021-09'
 import { Simp_2021_10_16, Simp_2021_10_22 } from './chess-simp/2021-10'
 import { Simp_2021_12_04 } from './chess-simp/2021-12'
 import { Simp_2022_01_21, Simp_2022_01_29 } from './chess-simp/2022-01'
@@ -27,8 +28,8 @@ import { Simp_2023_02_23 } from './chess-simp/2023-02'
 import { Simp_2023_04_01 } from './chess-simp/2023-04'
 import { Simp_2023_05_23 } from './chess-simp/2023-05'
 import { Simp_2023_06_09 } from './chess-simp/2023-06'
+import { Simp_2024_05_01 } from './chess-simp/2024-05'
 import { Challenge, ChallengeMeta } from './core'
-import { Simp_2021_09_04 } from './chess-simp/2021-09'
 
 /**
  * All Chess Simp challenges.
@@ -67,7 +68,8 @@ export const chessSimpChallenges: Map<Uuid, { meta: ChallengeMeta; create: () =>
       [() => new Simp_2023_02_23() as Challenge],
       [() => new Simp_2023_04_01() as Challenge],
       [() => new Simp_2023_05_23() as Challenge],
-      [() => new Simp_2023_06_09() as Challenge]
+      [() => new Simp_2023_06_09() as Challenge],
+      [() => new Simp_2024_05_01() as Challenge]
     ).map((challengeFn) => [
       challengeFn().meta.uuid,
       { meta: challengeFn().meta, create: challengeFn },

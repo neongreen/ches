@@ -1,5 +1,7 @@
 # Yet unannounced in Chess Simp Discord
 
+* May 5, 2024: New challenge: Chess Simp — "This Is Why Chess Pieces Can Fly"
+
 # Already announced
 
 * Sep 12, 2023: New challenge: Chess Simp — "The Unending Cycle of Revenge"
