@@ -11,7 +11,7 @@ export class Simp_2024_05_01 implements Challenge {
     title: 'This Is Why Chess Pieces Can Fly',
     link: 'https://www.youtube.com/watch?v=ZM_8zFV9th8',
     challenge:
-      "Chess, but it's a platformer. Your pieces must always land directly above another piece/pawn.",
+      "Chess, but it's a platformer. Your pieces (not pawns) must always land directly above another piece/pawn.",
     records: new Map([]),
   }
 
