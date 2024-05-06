@@ -35,4 +35,8 @@ export const users = {
     name: 'Arnout',
     notes: 'Arnout#2313, Ches Discord',
   },
+  SenorFlamingo: {
+    name: 'SenorFlamingo',
+    notes: 'senorflamingo, Simp Discord',
+  },
 }
