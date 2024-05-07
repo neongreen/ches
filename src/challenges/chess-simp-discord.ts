@@ -1,6 +1,6 @@
 import { Board } from '@/board'
-import { getCapture, getMoveCoords, getMovePiece } from '@/move'
-import { legalMovesForPiece_slow } from '@/move/legal'
+import { Move, getCapture, getMoveCoords, getMovePiece } from '@/move'
+import { legalMovesForPiece_slow, legalMoves_slow } from '@/move/legal'
 import { Color, isBlackPiece, isPawn, isWhitePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
@@ -238,6 +238,57 @@ class SimpDiscord_UnendingCycleOfRevenge implements Challenge {
   }
 }
 
+class SimpDiscord_Manos implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '144d5348-37fb-41ff-9291-c2614243fd9b',
+    title: '[manossef] The Gay Challenge',
+    link: 'https://discord.com/channels/866701779155419206/1236461054255566848/1237450553374539908',
+    challenge: `Approach him! Choose whatever move brings your king the closest (or at least the least far) to the opponent's king. Oh, and your first move has to let your king out.`,
+    records: new Map([]),
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board, history }) => {
+    // First move is special
+    if (history.length === 0) {
+      // Just has to be one of the three pawn moves
+      return move.kind === 'normal' && ['d2', 'e2', 'f2'].includes(move.from.toAlgebraic())
+    }
+
+    // Otherwise: "Whatever is the smallest possible distance to have after all moves, this has to be the new distance".
+
+    // Distance between the kings after the proposed move. NB: the proposed move is not necessarily a king move!
+    const distanceAfter = (() => {
+      const boardAfterMove = board.clone()
+      boardAfterMove.executeMove(move)
+      return boardAfterMove.kings.white.pythagoreanDistance(board.kings.black)
+    })()
+
+    // Best achievable distance
+    const bestPossibleDistance = _.min(
+      legalMoves_slow(board).map((move) => {
+        const boardAfterMove = board.clone()
+        boardAfterMove.executeMove(move)
+        return boardAfterMove.kings.white.pythagoreanDistance(board.kings.black)
+      })
+    )
+
+    // ...and they have to match
+    return distanceAfter === bestPossibleDistance
+  }
+
+  highlightSquares: Challenge['highlightSquares'] = ({ board, history }) => {
+    // On the first move, highlight the three movable pawns to prevent confusion
+    if (history.length === 0) {
+      return ['d2', 'e2', 'f2'].map((algebraic) => ({
+        coord: Coord.fromAlgebraic(algebraic),
+        color: 'blue',
+      }))
+    } else {
+      return []
+    }
+  }
+}
+
 /**
  * Challenges from the #video-suggestion channel on the Chess Simp Discord: https://discord.com/channels/866701779155419206/884667730891010048
  */
@@ -252,6 +303,7 @@ export const chessSimpDiscordChallenges: Map<
     () => new SimpDiscord_Vampires(),
     () => new SimpDiscord_Alphabetical(),
     () => new SimpDiscord_UnendingCycleOfRevenge(),
+    () => new SimpDiscord_Manos(),
   ].map((challengeFn) => [
     challengeFn().meta.uuid,
     { meta: challengeFn().meta, create: challengeFn },
