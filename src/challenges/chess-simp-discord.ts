@@ -1,6 +1,6 @@
 import { Board } from '@/board'
-import { getCapture, getMoveCoords, getMovePiece } from '@/move'
-import { legalMovesForPiece_slow } from '@/move/legal'
+import { Move, getCapture, getMoveCoords, getMovePiece } from '@/move'
+import { legalMovesForPiece_slow, legalMoves_slow } from '@/move/legal'
 import { Color, isBlackPiece, isPawn, isWhitePiece } from '@/piece'
 import { Coord } from '@/utils/coord'
 import { Uuid } from '@/utils/uuid'
@@ -238,6 +238,39 @@ class SimpDiscord_UnendingCycleOfRevenge implements Challenge {
   }
 }
 
+class SimpDiscord_Manos implements Challenge {
+  meta: Challenge['meta'] = {
+    uuid: '144d5348-37fb-41ff-9291-c2614243fd9b',
+    title: '[manossef] The Gay Challenge',
+    link: 'https://discord.com/channels/866701779155419206/1236461054255566848/1237450553374539908',
+    challenge: `If my king has any legal moves that bring him closer to my opponent's king, I must immediately play the one that reduces that distance the most. If multiple moves are tied for the smallest distance, I can choose which one to play. Otherwise, if my king has any legal moves that do not alter his distance from my opponent's king, I am allowed to either play one of those moves or move any other piece (or pawn) of mine. I am, however, not allowed to make a move that would bring my king further away from my opponent's king. If none of my pieces (and pawns) other than my king have any legal moves, and all of my king's legal moves increase his distance from my opponent's king, I must play the move that increases the distance the least. If multiple moves are tied for the smallest distance from my opponent's king, I can choose which one to play. My first move must let my king out.`,
+    records: new Map([]),
+  }
+
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board }) => {
+    // TODO: first move
+    // we'll check this later
+
+    // TODO: rest of moves
+    const boardAfterMove = board.clone()
+    boardAfterMove.executeMove(move)
+
+    // Distance between the kings after the proposed move. NB: the proposed move is not necessarily a king move!
+    const distanceAfter = boardAfterMove.kings.white.pythagoreanDistance(board.kings.black)
+
+    const bestPossibleDistance = _.min(
+      legalMoves_slow(board).map((move) => {
+        const boardAfterMove = board.clone()
+        boardAfterMove.executeMove(move)
+        return boardAfterMove.kings.white.pythagoreanDistance(board.kings.black)
+      })
+    )
+
+    // All the rules are essentially just "whatever is the smallest possible distance to have after all moves, this has to be the new distance"
+    return distanceAfter === bestPossibleDistance
+  }
+}
+
 /**
  * Challenges from the #video-suggestion channel on the Chess Simp Discord: https://discord.com/channels/866701779155419206/884667730891010048
  */
@@ -252,6 +285,7 @@ export const chessSimpDiscordChallenges: Map<
     () => new SimpDiscord_Vampires(),
     () => new SimpDiscord_Alphabetical(),
     () => new SimpDiscord_UnendingCycleOfRevenge(),
+    () => new SimpDiscord_Manos(),
   ].map((challengeFn) => [
     challengeFn().meta.uuid,
     { meta: challengeFn().meta, create: challengeFn },
