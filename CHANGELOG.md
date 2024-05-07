@@ -2,7 +2,7 @@
 
 # Already announced
 
-* May 7, 2024: Internal: migrated to pnpm and newer Nest.js
+* May 7, 2024: Internal: migrated to pnpm and newer Next.js
 * May 7, 2024: New challenge: Chess Simp Discord (manossef) -- "The Gay Challenge"
 * May 5, 2024: New challenge: Chess Simp -- "This Is Why Chess Pieces Can Fly"
 * Sep 12, 2023: New challenge: Chess Simp -- "The Unending Cycle of Revenge"
