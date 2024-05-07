@@ -29,7 +29,7 @@ export class Coord {
     return this.x === other.x && this.y === other.y
   }
 
-  /** Convert to algebraic notation. */
+  /** Convert to algebraic notation. Uses lowercase */
   toAlgebraic(): string {
     return String.fromCharCode('a'.charCodeAt(0) + this.x) + (this.y + 1)
   }

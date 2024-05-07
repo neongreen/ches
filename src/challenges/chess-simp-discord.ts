@@ -243,21 +243,27 @@ class SimpDiscord_Manos implements Challenge {
     uuid: '144d5348-37fb-41ff-9291-c2614243fd9b',
     title: '[manossef] The Gay Challenge',
     link: 'https://discord.com/channels/866701779155419206/1236461054255566848/1237450553374539908',
-    challenge: `If my king has any legal moves that bring him closer to my opponent's king, I must immediately play the one that reduces that distance the most. If multiple moves are tied for the smallest distance, I can choose which one to play. Otherwise, if my king has any legal moves that do not alter his distance from my opponent's king, I am allowed to either play one of those moves or move any other piece (or pawn) of mine. I am, however, not allowed to make a move that would bring my king further away from my opponent's king. If none of my pieces (and pawns) other than my king have any legal moves, and all of my king's legal moves increase his distance from my opponent's king, I must play the move that increases the distance the least. If multiple moves are tied for the smallest distance from my opponent's king, I can choose which one to play. My first move must let my king out.`,
+    challenge: `Choose whatever move brings your king the closest (or at least the least far) to the opponent's king. Oh, and your first move has to let your king out.`,
     records: new Map([]),
   }
 
-  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board }) => {
-    // TODO: first move
-    // we'll check this later
+  isMoveAllowed: Challenge['isMoveAllowed'] = ({ move, board, history }) => {
+    // First move is special
+    if (history.length === 0) {
+      // Just has to be one of the three pawn moves
+      return move.kind === 'normal' && ['d2', 'e2', 'f2'].includes(move.from.toAlgebraic())
+    }
 
-    // TODO: rest of moves
-    const boardAfterMove = board.clone()
-    boardAfterMove.executeMove(move)
+    // Otherwise: "Whatever is the smallest possible distance to have after all moves, this has to be the new distance".
 
     // Distance between the kings after the proposed move. NB: the proposed move is not necessarily a king move!
-    const distanceAfter = boardAfterMove.kings.white.pythagoreanDistance(board.kings.black)
+    const distanceAfter = (() => {
+      const boardAfterMove = board.clone()
+      boardAfterMove.executeMove(move)
+      return boardAfterMove.kings.white.pythagoreanDistance(board.kings.black)
+    })()
 
+    // Best achievable distance
     const bestPossibleDistance = _.min(
       legalMoves_slow(board).map((move) => {
         const boardAfterMove = board.clone()
@@ -266,8 +272,20 @@ class SimpDiscord_Manos implements Challenge {
       })
     )
 
-    // All the rules are essentially just "whatever is the smallest possible distance to have after all moves, this has to be the new distance"
+    // ...and they have to match
     return distanceAfter === bestPossibleDistance
+  }
+
+  highlightSquares: Challenge['highlightSquares'] = ({ board, history }) => {
+    // On the first move, highlight the three movable pawns to prevent confusion
+    if (history.length === 0) {
+      return ['d2', 'e2', 'f2'].map((algebraic) => ({
+        coord: Coord.fromAlgebraic(algebraic),
+        color: 'blue',
+      }))
+    } else {
+      return []
+    }
   }
 }
 
