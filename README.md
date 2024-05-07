@@ -78,3 +78,11 @@ yarn dlx @yarnpkg/sdks vscode
 ```
 
 Then "Select TypeScript version" in VSCode (in a TS file buffer).
+
+### React typecheck errors
+
+```
+Type 'import(".../@types-react-npm-18.0.26-d708995a34-10c0.zip/node_modules/@types/react/index").ReactNode' is not assignable to type 'React.ReactNode'.
+```
+
+Try `yarn dedupe --check`.
