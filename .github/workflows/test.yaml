@@ -11,10 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+
+      - name: Get Node.js version
+        run: echo "NODE_VERSION=$(jq -r .volta.node package.json)" >> $GITHUB_ENV
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-      - run: pnpm i
+          node-version: '${{ env.NODE_VERSION }}'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
       - run: pnpm run check
+
       - run: pnpm run jest
