@@ -1,9 +1,8 @@
 # Yet unannounced in Chess Simp Discord
 
-* May 7, 2024: New challenge: Chess Simp Discord (manossef) -- "The Gay Challenge"
-
 # Already announced
 
+* May 7, 2024: New challenge: Chess Simp Discord (manossef) -- "The Gay Challenge"
 * May 5, 2024: New challenge: Chess Simp -- "This Is Why Chess Pieces Can Fly"
 * Sep 12, 2023: New challenge: Chess Simp -- "The Unending Cycle of Revenge"
 * Sep 12, 2023: Internal: keeping track of piece identity
