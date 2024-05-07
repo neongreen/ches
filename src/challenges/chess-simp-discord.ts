@@ -243,7 +243,7 @@ class SimpDiscord_Manos implements Challenge {
     uuid: '144d5348-37fb-41ff-9291-c2614243fd9b',
     title: '[manossef] The Gay Challenge',
     link: 'https://discord.com/channels/866701779155419206/1236461054255566848/1237450553374539908',
-    challenge: `Choose whatever move brings your king the closest (or at least the least far) to the opponent's king. Oh, and your first move has to let your king out.`,
+    challenge: `Approach him! Choose whatever move brings your king the closest (or at least the least far) to the opponent's king. Oh, and your first move has to let your king out.`,
     records: new Map([]),
   }
 
