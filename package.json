@@ -68,7 +68,8 @@
     "not op_mini all"
   ],
   "volta": {
-    "node": "20.5.1"
+    "node": "20.5.1",
+    "pnpm": "9.1.0"
   },
-  "packageManager": "yarn@4.2.1"
+  "packageManager": "pnpm@9.1.0"
 }

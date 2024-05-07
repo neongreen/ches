@@ -24,8 +24,8 @@ Proceed with the next section.
 ### Start
 
 ```bash
-yarn  # might be needed
-yarn dev
+pnpm i
+pnpm dev
 ```
 
 ### Debug
@@ -35,14 +35,14 @@ yarn dev
 To test `unmakeMove`, run:
 
 ```bash
-NODE_ENV=test yarn bench
-NODE_ENV=test yarn golden -s unrestricted
+NODE_ENV=test pnpm bench
+NODE_ENV=test pnpm golden -s unrestricted
 ```
 
 ### Typecheck and lint
 
 ```bash
-yarn check
+pnpm check
 ```
 
 ### Generating sample (golden) games
@@ -52,9 +52,9 @@ Useful to check that a refactoring didn't change anything (the engine is determi
 ```bash
 # Needs to be run from the root!
 
-yarn golden    # regenerate all
+pnpm golden    # regenerate all
 
-yarn golden -s <uuid1> -s <uuid2> ... # regenerate specific challenges
+pnpm golden -s <uuid1> -s <uuid2> ... # regenerate specific challenges
 ```
 
 ### Can't push huge Git objects
@@ -63,26 +63,10 @@ yarn golden -s <uuid1> -s <uuid2> ... # regenerate specific challenges
 git config --global http.postBuffer 524288000
 ```
 
-### Upgrading Yarn
-
-```bash
-yarn set version latest
-```
-
-### Upgrading TypeScript
-
-```bash
-yarn set version latest
-yarn add -D typescript
-yarn dlx @yarnpkg/sdks vscode
-```
-
-Then "Select TypeScript version" in VSCode (in a TS file buffer).
-
 ### React typecheck errors
 
 ```
 Type 'import(".../@types-react-npm-18.0.26-d708995a34-10c0.zip/node_modules/@types/react/index").ReactNode' is not assignable to type 'React.ReactNode'.
 ```
 
-Try `yarn dedupe --check`.
+Might be caused by having several react versions
