@@ -187,4 +187,16 @@ export class Coord {
   isSameColumn(to: Coord): boolean {
     return this.x === to.x
   }
+
+  /**
+   * Get a unit delta that will eventually get us to the target square, if it exists.
+   */
+  unitDeltaTowards(to: Coord): { x: 1 | 0 | -1; y: 1 | 0 | -1 } | null {
+    const dx = Math.sign(to.x - this.x) as -1 | 0 | 1
+    const dy = Math.sign(to.y - this.y) as -1 | 0 | 1
+    if (dx === 0 && dy === 0) return null
+    if (this.isSameColumn(to) || this.isSameRow(to) || this.isSameDiagonal(to))
+      return { x: dx, y: dy }
+    return null
+  }
 }
