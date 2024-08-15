@@ -246,6 +246,7 @@ class SimpDiscord_Manos implements Challenge {
     challenge: `Approach him! Choose whatever move brings your king the closest (or at least the least far) to the opponent's king. Oh, and your first move has to let your king out.`,
     records: new Map([
       [users.ManosSef.name, { when: new Date('2024-05-08'), depth: 2, moves: 23 }],
+      [users.Mendax.name, { when: new Date('2024-08-07'), depth: 2, moves: 27 }],
     ]),
   }
 

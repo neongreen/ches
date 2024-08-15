@@ -14,6 +14,7 @@ export class Simp_2024_05_01 implements Challenge {
       "Chess, but it's a platformer. Your pieces (not pawns) must always land directly above another piece/pawn.",
     records: new Map([
       [users.SenorFlamingo.name, { when: new Date('2024-05-06'), depth: 1, moves: 17 }],
+      [users.Mendax.name, { when: new Date('2024-08-07'), depth: 2, moves: 9 }],
     ]),
   }
 
