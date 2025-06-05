@@ -1,6 +1,7 @@
 # Ches
 
-A small little game I'm making
+A small little game I'm making.
+You can play at <https://ches.vercel.app>.
 
 ## Dev
 
@@ -15,8 +16,8 @@ Once you install both, open a new Terminal and do:
 
 ```bash
 corepack enable    # On Windows, has to be done from a "Run as Administrator" Terminal
-git clone https://github.com/neongreen/chess.git
-cd chess
+git clone https://github.com/neongreen/ches.git
+cd ches
 ```
 
 Proceed with the next section.
