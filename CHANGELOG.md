@@ -1,7 +1,6 @@
-# Yet unannounced in Chess Simp Discord
+# Changelog
 
-# Already announced
-
+* Jun 14, 2025: Added NPS display, thanks to @TampliteSK for nudging
 * May 7, 2024: Internal: migrated to pnpm and newer Next.js
 * May 7, 2024: New challenge: Chess Simp Discord (manossef) -- "The Gay Challenge"
 * May 5, 2024: New challenge: Chess Simp -- "This Is Why Chess Pieces Can Fly"
@@ -19,4 +18,4 @@
 * Aug 17, 2023: New challenge: Chess Simp -- "Poor Pawn Got Blundered 10 Times"
 * Aug 17, 2023: New challenge: Chess Simp -- "Chess, But I'm A Real Simp"
 
-# Aug 17, 2023 -- started the changelog
+## Aug 17, 2023 -- started the changelog

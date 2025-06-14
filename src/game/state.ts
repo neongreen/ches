@@ -38,11 +38,21 @@ export class GameState {
   updateBestMoveAndGameStatus(options: { searchDepth: number }) {
     if (this.chess.bestMove === null) {
       const startTime = performance.now()
+      this.chess.search.resetNodesCounter()
       const bestMove = this.chess.search.findBestMove(
         new EvalNode(this.chess.board),
         options.searchDepth
       )
-      this.chess.bestMove = { ...bestMove, time: (performance.now() - startTime) / 1000 }
+      const endTime = performance.now()
+      const timeElapsed = (endTime - startTime) / 1000
+      // Get the node count for NPS calculation
+      // See /docs/nps.md for details on node counting and NPS calculation
+      const nodesEvaluated = this.chess.search.getNodesEvaluated()
+      this.chess.bestMove = {
+        ...bestMove,
+        time: timeElapsed,
+        nodes: nodesEvaluated,
+      }
       this.chess.updateGameStatus()
       console.debug('Best move', this.chess.bestMove)
     }
