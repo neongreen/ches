@@ -89,6 +89,28 @@ export class Search {
   )
 
   /**
+   * Counter for the number of nodes evaluated in the current search.
+   * This is used to calculate Nodes Per Second (NPS).
+   *
+   * @see /docs/nps.md
+   */
+  private nodesEvaluated: number = 0
+
+  /**
+   * Reset the nodes counter
+   */
+  resetNodesCounter() {
+    this.nodesEvaluated = 0
+  }
+
+  /**
+   * Get the number of nodes evaluated in the current search
+   */
+  getNodesEvaluated() {
+    return this.nodesEvaluated
+  }
+
+  /**
    * Does the transposition table contain an entry for the given board?
    *
    * Calculating the state might be expensive, so we'll only do it if we have to.
@@ -163,6 +185,9 @@ export class Search {
     // If we have seen the position before, but the depth is not deep enough, we can still use the good move from the transposition table to order the moves. Specifically, we'll try that move first.
     const goodMove = transpositionTableEntry?.goodMove
 
+    // Increment node counter only if we're actually evaluating this position
+    this.nodesEvaluated++
+
     const quasiLegalMoves = quasiLegalOrderedMoves(node.board, goodMove || undefined)
 
     // https://en.wikipedia.org/wiki/Alpha–beta_pruning#Pseudocode
@@ -207,6 +232,8 @@ export class Search {
           ? { score: leafEvalNode(node), line: [] }
           : this.findBestMove(node, depth - 1, alpha, beta)
       node.unmakeMove()
+
+      this.nodesEvaluated++
 
       if (node.board.side === Color.White) {
         if (current.score > best.score) best = { ...current, move }
@@ -275,6 +302,9 @@ export class Search {
         move: transpositionTableEntry.goodMove && 'exists',
         score: transpositionTableEntry.score,
       }
+
+    // Increment node counter only if we're actually evaluating this position
+    this.nodesEvaluated++
 
     // Check if we can make any moves
     const legalMoveExists = quasiLegalOrderedMoves(node.board).some((move) => {

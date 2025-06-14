@@ -126,8 +126,19 @@ export function render(
     const statusText = match(state.chess.gameStatus)
       .with({ status: 'playing' }, () => {
         if (state.chess.bestMove === null) return 'Thinking...'
+        const score = state.chess.bestMove.score
         const evalTime = Math.round(state.chess.bestMove.time * 100) / 100
-        return `eval: ${renderScore(state.chess.bestMove.score)} (${evalTime}s)`
+        // Show nodes per second stats - see /docs/nps.md
+        const nodesPerSecond = Math.round(state.chess.bestMove.nodes / state.chess.bestMove.time)
+        let formattedNPS: string
+        if (nodesPerSecond >= 1_000_000) {
+          formattedNPS = (nodesPerSecond / 1_000_000).toFixed(1) + 'M'
+        } else if (nodesPerSecond >= 1_000) {
+          formattedNPS = (nodesPerSecond / 1_000).toFixed(0) + 'k'
+        } else {
+          formattedNPS = nodesPerSecond.toString()
+        }
+        return `eval: ${renderScore(score)} (${evalTime}s, ${formattedNPS} NPS)`
       })
       .with({ status: 'won', reason: 'checkmate' }, () => 'Checkmate. You won!')
       .with({ status: 'lost', reason: 'checkmate' }, () => 'Checkmate. You lost.')

@@ -29,6 +29,7 @@ export class Chess {
     score: Score // The score (eval) of the best move
     time: number // How much time was spent on the eval
     line: Move[]
+    nodes: number // Number of nodes evaluated
   } | null = null
 
   history: HistoryItem[] = []
