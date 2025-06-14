@@ -39,4 +39,8 @@ export const users = {
     name: 'SenorFlamingo',
     notes: 'senorflamingo, Simp Discord',
   },
+  Erix: {
+    name: 'Erix',
+    notes: '@erix_senpai, CNC Discord',
+  },
 }
