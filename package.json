@@ -66,10 +66,5 @@
     "defaults",
     "not IE 11",
     "not op_mini all"
-  ],
-  "volta": {
-    "node": "20.5.1",
-    "pnpm": "9.1.0"
-  },
-  "packageManager": "pnpm@9.1.0"
+  ]
 }
