@@ -7,15 +7,15 @@ You can play at <https://ches.vercel.app>.
 
 ### For absolute beginners
 
-You need to set up VSCode and Node.js:
+You need to set up these:
 
 * VSCode: https://code.visualstudio.com/
 * Node.js: https://nodejs.org/en/
+* pnpm: https://pnpm.io/installation
 
-Once you install both, open a new Terminal and do:
+Then open a new Terminal and do:
 
 ```bash
-corepack enable    # On Windows, has to be done from a "Run as Administrator" Terminal
 git clone https://github.com/neongreen/ches.git
 cd ches
 ```
