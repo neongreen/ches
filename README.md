@@ -36,8 +36,8 @@ pnpm dev
 To test `unmakeMove`, run:
 
 ```bash
-NODE_ENV=test pnpm bench
-NODE_ENV=test pnpm golden -s unrestricted
+pnpm bench:test
+pnpm golden:test -s unrestricted
 ```
 
 ### Typecheck and lint
