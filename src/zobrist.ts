@@ -38,7 +38,7 @@ export function zobristPiece(piece: MaybePiece, coord: Coord): Zobrist {
 export const zobristWhiteToMove = zobristRandom()
 
 assert(Castling.None === 0)
-const ZOBRIST_CASTLING = new Array(Castling.Any + 1).map((_) => zobristRandom())
+const ZOBRIST_CASTLING = Array.from({ length: Castling.Any + 1 }, () => zobristRandom())
 
 /** Get the Zobrist hash for a castling rights bitmask. */
 export function zobristCastling(castling: CastlingBitmask): Zobrist {
