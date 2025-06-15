@@ -36,8 +36,8 @@ pnpm dev
 To test `unmakeMove`, run:
 
 ```bash
-NODE_ENV=test pnpm bench
-NODE_ENV=test pnpm golden -s unrestricted
+pnpm bench:test
+pnpm golden:test -s unrestricted
 ```
 
 ### Typecheck and lint
@@ -56,6 +56,18 @@ Useful to check that a refactoring didn't change anything (the engine is determi
 pnpm golden    # regenerate all
 
 pnpm golden -s <uuid1> -s <uuid2> ... # regenerate specific challenges
+```
+
+### UCI interface
+
+```bash
+pnpm run --silent uci
+```
+
+Or with Mise:
+
+```bash
+mise run uci
 ```
 
 ### Can't push huge Git objects
