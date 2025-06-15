@@ -8,8 +8,10 @@
     "start": "next start",
     "check": "tsc --noEmit && echo '\u001b[32m✔ Typecheck OK\u001b[0m' && next lint",
     "test": "jest --watch",
-    "golden": "FILE=$(mktemp); touch $FILE; esbuild tools/golden.ts --bundle --platform=node --minify --define:process.env.NODE_ENV=\\\"${NODE_ENV:-production}\\\" > $FILE; node $FILE",
-    "bench": "FILE=$(mktemp); touch $FILE; esbuild tools/bench.ts --bundle --platform=node --minify --define:process.env.NODE_ENV=\\\"${NODE_ENV:-production}\\\" > $FILE; node $FILE"
+    "golden": "node scripts/esbuild-run.mjs tools/golden.ts --define:process.env.NODE_ENV=\"'production'\" --",
+    "golden:test": "node scripts/esbuild-run.mjs tools/golden.ts --define:process.env.NODE_ENV=\"'test'\" --",
+    "bench": "node scripts/esbuild-run.mjs tools/bench.ts --define:process.env.NODE_ENV=\"'production'\" --",
+    "bench:test": "node scripts/esbuild-run.mjs tools/bench.ts --define:process.env.NODE_ENV=\"'test'\" --"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
