@@ -300,12 +300,39 @@ export class Board {
     return this.unsafeAt(coord) === PieceEmpty
   }
 
+  unsafeIsEmpty(coord: Coord): boolean {
+    return this.unsafeAt(coord) === PieceEmpty
+  }
+
   /**
    * Is a square occupied? NB: returns undefined if the square is off the board.
    */
   isOccupied(coord: Coord): boolean | undefined {
     if (!coord.isValid()) return undefined
     return this.unsafeAt(coord) !== PieceEmpty
+  }
+
+  unsafeIsOccupied(coord: Coord): boolean {
+    return this.unsafeAt(coord) !== PieceEmpty
+  }
+
+  /**
+   * Keep going until we stumble upon a piece or fall off the board.
+   *
+   * @param start The starting square, assumed to be valid.
+   * @param delta The direction to move in.
+   */
+  unsafeFindPieceInDirection(
+    start: Coord,
+    delta: { x: number; y: number }
+  ): { piece: Piece; coord: Coord } | null {
+    let coord = start
+    while (true) {
+      coord = coord.shift(delta)
+      if (!coord.isValid()) return null
+      const piece = this.unsafeAt(coord)
+      if (piece !== PieceEmpty) return { piece, coord }
+    }
   }
 
   /**
