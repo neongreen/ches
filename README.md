@@ -71,3 +71,8 @@ Type 'import(".../@types-react-npm-18.0.26-d708995a34-10c0.zip/node_modules/@typ
 ```
 
 Might be caused by having several react versions
+
+### UCI engine
+
+See [docs/uci.md](docs/uci.md) for how to run the command-line engine and the self-play runner.
+
