@@ -27,4 +27,4 @@ jobs:
 
       - run: pnpm run check
 
-      - run: pnpm exec jest
+      - run: pnpm run test
