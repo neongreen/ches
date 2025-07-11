@@ -7,11 +7,13 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit && echo '\u001b[32m✔ Typecheck OK\u001b[0m' && next lint",
-    "test": "jest --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "golden": "node scripts/esbuild-run.mjs tools/golden.ts --define:process.env.NODE_ENV=\"'production'\" --",
     "golden:test": "node scripts/esbuild-run.mjs tools/golden.ts --define:process.env.NODE_ENV=\"'test'\" --",
     "bench": "node scripts/esbuild-run.mjs tools/bench.ts --define:process.env.NODE_ENV=\"'production'\" --",
-    "bench:test": "node scripts/esbuild-run.mjs tools/bench.ts --define:process.env.NODE_ENV=\"'test'\" --"
+    "bench:test": "node scripts/esbuild-run.mjs tools/bench.ts --define:process.env.NODE_ENV=\"'test'\" --",
+    "uci": "node scripts/esbuild-run.mjs tools/uci.ts --define:process.env.NODE_ENV=\"'production'\" --"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",

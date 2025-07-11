@@ -1,4 +1,34 @@
 # When you change the tool versions, update test.yaml as well
 [tools]
+bun = "1.2.18"
 node = "20.5.1"
 pnpm = "10.12.1"
+
+[tasks."test"]
+description = "Run the tests"
+run = "pnpm run --silent test"
+
+[tasks."uci"]
+description = "Run the UCI interface"
+quiet = true
+run = "pnpm run --silent uci"
+
+[tasks."uci:build:windows:x64"]
+description = "Build the UCI engine executable for Windows (x64)"
+run = "bun build --compile --target=bun-windows-x64-modern ./tools/uci.ts --outfile build/ches-windows-x64.exe"
+
+[tasks."uci:build:linux:x64"]
+description = "Build the UCI engine executable for Linux (x64)"
+run = "bun build --compile --target=bun-linux-x64 ./tools/uci.ts --outfile build/ches-linux-x64"
+
+[tasks."uci:build:linux:arm64"]
+description = "Build the UCI engine executable for Linux (ARM)"
+run = "bun build --compile --target=bun-linux-arm64 ./tools/uci.ts --outfile build/ches-linux-arm64"
+
+[tasks."uci:build:macos:x64"]
+description = "Build the UCI engine executable for macOS (x64)"
+run = "bun build --compile --target=bun-darwin-x64 ./tools/uci.ts --outfile build/ches-macos-x64"
+
+[tasks."uci:build:macos:arm64"]
+description = "Build the UCI engine executable for macOS (Apple Silicon)"
+run = "bun build --compile --target=bun-darwin-arm64 ./tools/uci.ts --outfile build/ches-macos-arm64"
