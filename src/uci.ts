@@ -1,6 +1,6 @@
 import readline from 'node:readline'
 import { Board } from '@/board'
-import { Search } from '@/eval/search'
+import { Search, SearchManager } from '@/eval/search'
 import { EvalNode } from '@/eval/node'
 import { Coord } from '@/utils/coord'
 import { Move } from '@/move'
@@ -92,6 +92,8 @@ export function startUci() {
   const rl = readline.createInterface({ input: process.stdin })
   const uciDepthDefault = 5
   let uciDepth: number = uciDepthDefault
+  const uciNodeLimitDefault = 1_000_000
+  let uciNodeLimit: number = uciNodeLimitDefault
 
   rl.on('line', (line) => {
     console.log(`>>> Received: ${line}`)
@@ -102,6 +104,9 @@ export function startUci() {
         console.log('id name Ches')
         console.log('id author Emily')
         console.log(`option name Depth type spin default ${uciDepthDefault} min 1 max 10`)
+        console.log(
+          `option name NodeLimit type spin default ${uciNodeLimitDefault} min 1 max 1000000000`
+        )
         console.log('uciok')
         break
       case 'isready':
@@ -138,7 +143,7 @@ export function startUci() {
       case 'go': {
         const i = tokens.indexOf('depth')
         if (i !== -1) uciDepth = parseInt(tokens[i + 1])
-        const result = search.findBestMove(new EvalNode(board), uciDepth)
+        const result = search.findBestMove(new EvalNode(board), uciDepth, new SearchManager(uciNodeLimit))
         const best = result.move ? moveToUci(result.move) : '(none)'
         console.log('bestmove ' + best)
         break
@@ -148,6 +153,9 @@ export function startUci() {
         const value = tokens[4]
         if (name === 'Depth') {
           uciDepth = parseInt(value)
+        }
+        if (name === 'NodeLimit') {
+          uciNodeLimit = parseInt(value)
         }
         console.log('info string setoption command received: ' + name + ' = ' + value)
         break

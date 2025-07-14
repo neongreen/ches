@@ -79,7 +79,7 @@ function moveOrder(board: Board, move: Move, goodMove?: Move): number {
  *
  * This algorithm uses *alpha-beta pruning* to avoid evaluating moves that are already worse than the best move found so far. For example, if we already found a move X that gives us an eval of 10 (`alpha`), and now we are evaluating a move Y and the opponent has a response that results in eval 9, we can stop evaluating Y.
  */
-class SearchManager {
+export class SearchManager {
   nodeLimit: number
   nodes: number
   stop: boolean
@@ -175,14 +175,16 @@ export class Search {
    */
   findBestMove(
     node: EvalNode,
-    depth: number
+    depth: number,
+    manager?: SearchManager
   ): { move: Move | null; score: Score; line: Move[] } {
     let best = { move: null as Move | null, score: 0, line: [] as Move[] }
     for (let i = 1; i <= depth; i++) {
-      const current = this.findBestMoveAtDepth(node, i)
+      const current = this.findBestMoveAtDepth(node, i, -Infinity, Infinity, manager)
       if (current.move) {
         best = current
       }
+      if (manager?.stop) break
     }
     return best
   }
