@@ -19,6 +19,7 @@ type TranspositionTableEntry = {
   depth: number
   goodMove: Move | null
   line: Move[]
+  flag: 'exact' | 'lower' | 'upper'
 }
 
 /**
@@ -78,6 +79,18 @@ function moveOrder(board: Board, move: Move, goodMove?: Move): number {
  *
  * This algorithm uses *alpha-beta pruning* to avoid evaluating moves that are already worse than the best move found so far. For example, if we already found a move X that gives us an eval of 10 (`alpha`), and now we are evaluating a move Y and the opponent has a response that results in eval 9, we can stop evaluating Y.
  */
+class SearchManager {
+  nodeLimit: number
+  nodes: number
+  stop: boolean
+
+  constructor(nodeLimit: number) {
+    this.nodeLimit = nodeLimit
+    this.nodes = 0
+    this.stop = false
+  }
+}
+
 export class Search {
   /**
    * A transposition table, storing previously seen positions.
@@ -139,7 +152,7 @@ export class Search {
    */
   evaluateBoard(board: Board, depth: number): Score {
     if (depth === 0) return this.evaluateDepth0(new EvalNode(board)).score
-    else return this.findBestMove(new EvalNode(board), depth).score
+    else return this.findBestMoveAtDepth(new EvalNode(board), depth).score
   }
 
   /**
@@ -158,16 +171,42 @@ export class Search {
   /**
    * What is the best move for the current side?
    *
+   * This function is a wrapper around `findBestMoveAtDepth` that implements iterative deepening.
+   */
+  findBestMove(
+    node: EvalNode,
+    depth: number
+  ): { move: Move | null; score: Score; line: Move[] } {
+    let best = { move: null as Move | null, score: 0, line: [] as Move[] }
+    for (let i = 1; i <= depth; i++) {
+      const current = this.findBestMoveAtDepth(node, i)
+      if (current.move) {
+        best = current
+      }
+    }
+    return best
+  }
+
+  /**
    * @param depth [>= 1] How many moves to look ahead. At depth=1, just eval all the moves.
    * @param alpha The minimum eval white can force (white wants to maximize)
    * @param beta The maximum eval black can force (black wants to minimize)
    */
-  findBestMove(
+  private findBestMoveAtDepth(
     node: EvalNode,
     depth: number,
     alpha = -Infinity,
-    beta = Infinity
+    beta = Infinity,
+    manager?: SearchManager
   ): { move: Move | null; score: Score; line: Move[] } {
+    if (manager) {
+      manager.nodes++
+      if (manager.nodes > manager.nodeLimit) {
+        manager.stop = true
+        return { move: null, score: alpha, line: [] }
+      }
+    }
+
     // Threefold repetition is a draw
     if (node.board.isThreefoldRepetition()) return { move: null, score: 0, line: [] }
 
@@ -230,8 +269,10 @@ export class Search {
       const current =
         depth === 1
           ? { score: leafEvalNode(node), line: [] }
-          : this.findBestMove(node, depth - 1, alpha, beta)
+          : this.findBestMoveAtDepth(node, depth - 1, alpha, beta, manager)
       node.unmakeMove()
+
+      if (manager?.stop) return { move: null, score: alpha, line: [] }
 
       this.nodesEvaluated++
 
@@ -272,14 +313,19 @@ export class Search {
     }
 
     // Update the transposition table (only if depth>1 because we want to save memory)
-    if (depth > 1)
+    if (depth > 1) {
+      let flag: TranspositionTableEntry['flag'] = 'exact'
+      if (best.score <= alpha) flag = 'upper'
+      else if (best.score >= beta) flag = 'lower'
       this.writeTransposition(hash, {
         state: node.board.state(),
         depth,
         goodMove: best.move,
         score: best.score,
         line: best.line,
+        flag,
       })
+    }
 
     return best
   }
