@@ -216,10 +216,29 @@ export class Search {
     const hash = node.board.hash
     const transpositionTableEntry = this.probeTransposition(hash, () => node.board.state())
     if (transpositionTableEntry && transpositionTableEntry.depth >= depth) {
-      return {
-        move: transpositionTableEntry.goodMove,
-        score: transpositionTableEntry.score,
-        line: transpositionTableEntry.line,
+      switch (transpositionTableEntry.flag) {
+        case 'exact':
+          return {
+            move: transpositionTableEntry.goodMove,
+            score: transpositionTableEntry.score,
+            line: transpositionTableEntry.line,
+          }
+        case 'lower':
+          if (transpositionTableEntry.score >= beta)
+            return {
+              move: transpositionTableEntry.goodMove,
+              score: transpositionTableEntry.score,
+              line: transpositionTableEntry.line,
+            }
+          break
+        case 'upper':
+          if (transpositionTableEntry.score <= alpha)
+            return {
+              move: transpositionTableEntry.goodMove,
+              score: transpositionTableEntry.score,
+              line: transpositionTableEntry.line,
+            }
+          break
       }
     }
 
