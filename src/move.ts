@@ -1,5 +1,5 @@
 import { Board } from '@/board'
-import { isKingAttackedByColor } from '@/move/attacked'
+import { isKingAttackedByColor, isKingAttackedByPiece } from '@/move/attacked'
 import {
   Color,
   MaybePiece,
@@ -7,7 +7,11 @@ import {
   PieceEmpty,
   PieceType,
   PieceTypeEmpty,
+  isBishop,
   isPawn,
+  isQueen,
+  isRook,
+  pieceColor,
   pieceToLetter,
   pieceType,
   pieceTypeToLetter,
@@ -65,6 +69,33 @@ export function isInCheck(board: Board, color: Color): boolean {
   } else {
     return isKingAttackedByColor(board, Color.White, board.kings.black)
   }
+}
+
+/**
+ * Determine if the current side is in check after the opponent's (legal) move.
+ *
+ * Faster than `isInCheck` in most cases.
+ */
+export function isInCheckAfterOpponentsMove(board: Board, move: Move): boolean {
+  // En passant and castling are rare enough that we can just use normal `isInCheck` (recommended by chessprogramming)
+  return match(move)
+    .with({ kind: P.union('enPassant', 'castling') }, () => isInCheck(board, board.side))
+    .with({ kind: 'normal' }, (move) => {
+      // The king might be attacked by the moved piece
+      if (isKingAttackedByPiece(board, move.to)) return true
+      // The king might also be attacked by a piece that was behind the moved piece. There is at most one ray that goes through the moved piece and the king, so we only need to check in one direction.
+      const king = board.side === Color.White ? board.kings.white : board.kings.black
+      const directionDelta = king.unitDeltaTowards(move.from)
+      if (directionDelta === null) return false
+      const villain = board.unsafeFindPieceInDirection(move.from, directionDelta)
+      if (villain === null || pieceColor(villain.piece) === board.side) return false
+      if (directionDelta.x === 0 || directionDelta.y === 0) {
+        return isRook(villain.piece) || isQueen(villain.piece)
+      } else {
+        return isBishop(villain.piece) || isQueen(villain.piece)
+      }
+    })
+    .exhaustive()
 }
 
 /**
