@@ -133,6 +133,18 @@ export const sketch = (p5: P5CanvasInstance<SketchProps & GameProps>): GameMetho
       .with({ type: 'doNothing' }, () => {
         return
       })
+      .with({ type: 'multiplayerMove' }, () => {
+        // Handled by multiplayer sketch
+        return
+      })
+      .with({ type: 'multiplayerBoardState' }, () => {
+        // Handled by multiplayer sketch
+        return
+      })
+      .with({ type: 'multiplayerReset' }, () => {
+        // Handled by multiplayer sketch
+        return
+      })
       .exhaustive()
   }
 

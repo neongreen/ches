@@ -289,6 +289,14 @@ export default function Home() {
               <Button onClick={leaderboard.open} leftIcon="🏆" color="yellow">
                 Leaderboard
               </Button>
+              <Button 
+                onClick={async () => await router.push('/multiplayer')} 
+                leftIcon="👥" 
+                color="violet"
+                variant="light"
+              >
+                Multiplayer
+              </Button>
             </Group>
 
             <div style={{ paddingBottom: '1rem' }}>

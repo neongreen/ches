@@ -1,0 +1,1 @@
+export { getShareableLink } from './shareableLink'

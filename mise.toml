@@ -4,9 +4,17 @@ bun = "1.2.18"
 node = "20.5.1"
 pnpm = "10.12.1"
 
+[tasks.dev]
+description = "Run dev"
+run = "pnpm run --quiet dev"
+
+[tasks.check]
+description = "Run linting and type checking"
+run = "pnpm run --quiet check"
+
 [tasks."test"]
 description = "Run the tests"
-run = "pnpm run --silent test"
+run = "pnpm run --quiet test"
 
 [tasks."uci"]
 description = "Run the UCI interface"

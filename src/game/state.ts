@@ -2,13 +2,14 @@ import { EvalNode } from '@/eval/node'
 import { Move } from '@/move'
 import { Coord } from '@/utils/coord'
 import { Chess } from './chess'
+import { IRenderableGameState } from './render-types'
 
 /**
  * Internal state of the sketch. Not exposed to React.
  *
  * This should be enough to render the game.
  */
-export class GameState {
+export class GameState implements IRenderableGameState {
   /** Chess state. */
   chess: Chess
 
