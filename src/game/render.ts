@@ -1,6 +1,6 @@
 import { P5CanvasInstance, SketchProps } from '@p5-wrapper/react'
 import { GameProps } from './types'
-import { GameState } from './state'
+import { IRenderableGameState } from './render-types'
 import { Board } from '@/board'
 import { DrawConstants } from '@/draw/constants'
 import { drawPiece, drawDraggedPiece } from '@/draw/piece'
@@ -11,7 +11,7 @@ import { match } from 'ts-pattern'
 
 export function render(
   p5: P5CanvasInstance<SketchProps & GameProps>,
-  state: GameState,
+  state: IRenderableGameState,
   vars: GameProps
 ) {
   // Chess.com colors
@@ -31,7 +31,7 @@ export function render(
     const highlights =
       state.chess.challenge?.highlightSquares?.({
         board: state.chess.board,
-        identity: state.chess.identity,
+        identity: state.chess.identity!,
         history: state.chess.history,
       }) ?? []
     p5.push()
